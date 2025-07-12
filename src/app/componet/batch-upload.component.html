@@ -1,0 +1,76 @@
+<!-- File: src/app/componet/batch-upload.component.html -->
+
+<div class="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
+
+  <h2 class="text-2xl font-bold text-center mb-6">
+    <ng-container [ngSwitch]="batchState">
+        <span *ngSwitchCase="'idle'">Select Files for Batch Upload</span>
+        <span *ngSwitchCase="'processing'">Uploading Batch...</span>
+        <span *ngSwitchCase="'success'">Batch Upload Complete!</span>
+        <span *ngSwitchCase="'error'">Batch Upload Failed</span>
+    </ng-container>
+  </h2>
+
+  <!-- Idle State: File Selection -->
+  <div *ngIf="batchState === 'idle'">
+    <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-500 transition-colors"
+         (click)="fileInput.click()" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+      <input type="file" #fileInput (change)="onFilesSelected($event)" class="hidden" multiple>
+      <p class="text-gray-500">Drag & Drop your files here</p>
+      <p class="text-gray-400 text-sm">or click to select</p>
+    </div>
+  </div>
+
+  <!-- File List (visible once files are selected) -->
+  <div *ngIf="files.length > 0 && (batchState === 'idle' || batchState === 'processing')" class="space-y-4 mt-4">
+    <div *ngFor="let f of files" class="p-4 border rounded-lg bg-gray-50 flex items-center space-x-4">
+      <!-- Icon -->
+      <div class="shrink-0">
+        <svg *ngIf="f.state === 'pending'" class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        <svg *ngIf="f.state === 'uploading'" class="w-8 h-8 text-blue-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 9a9 9 0 0114.65-5.35M20 15a9 9 0 01-14.65 5.35"></path></svg>
+        <svg *ngIf="f.state === 'success'" class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <svg *ngIf="f.state === 'error'" class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      </div>
+      <!-- File Details & Progress -->
+      <div class="flex-grow">
+        <p class="font-semibold text-gray-800 break-all">{{ f.file.name }}</p>
+        <p class="text-sm text-gray-500">{{ f.file.size / 1024 / 1024 | number:'1.2-2' }} MB</p>
+        <mat-progress-bar *ngIf="f.state === 'uploading'" mode="determinate" [value]="f.progress" class="mt-1"></mat-progress-bar>
+        <p *ngIf="f.state === 'error'" class="text-xs text-red-600 mt-1">{{ f.error }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Button -->
+  <button *ngIf="files.length > 0 && batchState === 'idle'" (click)="onUploadBatch()" class="w-full mt-6 bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+    Upload {{ files.length }} File(s)
+  </button>
+
+  <!-- Success State -->
+  <div *ngIf="batchState === 'success'">
+    <div class="p-4 bg-green-100 border-l-4 border-green-500 text-green-800 rounded-lg">
+      <strong class="font-bold">Success!</strong>
+      <p class="block">Your batch of files is ready to be shared.</p>
+      <div class="flex items-center space-x-2 mt-4">
+        <input type="text" [value]="finalBatchLink" readonly class="w-full p-2 border border-green-300 rounded bg-white text-gray-700 focus:outline-none">
+        <button (click)="copyLink(finalBatchLink!)" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shrink-0">
+          Copy Link
+        </button>
+      </div>
+    </div>
+    <button (click)="reset()" class="w-full mt-6 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600">
+      Upload Another Batch
+    </button>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="batchState === 'error' && isUploadFinished">
+     <div class="p-4 bg-red-100 border-l-4 border-red-500 text-red-800 rounded">
+        <strong class="font-bold">An Error Occurred</strong>
+        <p>Some or all files failed to upload. Please check the status above.</p>
+     </div>
+     <button (click)="reset()" class="w-full mt-6 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600">
+        Try Again
+     </button>
+  </div>
+</div>

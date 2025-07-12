@@ -16,6 +16,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { BatchUploadComponent } from './componet/batch-upload.component';
+import { BatchDownloadComponent } from './componet/batch-download.component';
+
 
 @NgModule({
   declarations: [
@@ -25,7 +28,9 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     LoginComponent,
     RegisterComponent,
     DashboardComponent,
-    HeaderComponent
+    HeaderComponent,
+    BatchUploadComponent,
+    BatchDownloadComponent
   ],
   imports: [
     BrowserModule,
