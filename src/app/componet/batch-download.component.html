@@ -5,10 +5,13 @@
 
     <div class="flex justify-between items-center mb-6 border-b pb-4">
         <h2 class="text-2xl font-bold text-gray-800">Files Ready for Download</h2>
-        <button (click)="downloadAll(files)"
-                class="px-4 py-2 bg-blue-600 text-white font-semibold text-sm rounded-lg hover:bg-blue-700 transition-colors duration-300 shrink-0">
-          Download All
-        </button>
+        <!-- ### THIS IS THE MODIFIED PART ### -->
+        <!-- It's now a direct link to the backend zip endpoint -->
+        <a [href]="batchUploadService.batchApiUrl + '/download-zip/' + batchId"
+           class="px-4 py-2 bg-blue-600 text-white font-semibold text-sm rounded-lg hover:bg-blue-700 transition-colors duration-300 shrink-0">
+          Download All (ZIP)  
+        </a>
+        <!-- ### END OF MODIFIED PART ### -->
     </div>
 
     <!-- List of files -->

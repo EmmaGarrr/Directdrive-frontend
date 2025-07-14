@@ -43,7 +43,7 @@ export interface IFileMetadata {
   providedIn: 'root'
 })
 export class BatchUploadService {
-  private batchApiUrl = `${environment.apiUrl}/api/v1/batch`;
+  public batchApiUrl = `${environment.apiUrl}/api/v1/batch`;
   private fileApiUrl = `${environment.apiUrl}/api/v1`; // For constructing download links
 
   constructor(private http: HttpClient) { }
