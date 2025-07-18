@@ -70,8 +70,9 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'download/:id', component: DownloadComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-  { path: '**', redirectTo: '' },
-  { path: 'admin', component: AdminPanelComponent }
+  { path: 'admin', component: AdminPanelComponent },
+  { path: '**', redirectTo: '' }
+  
 ];
 
 @NgModule({
