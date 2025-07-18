@@ -18,6 +18,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { BatchUploadComponent } from './componet/batch-upload.component';
 import { BatchDownloadComponent } from './componet/batch-download.component';
+import { AdminPanelComponent } from './admin-panel/admin-panel.component';
 
 
 @NgModule({
@@ -30,7 +31,8 @@ import { BatchDownloadComponent } from './componet/batch-download.component';
     DashboardComponent,
     HeaderComponent,
     BatchUploadComponent,
-    BatchDownloadComponent
+    BatchDownloadComponent,
+    AdminPanelComponent
   ],
   imports: [
     BrowserModule,

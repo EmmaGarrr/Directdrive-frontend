@@ -1,0 +1,10 @@
+<!-- File: src/app/admin-panel/admin-panel.component.html -->
+<div class="admin-container">
+  <h1>Admin Panel - Live Event Log</h1>
+  <p>Watching for real-time events from the backend...</p>
+  <div class="log-container">
+    <div *ngFor="let event of events" class="log-entry">
+      {{ event }}
+    </div>
+  </div>
+</div>

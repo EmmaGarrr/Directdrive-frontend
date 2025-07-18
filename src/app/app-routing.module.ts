@@ -60,6 +60,7 @@ import { DashboardComponent } from './componet/dashboard/dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
 import { BatchUploadComponent } from './componet/batch-upload.component'; // <--- ADD THIS IMPORT
 import { BatchDownloadComponent } from './componet/batch-download.component';
+import { AdminPanelComponent } from './admin-panel/admin-panel.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -69,7 +70,8 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'download/:id', component: DownloadComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-  { path: '**', redirectTo: '' } // Wildcard route
+  { path: '**', redirectTo: '' },
+  { path: 'admin', component: AdminPanelComponent }
 ];
 
 @NgModule({
