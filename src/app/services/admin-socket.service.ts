@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { Subject } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,8 @@ export class AdminSocketService {
   public connect(token: string): void {
     if (!this.socket$ || this.socket$.closed) {
       // Use wss:// for your secure domain
-      const wsUrl = `wss://api.mfcnextgen.com/ws_admin?token=${token}`;
+      // const wsUrl = `wss://api.mfcnextgen.com/ws_admin?token=${token}`;
+      const wsUrl = `${environment.wsUrl}/../ws_admin?token=${token}`; 
       this.socket$ = webSocket(wsUrl);
 
       this.socket$.subscribe(

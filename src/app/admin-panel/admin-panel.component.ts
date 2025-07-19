@@ -9,7 +9,8 @@ import { AdminSocketService } from '../services/admin-socket.service';
 })
 export class AdminPanelComponent implements OnInit, OnDestroy {
   public events: string[] = [];
-  private readonly adminToken = 'your_super_secret_admin_token'; // Same as in main.py
+  // private readonly adminToken = 'your_super_secret_admin_token'; // Same as in main.py
+  private readonly adminToken = 'some_very_secret_and_long_random_string_12345';
 
   constructor(private adminSocketService: AdminSocketService) { }
 
