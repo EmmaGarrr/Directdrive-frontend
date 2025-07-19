@@ -17,10 +17,15 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.adminSocketService.connect(this.adminToken);
     this.adminSocketService.messages$.subscribe(
-      (message) => {
-        this.events.unshift(message); // Add new messages to the top of the list
+    (data: any) => { // 'data' is our JSON object, e.g., { type: '...', message: '...' }
+      
+      // Check if the object and the message property exist
+      if (data && data.message) {
+        // Add ONLY the message string to our events array
+        this.events.unshift(data.message); 
       }
-    );
+    }
+  );
   }
 
   ngOnDestroy(): void {

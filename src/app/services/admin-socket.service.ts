@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 })
 export class AdminSocketService {
   private socket$: WebSocketSubject<any> | null = null;
-  public messages$ = new Subject<string>();
+  public messages$ = new Subject<any>();
 
   constructor() { }
 
