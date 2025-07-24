@@ -43,9 +43,15 @@
         <p class="text-center font-mono text-sm mt-1">{{ uploadProgress }}%</p>
       </div>
     </div>
-    <!-- The upload button is now inside the preview box -->
+    <!-- Upload and Cancel buttons -->
     <button *ngIf="currentState === 'selected'" (click)="onUploadSingle()" class="ml-4 px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 shrink-0">
       Upload
+    </button>
+    <button *ngIf="currentState === 'uploading' && !isCancelling" (click)="onCancelUpload()" class="ml-4 px-4 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 shrink-0">
+      Cancel
+    </button>
+    <button *ngIf="currentState === 'uploading' && isCancelling" disabled class="ml-4 px-4 py-2 bg-gray-400 text-white rounded-lg font-semibold cursor-not-allowed shrink-0">
+      Cancelling...
     </button>
   </div>
   <!-- #################### END OF MODIFIED BLOCK ##################### -->
