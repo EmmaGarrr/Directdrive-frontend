@@ -1,7 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { UploadService, UploadEvent } from '../../shared/services/upload.service';
 import { Subscription, forkJoin, Observable, Observer, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BatchUploadService, IBatchFileInfo } from '../../shared/services/batch-upload.service';
 import { environment } from '../../../environments/environment';
@@ -124,14 +123,24 @@ export class HomeComponent implements OnDestroy {
       this.currentWebSocket = undefined;
     }
     
-    // Update UI state
-    this.currentState = 'cancelled';
-    this.uploadProgress = 0;
-    this.snackBar.open('Upload cancelled', 'Close', { duration: 3000 });
+    // Show cancellation message
+    this.snackBar.open('Upload cancelled successfully', 'Close', { duration: 3000 });
     
+    // Reset all UI state properties after a brief delay for user feedback
     setTimeout(() => {
+      this.currentState = 'idle';
+      this.selectedFile = null;
+      this.uploadProgress = 0;
+      this.finalDownloadLink = null;
+      this.errorMessage = null;
       this.isCancelling = false;
-    }, 1000);
+      
+      // Clear file input if it exists
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
+    }, 500);
   }
 
   // Batch upload methods
