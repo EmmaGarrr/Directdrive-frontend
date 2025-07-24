@@ -495,13 +495,14 @@
 //   }
 // }
 
-// FINAL CORRECTED File: src/app/componet/home/home.component.ts
-
 import { Component, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import { UploadService, UploadEvent } from '../../shared/services/upload.service';
-import { Subscription, forkJoin, Observable, Observer } from 'rxjs';
+import { Subscription, forkJoin, Observable, Observer, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BatchUploadService, IBatchFileInfo } from '../../shared/services/batch-upload.service';
+import { AuthService, User } from '../../services/auth.service';
 import { environment } from '../../../environments/environment';
 
 interface IFileState {
