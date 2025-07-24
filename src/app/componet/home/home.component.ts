@@ -552,13 +552,13 @@ export class HomeComponent implements OnDestroy {
     // Subscribe to authentication state
     this.authService.isAuthenticated$.pipe(
       takeUntil(this.destroy$)
-    ).subscribe(isAuth => {
+    ).subscribe((isAuth: boolean) => {
       this.isAuthenticated = isAuth;
     });
 
     this.authService.currentUser$.pipe(
       takeUntil(this.destroy$)
-    ).subscribe(user => {
+    ).subscribe((user: User | null) => {
       this.currentUser = user;
     });
   }
