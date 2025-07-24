@@ -8,6 +8,7 @@ import { HomeComponent } from './componet/home/home.component';
 import { DownloadComponent } from './componet/download/download.component';
 import { LoginComponent } from './componet/login/login.component';
 import { RegisterComponent } from './componet/register/register.component';
+import { ProfileComponent } from './componet/profile/profile.component';
 import { DashboardComponent } from './componet/dashboard/dashboard.component';
 import { HeaderComponent } from './shared/component/header/header.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
@@ -15,6 +16,13 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCardModule } from '@angular/material/card';
+import { MatDialogModule } from '@angular/material/dialog';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { BatchUploadComponent } from './componet/batch-upload.component';
 import { BatchDownloadComponent } from './componet/batch-download.component';
@@ -28,6 +36,7 @@ import { AdminPanelComponent } from './admin-panel/admin-panel.component';
     DownloadComponent,
     LoginComponent,
     RegisterComponent,
+    ProfileComponent,
     DashboardComponent,
     HeaderComponent,
     BatchUploadComponent,
@@ -41,7 +50,14 @@ import { AdminPanelComponent } from './admin-panel/admin-panel.component';
     ReactiveFormsModule,
     BrowserAnimationsModule,
     MatProgressBarModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatCardModule,
+    MatDialogModule
   ],
   providers: [
     provideAnimationsAsync(),
