@@ -117,10 +117,12 @@ export class HomeComponent implements OnDestroy {
       this.uploadSubscription = undefined;
     }
     
-    // Close WebSocket connection if available
-    if (this.currentWebSocket) {
-      this.currentWebSocket.close();
-      this.currentWebSocket = undefined;
+    // Use upload service to cancel WebSocket connection
+    const cancelled = this.uploadService.cancelUpload();
+    if (cancelled) {
+      console.log('[HomeComponent] Upload cancelled via service');
+    } else {
+      console.log('[HomeComponent] No active upload to cancel');
     }
     
     // Show cancellation message

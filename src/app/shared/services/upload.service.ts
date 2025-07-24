@@ -265,6 +265,7 @@ interface InitiateUploadResponse {
 export class UploadService {
   private apiUrl = environment.apiUrl;
   private wsUrl = environment.wsUrl;
+  private currentWebSocket?: WebSocket;
 
   constructor(private http: HttpClient) { }
 
@@ -288,6 +289,7 @@ export class UploadService {
           
           console.log(`[Uploader] Connecting to WebSocket: ${finalWsUrl}`);
           const ws = new WebSocket(finalWsUrl);
+          this.currentWebSocket = ws; // Store reference for cancellation
           
           ws.onopen = () => {
             console.log(`[Uploader WS] Connection opened for ${fileId}. Starting file stream.`);
@@ -307,10 +309,12 @@ export class UploadService {
 
           ws.onerror = (error) => {
             console.error('[Uploader WS] Error:', error);
+            this.currentWebSocket = undefined;
             observer.error({ type: 'error', value: 'Connection to server failed.' });
           };
 
           ws.onclose = (event) => {
+            this.currentWebSocket = undefined;
             if (!event.wasClean) {
                 observer.error({ type: 'error', value: 'Lost connection to server during upload.' });
             } else {
@@ -319,18 +323,34 @@ export class UploadService {
           };
 
           return () => {
-            if (ws.readyState === WebSocket.OPEN) {
+            if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
               ws.close();
             }
+            this.currentWebSocket = undefined;
           };
         });
       }),
-      catchError(err => {
-        console.error('HTTP Initiation failed', err);
-        const errorMsg = err.error?.detail || 'Could not initiate upload with the server.';
-        return throwError(() => ({ type: 'error', value: errorMsg }));
+      catchError(error => {
+        console.error('[Uploader] Upload failed:', error);
+        this.currentWebSocket = undefined;
+        return throwError(() => ({ type: 'error', value: 'Upload failed. Please try again.' }));
       })
     );
+  }
+
+  /**
+   * Cancel current upload by closing WebSocket connection
+   */
+  cancelUpload(): boolean {
+    if (this.currentWebSocket && 
+        (this.currentWebSocket.readyState === WebSocket.OPEN || 
+         this.currentWebSocket.readyState === WebSocket.CONNECTING)) {
+      console.log('[Uploader] Cancelling upload - closing WebSocket');
+      this.currentWebSocket.close();
+      this.currentWebSocket = undefined;
+      return true;
+    }
+    return false;
   }
 
   private initiateUpload(fileInfo: { filename: string; size: number; content_type: string; }): Observable<InitiateUploadResponse> {
