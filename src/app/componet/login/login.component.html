@@ -1,1 +1,94 @@
-<p>login works!</p>
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8">
+    <!-- Header -->
+    <div class="text-center">
+      <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+        Sign in to DirectDrive
+      </h2>
+      <p class="mt-2 text-sm text-gray-600">
+        Access your secure file storage
+      </p>
+    </div>
+
+    <!-- Login Form -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="mt-8 space-y-6">
+      <div class="space-y-4">
+        <!-- Email Field -->
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Email address</mat-label>
+          <input matInput 
+                 type="email" 
+                 formControlName="email" 
+                 placeholder="Enter your email"
+                 [class.mat-form-field-invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+          <mat-icon matSuffix>email</mat-icon>
+          <mat-error *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+            {{ getEmailErrorMessage() }}
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Password Field -->
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Password</mat-label>
+          <input matInput 
+                 [type]="hidePassword ? 'password' : 'text'" 
+                 formControlName="password" 
+                 placeholder="Enter your password"
+                 [class.mat-form-field-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+            {{ getPasswordErrorMessage() }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Submit Button -->
+      <div>
+        <button mat-raised-button 
+                color="primary" 
+                type="submit" 
+                class="w-full" 
+                [disabled]="!loginForm.valid || loading">
+          <span *ngIf="loading" class="flex items-center justify-center">
+            <mat-spinner diameter="20" class="mr-2"></mat-spinner>
+            Signing in...
+          </span>
+          <span *ngIf="!loading">Sign in</span>
+        </button>
+      </div>
+
+      <!-- Register Link -->
+      <div class="text-center">
+        <p class="text-sm text-gray-600">
+          Don't have an account?
+          <button type="button" 
+                  mat-button 
+                  color="primary" 
+                  (click)="navigateToRegister()"
+                  class="ml-1">
+            Create one here
+          </button>
+        </p>
+      </div>
+    </form>
+
+    <!-- Additional Info -->
+    <div class="mt-6 text-center">
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div class="flex items-center justify-center">
+          <mat-icon class="h-5 w-5 text-blue-400 mr-2">info</mat-icon>
+          <div class="text-sm text-blue-700">
+            <p class="font-medium">Authenticated users get:</p>
+            <ul class="mt-1 text-xs list-disc list-inside">
+              <li>10GB upload limit</li>
+              <li>ZIP download capability</li>
+              <li>Batch upload features</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

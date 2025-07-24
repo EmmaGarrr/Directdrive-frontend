@@ -1,0 +1,51 @@
+/* Profile component styles */
+.profile-container {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.storage-progress {
+  transition: all 0.3s ease-in-out;
+}
+
+.profile-card {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.gradient-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.form-section {
+  animation: slideIn 0.3s ease-in-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom styling for material components */
+::ng-deep .mat-progress-bar-fill::after {
+  background-color: currentColor;
+}
+
+::ng-deep .mat-form-field {
+  width: 100%;
+}
+
+::ng-deep .success-snackbar {
+  background-color: #10b981 !important;
+  color: white !important;
+}
+
+::ng-deep .error-snackbar {
+  background-color: #ef4444 !important;
+  color: white !important;
+}

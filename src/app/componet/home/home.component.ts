@@ -536,11 +536,31 @@ export class HomeComponent implements OnDestroy {
   private batchSubscriptions: Subscription[] = [];
   private wsUrl = environment.wsUrl;
 
+  // Authentication State
+  public isAuthenticated = false;
+  public currentUser: User | null = null;
+  private destroy$ = new Subject<void>();
+
   constructor(
     private uploadService: UploadService,
     private snackBar: MatSnackBar,
-    private batchUploadService: BatchUploadService
-  ) {}
+    private batchUploadService: BatchUploadService,
+    private authService: AuthService,
+    private router: Router
+  ) {
+    // Subscribe to authentication state
+    this.authService.isAuthenticated$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(isAuth => {
+      this.isAuthenticated = isAuth;
+    });
+
+    this.authService.currentUser$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(user => {
+      this.currentUser = user;
+    });
+  }
 
   // --- NEW: Event handler specifically for the file input's (change) event ---
   onFileSelect(event: Event): void {
@@ -713,7 +733,47 @@ export class HomeComponent implements OnDestroy {
   onDragLeave(event: DragEvent) { event.preventDefault(); }
   
   ngOnDestroy(): void {
-    this.uploadSubscription?.unsubscribe();
+    if (this.uploadSubscription) {
+      this.uploadSubscription.unsubscribe();
+    }
     this.batchSubscriptions.forEach(sub => sub.unsubscribe());
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // Authentication methods
+  navigateToLogin(): void {
+    this.router.navigate(['/login']);
+  }
+
+  navigateToRegister(): void {
+    this.router.navigate(['/register']);
+  }
+
+  navigateToProfile(): void {
+    this.router.navigate(['/profile']);
+  }
+
+  onLogout(): void {
+    this.authService.logout();
+    this.snackBar.open('Logged out successfully', 'Close', {
+      duration: 3000
+    });
+  }
+
+  // Upload restriction checks
+  canUploadBatch(): boolean {
+    return this.isAuthenticated;
+  }
+
+  canDownloadZip(): boolean {
+    return this.isAuthenticated;
+  }
+
+  getUploadLimitMessage(): string {
+    if (this.isAuthenticated && this.currentUser) {
+      return `${this.currentUser.storage_limit_gb}GB limit for authenticated users`;
+    }
+    return 'Login to get 10GB upload limit and ZIP downloads';
   }
 }

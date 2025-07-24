@@ -1,1 +1,134 @@
-<p>register works!</p>
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8">
+    <!-- Header -->
+    <div class="text-center">
+      <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+        Create DirectDrive Account
+      </h2>
+      <p class="mt-2 text-sm text-gray-600">
+        Join our secure file storage platform
+      </p>
+    </div>
+
+    <!-- Registration Form -->
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="mt-8 space-y-6">
+      <div class="space-y-4">
+        <!-- Email Field -->
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Email address</mat-label>
+          <input matInput 
+                 type="email" 
+                 formControlName="email" 
+                 placeholder="Enter your email"
+                 [class.mat-form-field-invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+          <mat-icon matSuffix>email</mat-icon>
+          <mat-error *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+            {{ getEmailErrorMessage() }}
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Password Field -->
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Password</mat-label>
+          <input matInput 
+                 [type]="hidePassword ? 'password' : 'text'" 
+                 formControlName="password" 
+                 placeholder="Create a password"
+                 [class.mat-form-field-invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+          <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+            {{ getPasswordErrorMessage() }}
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Confirm Password Field -->
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Confirm Password</mat-label>
+          <input matInput 
+                 [type]="hideConfirmPassword ? 'password' : 'text'" 
+                 formControlName="confirmPassword" 
+                 placeholder="Confirm your password"
+                 [class.mat-form-field-invalid]="(registerForm.get('confirmPassword')?.invalid || registerForm.hasError('passwordMismatch')) && registerForm.get('confirmPassword')?.touched">
+          <button mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword" type="button">
+            <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error *ngIf="(registerForm.get('confirmPassword')?.invalid || registerForm.hasError('passwordMismatch')) && registerForm.get('confirmPassword')?.touched">
+            {{ getConfirmPasswordErrorMessage() }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Password Requirements -->
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+        <p class="text-sm font-medium text-gray-700 mb-2">Password Requirements:</p>
+        <ul class="text-xs text-gray-600 space-y-1">
+          <li class="flex items-center">
+            <mat-icon class="h-3 w-3 mr-2" 
+                     [class.text-green-500]="registerForm.get('password')?.value?.length >= 6"
+                     [class.text-gray-400]="registerForm.get('password')?.value?.length < 6">
+              {{ registerForm.get('password')?.value?.length >= 6 ? 'check_circle' : 'radio_button_unchecked' }}
+            </mat-icon>
+            At least 6 characters
+          </li>
+          <li class="flex items-center">
+            <mat-icon class="h-3 w-3 mr-2" 
+                     [class.text-green-500]="!registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.value && registerForm.get('password')?.value"
+                     [class.text-gray-400]="registerForm.hasError('passwordMismatch') || !registerForm.get('confirmPassword')?.value">
+              {{ !registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.value && registerForm.get('password')?.value ? 'check_circle' : 'radio_button_unchecked' }}
+            </mat-icon>
+            Passwords match
+          </li>
+        </ul>
+      </div>
+
+      <!-- Submit Button -->
+      <div>
+        <button mat-raised-button 
+                color="primary" 
+                type="submit" 
+                class="w-full" 
+                [disabled]="!registerForm.valid || loading">
+          <span *ngIf="loading" class="flex items-center justify-center">
+            <mat-spinner diameter="20" class="mr-2"></mat-spinner>
+            Creating account...
+          </span>
+          <span *ngIf="!loading">Create Account</span>
+        </button>
+      </div>
+
+      <!-- Login Link -->
+      <div class="text-center">
+        <p class="text-sm text-gray-600">
+          Already have an account?
+          <button type="button" 
+                  mat-button 
+                  color="primary" 
+                  (click)="navigateToLogin()"
+                  class="ml-1">
+            Sign in here
+          </button>
+        </p>
+      </div>
+    </form>
+
+    <!-- Benefits Info -->
+    <div class="mt-6 text-center">
+      <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div class="flex items-center justify-center">
+          <mat-icon class="h-5 w-5 text-green-400 mr-2">verified_user</mat-icon>
+          <div class="text-sm text-green-700">
+            <p class="font-medium">Get access to premium features:</p>
+            <ul class="mt-1 text-xs list-disc list-inside">
+              <li>10GB storage limit</li>
+              <li>ZIP download for multiple files</li>
+              <li>Batch upload capabilities</li>
+              <li>Secure cloud storage</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
