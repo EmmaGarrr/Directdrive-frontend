@@ -63,15 +63,15 @@ import { AdminPanelComponent } from './admin-panel/admin-panel.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'batch-upload', component: BatchUploadComponent }, // <--- ADD THIS LINE
+  { path: 'batch-upload', component: BatchUploadComponent },
   { path: 'batch-download/:batchId', component: BatchDownloadComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] }, // FIXED: Added missing profile route
   { path: 'download/:id', component: DownloadComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'admin', component: AdminPanelComponent },
   { path: '**', redirectTo: '' }
-  
 ];
 
 @NgModule({

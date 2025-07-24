@@ -1,11 +1,19 @@
 <nav class="bg-gray-800 text-white p-4 shadow-md">
   <div class="container mx-auto flex justify-between items-center">
-    <a routerLink="/" class="text-xl font-bold">File Transfer</a>
-    <div>
-      <a routerLink="/dashboard" class="px-3 py-2 rounded hover:bg-gray-700" *ngIf="isLoggedIn">Dashboard</a>
-      <a routerLink="/login" class="px-3 py-2 rounded hover:bg-gray-700" *ngIf="!isLoggedIn">Login</a>
-      <a routerLink="/register" class="px-3 py-2 rounded hover:bg-gray-700" *ngIf="!isLoggedIn">Register</a>
-      <button (click)="logout()" class="px-3 py-2 rounded hover:bg-gray-700" *ngIf="isLoggedIn">Logout</button>
+    <a routerLink="/" class="text-xl font-bold">DirectDrive</a>
+    <div class="flex items-center space-x-4">
+      <!-- For authenticated users: Show Profile with user email -->
+      <div *ngIf="isLoggedIn" class="flex items-center space-x-3">
+        <span class="text-gray-300 text-sm">Welcome, {{ currentUser?.email }}</span>
+        <a routerLink="/profile" class="px-3 py-2 rounded hover:bg-gray-700 bg-blue-600">Profile</a>
+        <button (click)="logout()" class="px-3 py-2 rounded hover:bg-gray-700 text-gray-300">Logout</button>
+      </div>
+      
+      <!-- For anonymous users: Show Login/Register -->
+      <div *ngIf="!isLoggedIn" class="flex items-center space-x-2">
+        <a routerLink="/login" class="px-3 py-2 rounded hover:bg-gray-700">Login</a>
+        <a routerLink="/register" class="px-3 py-2 rounded hover:bg-gray-700 bg-blue-600">Register</a>
+      </div>
     </div>
   </div>
 </nav>
