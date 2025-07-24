@@ -17,25 +17,23 @@
 // //   error?: string;
 // // }
 
-// // // --- MODIFIED: State can now be for single or batch uploads ---
-// // type UploadState = 'idle' | 'selected' | 'uploading' | 'success' | 'error';
-// // type BatchUploadState = 'idle' | 'processing' | 'success' | 'error';
+// Interfaces and Types
+interface IFileState {
+  file: File;
+  state: 'pending' | 'uploading' | 'success' | 'error' | 'cancelled';
+  progress: number;
+  error?: string;
+}
 
+type UploadState = 'idle' | 'selected' | 'uploading' | 'success' | 'error' | 'cancelled';
+type BatchUploadState = 'idle' | 'selected' | 'processing' | 'success' | 'error' | 'cancelled';
 
-// // @Component({
-// //   selector: 'app-home',
-// //   templateUrl: './home.component.html',
-// //   styleUrls: ['./home.component.css'] // Added styleUrls
-// // })
-// // export class HomeComponent implements OnDestroy {
-
-// //   // --- STATE FOR SINGLE FILE UPLOAD (Original) ---
-// //   public currentState: UploadState = 'idle';
-// //   public selectedFile: File | null = null;
-// //   public uploadProgress = 0;
-// //   public finalDownloadLink: string | null = null;
-// //   public errorMessage: string | null = null;
-// //   private uploadSubscription?: Subscription;
+@Component({
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css']
+})
+export class HomeComponent implements OnDestroy {
 
 // //   // --- NEW STATE FOR BATCH FILE UPLOAD ---
 // //   public isBatchMode = false; // The new toggle state, defaults to single file mode
