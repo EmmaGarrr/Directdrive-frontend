@@ -59,20 +59,40 @@
   <!-- BATCH FILE LIST PREVIEW -->
   <div *ngIf="batchFiles.length > 0 && (batchState === 'selected' || batchState === 'processing')" class="space-y-4 mt-4 max-h-96 overflow-y-auto pr-2">
     <div *ngFor="let f of batchFiles" class="p-4 border rounded-lg bg-gray-50 flex items-center space-x-4">
+      <!-- Enhanced Icon States -->
       <div class="shrink-0">
-        <svg *ngIf="f.state === 'pending' || f.state === 'success' " class="w-8 h-8" [ngClass]="{'text-green-500': f.state === 'success', 'text-gray-400': f.state === 'pending'}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <svg *ngIf="f.state === 'pending'" class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
         <svg *ngIf="f.state === 'uploading'" class="w-8 h-8 text-blue-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 9a9 9 0 0114.65-5.35M20 15a9 9 0 01-14.65 5.35"></path></svg>
+        <svg *ngIf="f.state === 'success'" class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         <svg *ngIf="f.state === 'error'" class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <svg *ngIf="f.state === 'cancelled'" class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"></path></svg>
       </div>
+      <!-- Enhanced File Details & Progress -->
       <div class="flex-grow">
         <p class="font-semibold text-gray-800 break-all">{{ f.file.name }}</p>
         <p class="text-sm text-gray-500">{{ f.file.size / 1024 / 1024 | number:'1.2-2' }} MB</p>
         <mat-progress-bar *ngIf="f.state === 'uploading'" mode="determinate" [value]="f.progress" class="mt-1"></mat-progress-bar>
+        <p *ngIf="f.state === 'uploading'" class="text-center font-mono text-sm mt-1">{{ f.progress }}%</p>
         <p *ngIf="f.state === 'error'" class="text-xs text-red-600 mt-1">{{ f.error }}</p>
+        <p *ngIf="f.state === 'cancelled'" class="text-xs text-orange-600 mt-1">Upload cancelled by user</p>
+      </div>
+      <!-- Per-file Cancel Button -->
+      <div class="shrink-0" *ngIf="f.state === 'uploading'">
+        <button (click)="onCancelSingleBatchFile(f)" class="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">
+          Cancel
+        </button>
       </div>
     </div>
+    <!-- Upload All Button -->
     <button *ngIf="batchState === 'selected'" (click)="onUploadBatch()" class="w-full mt-2 bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600">
       Upload {{ batchFiles.length }} File(s)
+    </button>
+    <!-- Cancel All Button -->
+    <button *ngIf="batchState === 'processing' && !isCancelling" (click)="onCancelAllBatch()" class="w-full mt-2 bg-red-500 text-white py-3 rounded-lg font-semibold hover:bg-red-600">
+      Cancel All Uploads
+    </button>
+    <button *ngIf="batchState === 'processing' && isCancelling" disabled class="w-full mt-2 bg-gray-400 text-white py-3 rounded-lg font-semibold cursor-not-allowed">
+      Cancelling...
     </button>
   </div>
 

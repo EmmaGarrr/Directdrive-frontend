@@ -11,6 +11,7 @@ interface IFileState {
   state: 'pending' | 'uploading' | 'success' | 'error' | 'cancelled';
   progress: number;
   error?: string;
+  websocket?: WebSocket;
 }
 
 type UploadState = 'idle' | 'selected' | 'uploading' | 'success' | 'error' | 'cancelled';
@@ -205,6 +206,9 @@ export class HomeComponent implements OnDestroy {
       const wsUrl = `${this.wsUrl}/ws_api/upload/${fileId}?gdrive_url=${encodeURIComponent(gdriveUploadUrl)}`;
       const ws = new WebSocket(wsUrl);
       
+      // Assign WebSocket reference for cancel functionality
+      fileState.websocket = ws;
+      
       ws.onopen = () => {
         fileState.state = 'uploading';
         this.sliceAndSend(fileState.file, ws);
@@ -216,10 +220,12 @@ export class HomeComponent implements OnDestroy {
           fileState.progress = data.value;
         } else if (data.type === 'success') {
           fileState.state = 'success';
+          fileState.websocket = undefined; // Clean up reference
           observer.complete();
         } else if (data.type === 'error') {
           fileState.state = 'error';
           fileState.error = data.value;
+          fileState.websocket = undefined; // Clean up reference
           observer.error(new Error(data.value));
         }
       };
@@ -227,6 +233,7 @@ export class HomeComponent implements OnDestroy {
       ws.onerror = () => {
         fileState.state = 'error';
         fileState.error = 'WebSocket connection failed';
+        fileState.websocket = undefined; // Clean up reference
         observer.error(new Error('WebSocket connection failed'));
       };
       
@@ -234,6 +241,7 @@ export class HomeComponent implements OnDestroy {
         if (fileState.state === 'uploading') {
           fileState.state = 'cancelled';
         }
+        fileState.websocket = undefined; // Clean up reference
         observer.complete();
       };
     });
@@ -306,6 +314,54 @@ export class HomeComponent implements OnDestroy {
     navigator.clipboard.writeText(link).then(() => {
       this.snackBar.open('Link copied to clipboard!', 'Close', { duration: 2000 });
     });
+  }
+
+  // Enhanced batch upload cancel methods
+  onCancelSingleBatchFile(fileState: IFileState): void {
+    if (fileState.state === 'uploading' && fileState.websocket) {
+      fileState.websocket.close();
+      fileState.state = 'cancelled';
+      fileState.error = 'Upload cancelled by user';
+      
+      // Remove the subscription for this file
+      const index = this.batchSubscriptions.findIndex(sub => {
+        // Find subscription by checking if it's still active
+        return !sub.closed;
+      });
+      if (index !== -1) {
+        this.batchSubscriptions[index].unsubscribe();
+        this.batchSubscriptions.splice(index, 1);
+      }
+      
+      this.snackBar.open(`${fileState.file.name} upload cancelled`, 'Close', { duration: 3000 });
+    }
+  }
+
+  onCancelAllBatch(): void {
+    this.isCancelling = true;
+    
+    // Cancel all uploading files
+    this.batchFiles.forEach(fileState => {
+      if (fileState.state === 'uploading' && fileState.websocket) {
+        fileState.websocket.close();
+        fileState.state = 'cancelled';
+        fileState.error = 'Upload cancelled by user';
+      }
+    });
+    
+    // Unsubscribe from all batch subscriptions
+    this.batchSubscriptions.forEach(sub => sub.unsubscribe());
+    this.batchSubscriptions = [];
+    
+    // Update batch state
+    this.batchState = 'cancelled';
+    
+    this.snackBar.open('All uploads cancelled successfully', 'Close', { duration: 3000 });
+    
+    // Reset cancelling state after a short delay
+    setTimeout(() => {
+      this.isCancelling = false;
+    }, 1000);
   }
 
   // Drag and drop handlers
