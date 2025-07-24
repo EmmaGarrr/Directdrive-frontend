@@ -27,7 +27,7 @@ export class BatchUploadComponent implements OnDestroy {
   public batchState: BatchUploadState = 'idle';
   public finalBatchLink: string | null = null;
   private subscriptions: Subscription[] = [];
-  private isCancelling: boolean = false;
+  public isCancelling: boolean = false;
   private wsUrl = environment.wsUrl;
 
   // --- V V V --- ADD THIS GETTER --- V V V ---
