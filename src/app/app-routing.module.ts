@@ -47,18 +47,17 @@
 // })
 // export class AppRoutingModule { }
 
-
-
 // In file: src/app/app-routing.module.ts
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './componet/home/home.component';
 import { LoginComponent } from './componet/login/login.component';
 import { RegisterComponent } from './componet/register/register.component';
+import { ProfileComponent } from './componet/profile/profile.component';
 import { DownloadComponent } from './componet/download/download.component';
 import { DashboardComponent } from './componet/dashboard/dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
-import { BatchUploadComponent } from './componet/batch-upload.component'; // <--- ADD THIS IMPORT
+import { BatchUploadComponent } from './componet/batch-upload.component'; 
 import { BatchDownloadComponent } from './componet/batch-download.component';
 import { AdminPanelComponent } from './admin-panel/admin-panel.component';
 
