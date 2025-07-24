@@ -8,6 +8,7 @@
         <span *ngSwitchCase="'processing'">Uploading Batch...</span>
         <span *ngSwitchCase="'success'">Batch Upload Complete!</span>
         <span *ngSwitchCase="'error'">Batch Upload Failed</span>
+        <span *ngSwitchCase="'cancelled'">Upload Cancelled</span>
     </ng-container>
   </h2>
 
@@ -30,6 +31,7 @@
         <svg *ngIf="f.state === 'uploading'" class="w-8 h-8 text-blue-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 9a9 9 0 0114.65-5.35M20 15a9 9 0 01-14.65 5.35"></path></svg>
         <svg *ngIf="f.state === 'success'" class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         <svg *ngIf="f.state === 'error'" class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <svg *ngIf="f.state === 'cancelled'" class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"></path></svg>
       </div>
       <!-- File Details & Progress -->
       <div class="flex-grow">
@@ -37,13 +39,20 @@
         <p class="text-sm text-gray-500">{{ f.file.size / 1024 / 1024 | number:'1.2-2' }} MB</p>
         <mat-progress-bar *ngIf="f.state === 'uploading'" mode="determinate" [value]="f.progress" class="mt-1"></mat-progress-bar>
         <p *ngIf="f.state === 'error'" class="text-xs text-red-600 mt-1">{{ f.error }}</p>
+        <p *ngIf="f.state === 'cancelled'" class="text-xs text-orange-600 mt-1">{{ f.error }}</p>
       </div>
     </div>
   </div>
 
-  <!-- Action Button -->
+  <!-- Action Buttons -->
   <button *ngIf="files.length > 0 && batchState === 'idle'" (click)="onUploadBatch()" class="w-full mt-6 bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
     Upload {{ files.length }} File(s)
+  </button>
+  
+  <!-- Cancel Button -->
+  <button *ngIf="canCancelUpload" (click)="onCancelUpload()" class="w-full mt-4 bg-red-500 text-white py-3 rounded-lg font-semibold hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">
+    <span *ngIf="!isCancelling">Cancel Upload</span>
+    <span *ngIf="isCancelling">Cancelling...</span>
   </button>
 
   <!-- Success State -->
@@ -71,6 +80,17 @@
      </div>
      <button (click)="reset()" class="w-full mt-6 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600">
         Try Again
+     </button>
+  </div>
+
+  <!-- Cancelled State -->
+  <div *ngIf="batchState === 'cancelled'">
+     <div class="p-4 bg-orange-100 border-l-4 border-orange-500 text-orange-800 rounded">
+        <strong class="font-bold">Upload Cancelled</strong>
+        <p>The upload was cancelled by the user. Files that were uploading have been stopped.</p>
+     </div>
+     <button (click)="reset()" class="w-full mt-6 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600">
+        Start New Upload
      </button>
   </div>
 </div>

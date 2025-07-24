@@ -10,11 +10,12 @@ import { environment } from '../../environments/environment';
 
 interface IFileState {
   file: File;
-  state: 'pending' | 'uploading' | 'success' | 'error';
+  state: 'pending' | 'uploading' | 'success' | 'error' | 'cancelled';
   progress: number;
   error?: string;
+  websocket?: WebSocket;
 }
-type BatchUploadState = 'idle' | 'processing' | 'success' | 'error';
+type BatchUploadState = 'idle' | 'processing' | 'success' | 'error' | 'cancelled';
 
 @Component({
   selector: 'app-batch-upload',
@@ -26,6 +27,7 @@ export class BatchUploadComponent implements OnDestroy {
   public batchState: BatchUploadState = 'idle';
   public finalBatchLink: string | null = null;
   private subscriptions: Subscription[] = [];
+  private isCancelling: boolean = false;
   private wsUrl = environment.wsUrl;
 
   // --- V V V --- ADD THIS GETTER --- V V V ---
@@ -36,6 +38,14 @@ export class BatchUploadComponent implements OnDestroy {
   public get isUploadFinished(): boolean {
     if (this.files.length === 0) return true;
     return this.files.every(f => f.state !== 'uploading');
+  }
+
+  /**
+   * Helper property to check if upload can be cancelled
+   */
+  public get canCancelUpload(): boolean {
+    return this.batchState === 'processing' && !this.isCancelling &&
+           this.files.some(f => f.state === 'uploading');
   }
   // --- ^ ^ ^ --- END OF ADDITION --- ^ ^ ^ ---
 
@@ -87,10 +97,37 @@ export class BatchUploadComponent implements OnDestroy {
     this.subscriptions.push(sub);
   }
 
+  onCancelUpload(): void {
+    if (!this.canCancelUpload) return;
+    
+    this.isCancelling = true;
+    this.batchState = 'cancelled';
+    
+    // Cancel all uploading files
+    this.files.forEach(fileState => {
+      if (fileState.state === 'uploading' && fileState.websocket) {
+        // Close WebSocket connection
+        fileState.websocket.close();
+        fileState.state = 'cancelled';
+        fileState.error = 'Upload cancelled by user';
+      }
+    });
+    
+    // Unsubscribe from all observables
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions = [];
+    
+    this.snackBar.open('Upload cancelled successfully', 'Close', { duration: 3000 });
+    this.isCancelling = false;
+  }
+
   private createIndividualUploadObservable(fileState: IFileState, fileId: string, gdriveUploadUrl: string): Observable<UploadEvent | null> {
     return new Observable((observer: Observer<UploadEvent | null>) => {
       const finalWsUrl = `${this.wsUrl}/upload/${fileId}?gdrive_url=${encodeURIComponent(gdriveUploadUrl)}`;
       const ws = new WebSocket(finalWsUrl);
+      
+      // Store WebSocket reference for cancellation
+      fileState.websocket = ws;
 
       ws.onopen = () => this.sliceAndSend(fileState.file, ws);
       ws.onmessage = (event) => {
@@ -122,6 +159,10 @@ export class BatchUploadComponent implements OnDestroy {
       return () => {
         if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
           ws.close();
+        }
+        // Clean up WebSocket reference
+        if (fileState.websocket === ws) {
+          fileState.websocket = undefined;
         }
       };
     });
