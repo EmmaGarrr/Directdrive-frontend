@@ -68,8 +68,24 @@ export class HomeComponent implements OnDestroy {
     if (!files || files.length === 0) return;
     
     this.resetState();
-    this.selectedFile = files[0];
-    this.currentState = 'selected';
+    
+    if (files.length === 1) {
+      // Single file upload mode
+      this.selectedFile = files[0];
+      this.currentState = 'selected';
+      this.batchFiles = []; // Clear batch files
+      this.batchState = 'idle';
+    } else {
+      // Multiple files - batch upload mode
+      this.selectedFile = null; // Clear single file
+      this.currentState = 'idle';
+      this.batchFiles = Array.from(files).map(file => ({
+        file,
+        state: 'pending' as const,
+        progress: 0
+      }));
+      this.batchState = 'selected';
+    }
   }
 
   // Single file upload methods
