@@ -1,6 +1,7 @@
 // CORRECTED File: src/app/componet/batch-upload.component.ts
 
 import { Component, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription, forkJoin, Observable, Observer } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
@@ -10,6 +11,7 @@ import { environment } from '../../environments/environment';
 
 interface IFileState {
   file: File;
+  fileId?: string; // Store file ID for HTTP cancel requests
   state: 'pending' | 'uploading' | 'success' | 'error' | 'cancelled';
   progress: number;
   error?: string;
@@ -29,6 +31,7 @@ export class BatchUploadComponent implements OnDestroy {
   private subscriptions: Subscription[] = [];
   public isCancelling: boolean = false;
   private wsUrl = environment.wsUrl;
+  private apiUrl = environment.apiUrl;
 
   // --- V V V --- ADD THIS GETTER --- V V V ---
   /**
@@ -51,7 +54,8 @@ export class BatchUploadComponent implements OnDestroy {
 
   constructor(
     private batchUploadService: BatchUploadService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private http: HttpClient
   ) {}
 
   onFilesSelected(event: any): void {
@@ -102,43 +106,59 @@ export class BatchUploadComponent implements OnDestroy {
     
     console.log('[FRONTEND_UPLOAD] User initiated batch upload cancellation');
     this.isCancelling = true;
-    // Don't change batchState immediately - wait for backend confirmation
     
-    let cancelRequestsSent = 0;
+    let httpCancelRequestsSent = 0;
     let totalActiveUploads = 0;
     
-    // Send cancel messages to all active uploads
+    // Send HTTP cancel requests to all active uploads
     this.files.forEach(fileState => {
-      if (fileState.websocket && fileState.state === 'uploading') {
+      if (fileState.fileId && fileState.state === 'uploading') {
         totalActiveUploads++;
-        console.log(`[FRONTEND_UPLOAD] Sending cancel request for file: ${fileState.file.name}`);
+        console.log(`[FRONTEND_UPLOAD] Sending HTTP cancel request for file: ${fileState.file.name} (${fileState.fileId})`);
         
-        try {
-          // Send cancel message to backend instead of immediate close
-          fileState.websocket.send(JSON.stringify({ type: 'cancel' }));
-          cancelRequestsSent++;
-          console.log(`[FRONTEND_UPLOAD] Cancel request sent for file: ${fileState.file.name}`);
-        } catch (error) {
-          console.error(`[FRONTEND_UPLOAD] Error sending cancel request for file: ${fileState.file.name}`, error);
-          // Fallback: mark as cancelled if we can't send the message
-          fileState.state = 'cancelled';
-          fileState.error = 'Upload cancelled (send error)';
-        }
+        // Send HTTP POST to cancel endpoint (superior protocol)
+        this.http.post(`${this.apiUrl}/api/v1/upload/cancel/${fileState.fileId}`, {})
+          .subscribe({
+            next: (response: any) => {
+              console.log(`[FRONTEND_UPLOAD] HTTP cancel successful for file: ${fileState.file.name}`, response);
+              // Close WebSocket after successful HTTP cancel
+              if (fileState.websocket) {
+                fileState.websocket.close();
+                fileState.websocket = undefined;
+              }
+              fileState.state = 'cancelled';
+              fileState.error = 'Upload cancelled by user';
+              this.checkCancelCompletion();
+            },
+            error: (error) => {
+              console.error(`[FRONTEND_UPLOAD] HTTP cancel failed for file: ${fileState.file.name}`, error);
+              // Fallback: force close WebSocket if HTTP cancel fails
+              if (fileState.websocket) {
+                fileState.websocket.close();
+                fileState.websocket = undefined;
+              }
+              fileState.state = 'cancelled';
+              fileState.error = 'Upload cancelled (HTTP error)';
+              this.checkCancelCompletion();
+            }
+          });
+        
+        httpCancelRequestsSent++;
       }
     });
     
-    console.log(`[FRONTEND_UPLOAD] Cancel requests sent | Active uploads: ${totalActiveUploads} | Requests sent: ${cancelRequestsSent}`);
+    console.log(`[FRONTEND_UPLOAD] HTTP cancel requests sent | Active uploads: ${totalActiveUploads} | HTTP requests sent: ${httpCancelRequestsSent}`);
     
-    // Set a timeout in case backend doesn't respond
+    // Set timeout in case HTTP cancel requests don't complete
     setTimeout(() => {
       if (this.isCancelling) {
-        console.log('[FRONTEND_UPLOAD] Cancel timeout - forcing cancellation');
+        console.log('[FRONTEND_UPLOAD] Cancel timeout - forcing batch cancellation');
         this.forceCancel();
       }
     }, 10000); // 10 second timeout
     
     // Show immediate feedback to user
-    this.snackBar.open(`Cancelling uploads... (${cancelRequestsSent} requests sent)`, 'Close', { duration: 3000 });
+    this.snackBar.open(`Cancelling uploads... (${httpCancelRequestsSent} HTTP requests sent)`, 'Close', { duration: 3000 });
   }
   
   private forceCancel(): void {
@@ -174,6 +194,9 @@ export class BatchUploadComponent implements OnDestroy {
   private createIndividualUploadObservable(fileState: IFileState, fileId: string, gdriveUploadUrl: string): Observable<UploadEvent | null> {
     return new Observable((observer: Observer<UploadEvent | null>) => {
       const finalWsUrl = `${this.wsUrl}/upload/${fileId}?gdrive_url=${encodeURIComponent(gdriveUploadUrl)}`;
+      
+      // Store fileId for HTTP cancel requests
+      fileState.fileId = fileId;
       
       // Enhanced logging for connection attempts
       console.log(`[FRONTEND_UPLOAD] File: ${fileState.file.name} (${fileId}) | Attempting WebSocket connection to: ${finalWsUrl}`);
