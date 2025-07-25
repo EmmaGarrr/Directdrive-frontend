@@ -41,6 +41,9 @@ export class UploadService {
           const fileId = response.file_id;
           const gdriveUploadUrl = response.gdrive_upload_url;
 
+          // CRITICAL: Store fileId for HTTP cancel requests
+          this.currentFileId = fileId;
+
           // --- THIS IS THE DEFINITIVE FIX (FRONTEND) ---
           // We construct a URL with a query parameter.
           // We use encodeURIComponent ONCE to make the URL safe as a value.
@@ -71,11 +74,13 @@ export class UploadService {
           ws.onerror = (error) => {
             console.error('[Uploader WS] Error:', error);
             this.currentWebSocket = undefined;
+            this.currentFileId = undefined; // Clear file ID on error
             observer.error({ type: 'error', value: 'Connection to server failed.' });
           };
 
           ws.onclose = (event) => {
             this.currentWebSocket = undefined;
+            this.currentFileId = undefined; // Clear file ID on close
             if (!event.wasClean) {
                 observer.error({ type: 'error', value: 'Lost connection to server during upload.' });
             } else {
@@ -88,12 +93,14 @@ export class UploadService {
               ws.close();
             }
             this.currentWebSocket = undefined;
+            this.currentFileId = undefined; // Clear file ID on cleanup
           };
         });
       }),
       catchError(error => {
         console.error('[Uploader] Upload failed:', error);
         this.currentWebSocket = undefined;
+        this.currentFileId = undefined; // Clear file ID on error
         return throwError(() => ({ type: 'error', value: 'Upload failed. Please try again.' }));
       })
     );
