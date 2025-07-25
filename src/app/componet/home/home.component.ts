@@ -104,9 +104,18 @@ export class HomeComponent implements OnDestroy {
         if (event.type === 'progress') {
           this.uploadProgress = event.value;
         } else if (event.type === 'success') {
-          this.currentState = 'success';
-          this.finalDownloadLink = event.value;
-          this.snackBar.open('File uploaded successfully!', 'Close', { duration: 3000 });
+          // Check if this is a cancellation success message
+          if (this.isCancelling || (typeof event.value === 'string' && event.value.includes('cancelled'))) {
+            // Handle cancellation success
+            this.currentState = 'cancelled';
+            this.snackBar.open('Upload cancelled successfully', 'Close', { duration: 3000 });
+            this.resetToIdle();
+          } else {
+            // Handle regular upload success
+            this.currentState = 'success';
+            this.finalDownloadLink = event.value;
+            this.snackBar.open('File uploaded successfully!', 'Close', { duration: 3000 });
+          }
         }
       },
       error: (err) => {
@@ -122,30 +131,8 @@ export class HomeComponent implements OnDestroy {
     });
   }
 
-  // Cancel single file upload
-  onCancelUpload(): void {
-    if (this.currentState !== 'uploading') return;
-
-    this.isCancelling = true;
-    
-    // Cancel upload service subscription
-    if (this.uploadSubscription) {
-      this.uploadSubscription.unsubscribe();
-      this.uploadSubscription = undefined;
-    }
-    
-    // Use upload service to cancel WebSocket connection
-    const cancelled = this.uploadService.cancelUpload();
-    if (cancelled) {
-      console.log('[HomeComponent] Upload cancelled via service');
-    } else {
-      console.log('[HomeComponent] No active upload to cancel');
-    }
-    
-    // Show cancellation message
-    this.snackBar.open('Upload cancelled successfully', 'Close', { duration: 3000 });
-    
-    // Reset all UI state properties after a brief delay for user feedback
+  // Reset component to idle state
+  private resetToIdle(): void {
     setTimeout(() => {
       this.currentState = 'idle';
       this.selectedFile = null;
@@ -154,12 +141,36 @@ export class HomeComponent implements OnDestroy {
       this.errorMessage = null;
       this.isCancelling = false;
       
+      // Clean up subscription
+      if (this.uploadSubscription) {
+        this.uploadSubscription.unsubscribe();
+        this.uploadSubscription = undefined;
+      }
+      
       // Clear file input if it exists
       const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
       if (fileInput) {
         fileInput.value = '';
       }
     }, 500);
+  }
+
+  // Cancel single file upload
+  onCancelUpload(): void {
+    if (this.currentState !== 'uploading') return;
+
+    this.isCancelling = true;
+    
+    // Use upload service to cancel WebSocket connection (don't unsubscribe yet)
+    const cancelled = this.uploadService.cancelUpload();
+    if (cancelled) {
+      console.log('[HomeComponent] Upload cancelled via service');
+      // The HTTP cancel success will be handled in the subscription's next() callback
+    } else {
+      console.log('[HomeComponent] No active upload to cancel');
+      // If no active upload, reset immediately
+      this.resetToIdle();
+    }
   }
 
   // Batch upload methods
