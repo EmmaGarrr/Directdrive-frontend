@@ -102,37 +102,72 @@ export class BatchUploadComponent implements OnDestroy {
     
     console.log('[FRONTEND_UPLOAD] User initiated batch upload cancellation');
     this.isCancelling = true;
-    this.batchState = 'cancelled';
+    // Don't change batchState immediately - wait for backend confirmation
     
-    let cancelledCount = 0;
+    let cancelRequestsSent = 0;
     let totalActiveUploads = 0;
     
-    // Cancel all active uploads by closing WebSocket connections
+    // Send cancel messages to all active uploads
     this.files.forEach(fileState => {
       if (fileState.websocket && fileState.state === 'uploading') {
         totalActiveUploads++;
-        console.log(`[FRONTEND_UPLOAD] Cancelling upload for file: ${fileState.file.name}`);
+        console.log(`[FRONTEND_UPLOAD] Sending cancel request for file: ${fileState.file.name}`);
         
         try {
-          fileState.websocket.close();
-          fileState.state = 'cancelled';
-          fileState.error = 'Upload cancelled by user';
-          cancelledCount++;
+          // Send cancel message to backend instead of immediate close
+          fileState.websocket.send(JSON.stringify({ type: 'cancel' }));
+          cancelRequestsSent++;
+          console.log(`[FRONTEND_UPLOAD] Cancel request sent for file: ${fileState.file.name}`);
         } catch (error) {
-          console.error(`[FRONTEND_UPLOAD] Error closing WebSocket for file: ${fileState.file.name}`, error);
+          console.error(`[FRONTEND_UPLOAD] Error sending cancel request for file: ${fileState.file.name}`, error);
+          // Fallback: mark as cancelled if we can't send the message
           fileState.state = 'cancelled';
-          fileState.error = 'Upload cancelled (with errors)';
+          fileState.error = 'Upload cancelled (send error)';
         }
       }
     });
     
-    console.log(`[FRONTEND_UPLOAD] Cancellation complete | Active uploads: ${totalActiveUploads} | Successfully cancelled: ${cancelledCount}`);
+    console.log(`[FRONTEND_UPLOAD] Cancel requests sent | Active uploads: ${totalActiveUploads} | Requests sent: ${cancelRequestsSent}`);
+    
+    // Set a timeout in case backend doesn't respond
+    setTimeout(() => {
+      if (this.isCancelling) {
+        console.log('[FRONTEND_UPLOAD] Cancel timeout - forcing cancellation');
+        this.forceCancel();
+      }
+    }, 10000); // 10 second timeout
+    
+    // Show immediate feedback to user
+    this.snackBar.open(`Cancelling uploads... (${cancelRequestsSent} requests sent)`, 'Close', { duration: 3000 });
+  }
+  
+  private forceCancel(): void {
+    console.log('[FRONTEND_UPLOAD] Force cancelling all uploads');
+    this.batchState = 'cancelled';
+    
+    let forceCancelledCount = 0;
+    
+    // Force close all active WebSocket connections
+    this.files.forEach(fileState => {
+      if (fileState.websocket && fileState.state === 'uploading') {
+        try {
+          fileState.websocket.close();
+          fileState.state = 'cancelled';
+          fileState.error = 'Upload cancelled (timeout)';
+          forceCancelledCount++;
+        } catch (error) {
+          console.error(`[FRONTEND_UPLOAD] Error force closing WebSocket for file: ${fileState.file.name}`, error);
+          fileState.state = 'cancelled';
+          fileState.error = 'Upload cancelled (force close error)';
+        }
+      }
+    });
     
     // Unsubscribe from all observables
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.subscriptions = [];
     
-    this.snackBar.open(`Upload cancelled successfully (${cancelledCount} files)`, 'Close', { duration: 3000 });
+    this.snackBar.open(`Upload cancelled (timeout) - ${forceCancelledCount} files`, 'Close', { duration: 3000 });
     this.isCancelling = false;
   }
 
@@ -158,7 +193,7 @@ export class BatchUploadComponent implements OnDestroy {
       
       ws.onmessage = (event) => {
         try {
-          const message: UploadEvent = JSON.parse(event.data);
+          const message: any = JSON.parse(event.data); // Use any to handle extended message types
           
           if (message.type === 'progress') {
             fileState.progress = message.value;
@@ -170,7 +205,18 @@ export class BatchUploadComponent implements OnDestroy {
             console.log(`[FRONTEND_UPLOAD] File: ${fileState.file.name} (${fileId}) | Upload completed successfully`);
             fileState.state = 'success';
             fileState.progress = 100;
-            observer.next(message);
+            observer.next(message as UploadEvent);
+            observer.complete();
+          } else if (message.type === 'cancel_ack') {
+            // Backend acknowledged cancellation
+            console.log(`[FRONTEND_UPLOAD] File: ${fileState.file.name} (${fileId}) | Cancel acknowledged by backend: ${message.message || 'Cancelled'}`);
+            fileState.state = 'cancelled';
+            fileState.error = 'Upload cancelled by user';
+            
+            // Check if all uploads are now cancelled to update batch state
+            this.checkCancelCompletion();
+            
+            observer.next(null);
             observer.complete();
           } else if (message.type === 'error') {
             console.error(`[FRONTEND_UPLOAD] File: ${fileState.file.name} (${fileId}) | Server error: ${message.value}`);
@@ -283,6 +329,29 @@ export class BatchUploadComponent implements OnDestroy {
         this.batchState = 'success';
         this.finalBatchLink = `${window.location.origin}/batch-download/${batchId}`;
         this.snackBar.open('Batch upload complete!', 'Close', { duration: 3000 });
+    }
+  }
+  
+  private checkCancelCompletion(): void {
+    // Check if all uploads that were being cancelled are now cancelled
+    const allUploadingOrCancelled = this.files.every(fs => 
+      fs.state === 'success' || fs.state === 'error' || fs.state === 'cancelled' || fs.state === 'pending'
+    );
+    
+    const anyCancelled = this.files.some(fs => fs.state === 'cancelled');
+    
+    if (allUploadingOrCancelled && anyCancelled && this.isCancelling) {
+      console.log('[FRONTEND_UPLOAD] All cancel acknowledgments received - batch cancellation complete');
+      this.batchState = 'cancelled';
+      this.isCancelling = false;
+      
+      const cancelledCount = this.files.filter(fs => fs.state === 'cancelled').length;
+      
+      // Unsubscribe from all observables
+      this.subscriptions.forEach(sub => sub.unsubscribe());
+      this.subscriptions = [];
+      
+      this.snackBar.open(`Upload cancelled successfully (${cancelledCount} files)`, 'Close', { duration: 3000 });
     }
   }
 
