@@ -25,6 +25,7 @@ export class UploadService {
   private wsUrl = environment.wsUrl;
   private currentWebSocket?: WebSocket;
   private currentFileId?: string;
+  private isCancelling: boolean = false;
 
   constructor(private http: HttpClient) { }
 
@@ -81,10 +82,16 @@ export class UploadService {
           ws.onclose = (event) => {
             this.currentWebSocket = undefined;
             this.currentFileId = undefined; // Clear file ID on close
-            if (!event.wasClean) {
-                observer.error({ type: 'error', value: 'Lost connection to server during upload.' });
+            
+            if (this.isCancelling) {
+              // User initiated cancellation - show success message
+              this.isCancelling = false;
+              observer.next({ type: 'success', value: 'Upload cancelled successfully' });
+              observer.complete();
+            } else if (!event.wasClean) {
+              observer.error({ type: 'error', value: 'Lost connection to server during upload.' });
             } else {
-                observer.complete();
+              observer.complete();
             }
           };
 
@@ -116,6 +123,7 @@ export class UploadService {
     }
 
     console.log(`[Uploader] Sending HTTP cancel request for file: ${this.currentFileId}`);
+    this.isCancelling = true; // Mark as cancelling for proper UI feedback
     
     // Send HTTP POST to cancel endpoint
     this.http.post(`${this.apiUrl}/api/v1/upload/cancel/${this.currentFileId}`, {})
