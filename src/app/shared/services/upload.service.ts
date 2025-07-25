@@ -298,9 +298,15 @@ export class UploadService {
 
           ws.onmessage = (event) => {
             try {
-              const message = JSON.parse(event.data);
+              const message: any = JSON.parse(event.data);
+              
               if (message.type === 'progress' || message.type === 'success' || message.type === 'error') {
                  observer.next(message as UploadEvent);
+              } else if (message.type === 'cancel_ack') {
+                // Backend acknowledged cancellation
+                console.log(`[Uploader] Cancel acknowledged by backend: ${message.message || 'Cancelled'}`);
+                this.currentWebSocket = undefined;
+                observer.error({ type: 'error', value: 'Upload cancelled by user' });
               }
             } catch (e) {
               console.error('[Uploader WS] Failed to parse message from server:', event.data);
@@ -339,16 +345,37 @@ export class UploadService {
   }
 
   /**
-   * Cancel current upload by closing WebSocket connection
+   * Cancel current upload using robust handshake protocol
    */
   cancelUpload(): boolean {
     if (this.currentWebSocket && 
         (this.currentWebSocket.readyState === WebSocket.OPEN || 
          this.currentWebSocket.readyState === WebSocket.CONNECTING)) {
-      console.log('[Uploader] Cancelling upload - closing WebSocket');
-      this.currentWebSocket.close();
-      this.currentWebSocket = undefined;
-      return true;
+      
+      console.log('[Uploader] Sending cancel request to backend (handshake protocol)');
+      
+      try {
+        // Send cancel message to backend instead of immediate close
+        this.currentWebSocket.send(JSON.stringify({ type: 'cancel' }));
+        console.log('[Uploader] Cancel request sent, waiting for backend acknowledgment');
+        
+        // Set timeout in case backend doesn't respond
+        setTimeout(() => {
+          if (this.currentWebSocket) {
+            console.log('[Uploader] Cancel timeout - forcing WebSocket close');
+            this.currentWebSocket.close();
+            this.currentWebSocket = undefined;
+          }
+        }, 10000); // 10 second timeout
+        
+        return true;
+      } catch (error) {
+        console.error('[Uploader] Error sending cancel request, falling back to immediate close:', error);
+        // Fallback: close immediately if we can't send the message
+        this.currentWebSocket.close();
+        this.currentWebSocket = undefined;
+        return true;
+      }
     }
     return false;
   }
