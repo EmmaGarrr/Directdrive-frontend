@@ -98,60 +98,121 @@ export class BatchUploadComponent implements OnDestroy {
   }
 
   onCancelUpload(): void {
-    if (!this.canCancelUpload) return;
+    if (this.batchState !== 'processing' || this.isCancelling) return;
     
+    console.log('[FRONTEND_UPLOAD] User initiated batch upload cancellation');
     this.isCancelling = true;
     this.batchState = 'cancelled';
     
-    // Cancel all uploading files
+    let cancelledCount = 0;
+    let totalActiveUploads = 0;
+    
+    // Cancel all active uploads by closing WebSocket connections
     this.files.forEach(fileState => {
-      if (fileState.state === 'uploading' && fileState.websocket) {
-        // Close WebSocket connection
-        fileState.websocket.close();
-        fileState.state = 'cancelled';
-        fileState.error = 'Upload cancelled by user';
+      if (fileState.websocket && fileState.state === 'uploading') {
+        totalActiveUploads++;
+        console.log(`[FRONTEND_UPLOAD] Cancelling upload for file: ${fileState.file.name}`);
+        
+        try {
+          fileState.websocket.close();
+          fileState.state = 'cancelled';
+          fileState.error = 'Upload cancelled by user';
+          cancelledCount++;
+        } catch (error) {
+          console.error(`[FRONTEND_UPLOAD] Error closing WebSocket for file: ${fileState.file.name}`, error);
+          fileState.state = 'cancelled';
+          fileState.error = 'Upload cancelled (with errors)';
+        }
       }
     });
+    
+    console.log(`[FRONTEND_UPLOAD] Cancellation complete | Active uploads: ${totalActiveUploads} | Successfully cancelled: ${cancelledCount}`);
     
     // Unsubscribe from all observables
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.subscriptions = [];
     
-    this.snackBar.open('Upload cancelled successfully', 'Close', { duration: 3000 });
+    this.snackBar.open(`Upload cancelled successfully (${cancelledCount} files)`, 'Close', { duration: 3000 });
     this.isCancelling = false;
   }
 
   private createIndividualUploadObservable(fileState: IFileState, fileId: string, gdriveUploadUrl: string): Observable<UploadEvent | null> {
     return new Observable((observer: Observer<UploadEvent | null>) => {
       const finalWsUrl = `${this.wsUrl}/upload/${fileId}?gdrive_url=${encodeURIComponent(gdriveUploadUrl)}`;
+      
+      // Enhanced logging for connection attempts
+      console.log(`[FRONTEND_UPLOAD] File: ${fileState.file.name} (${fileId}) | Attempting WebSocket connection to: ${finalWsUrl}`);
+      
       const ws = new WebSocket(finalWsUrl);
+      let connectionStartTime = Date.now();
       
       // Store WebSocket reference for cancellation
       fileState.websocket = ws;
 
-      ws.onopen = () => this.sliceAndSend(fileState.file, ws);
+      ws.onopen = () => {
+        const connectionTime = Date.now() - connectionStartTime;
+        console.log(`[FRONTEND_UPLOAD] File: ${fileState.file.name} (${fileId}) | WebSocket connected successfully | Connection time: ${connectionTime}ms`);
+        fileState.state = 'uploading';
+        this.sliceAndSend(fileState.file, ws);
+      };
+      
       ws.onmessage = (event) => {
-        const message: UploadEvent = JSON.parse(event.data);
-        if (message.type === 'progress') {
-          fileState.progress = message.value;
-        } else if (message.type === 'success') {
-          fileState.state = 'success';
-          fileState.progress = 100;
-          observer.next(message);
+        try {
+          const message: UploadEvent = JSON.parse(event.data);
+          
+          if (message.type === 'progress') {
+            fileState.progress = message.value;
+            // Log major progress milestones
+            if (message.value % 25 === 0) {
+              console.log(`[FRONTEND_UPLOAD] File: ${fileState.file.name} (${fileId}) | Progress: ${message.value}%`);
+            }
+          } else if (message.type === 'success') {
+            console.log(`[FRONTEND_UPLOAD] File: ${fileState.file.name} (${fileId}) | Upload completed successfully`);
+            fileState.state = 'success';
+            fileState.progress = 100;
+            observer.next(message);
+            observer.complete();
+          } else if (message.type === 'error') {
+            console.error(`[FRONTEND_UPLOAD] File: ${fileState.file.name} (${fileId}) | Server error: ${message.value}`);
+            fileState.state = 'error';
+            fileState.error = `Server error: ${message.value}`;
+            observer.next(null);
+            observer.complete();
+          }
+        } catch (parseError) {
+          console.error(`[FRONTEND_UPLOAD] File: ${fileState.file.name} (${fileId}) | Failed to parse server message:`, parseError, event.data);
+          fileState.state = 'error';
+          fileState.error = 'Invalid server response';
+          observer.next(null);
           observer.complete();
         }
       };
-      ws.onerror = () => {
+      
+      ws.onerror = (errorEvent) => {
+        console.error(`[FRONTEND_UPLOAD] File: ${fileState.file.name} (${fileId}) | WebSocket error:`, errorEvent);
         fileState.state = 'error';
-        fileState.error = 'Connection to server failed.';
+        fileState.error = 'Connection to server failed. Please check your internet connection.';
         observer.next(null);
         observer.complete();
       };
+      
       ws.onclose = (event) => {
-        if (!event.wasClean && fileState.state !== 'success') {
+        const wasClean = event.wasClean;
+        const code = event.code;
+        const reason = event.reason;
+        
+        console.log(`[FRONTEND_UPLOAD] File: ${fileState.file.name} (${fileId}) | WebSocket closed | Clean: ${wasClean} | Code: ${code} | Reason: ${reason}`);
+        
+        if (!wasClean && fileState.state !== 'success' && fileState.state !== 'cancelled') {
           fileState.state = 'error';
-          fileState.error = 'Lost connection to server.';
+          fileState.error = `Connection lost (Code: ${code}${reason ? `, Reason: ${reason}` : ''})`;
+          console.error(`[FRONTEND_UPLOAD] File: ${fileState.file.name} (${fileId}) | Unexpected connection loss`);
+        } else if (fileState.state === 'uploading') {
+          // If we were uploading and connection closed cleanly, it might be cancellation
+          console.log(`[FRONTEND_UPLOAD] File: ${fileState.file.name} (${fileId}) | Upload cancelled by user`);
+          fileState.state = 'cancelled';
         }
+        
         observer.next(null);
         observer.complete();
       };
@@ -169,20 +230,44 @@ export class BatchUploadComponent implements OnDestroy {
   }
 
   private sliceAndSend(file: File, ws: WebSocket, start: number = 0): void {
-    const CHUNK_SIZE = 4 * 1024 * 1024;
+    const CHUNK_SIZE = 4 * 1024 * 1024; // 4MB chunks
+    
     if (start >= file.size) {
+      console.log(`[FRONTEND_UPLOAD] File: ${file.name} | All chunks sent | Total size: ${file.size} bytes`);
       ws.send('DONE');
       return;
     }
+    
     const end = Math.min(start + CHUNK_SIZE, file.size);
     const chunk = file.slice(start, end);
+    const chunkNumber = Math.floor(start / CHUNK_SIZE) + 1;
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    const progressPercent = Math.round((start / file.size) * 100);
+    
+    // Log every 10th chunk or major progress milestones to avoid spam
+    if (chunkNumber % 10 === 0 || progressPercent % 25 === 0) {
+      console.log(`[FRONTEND_UPLOAD] File: ${file.name} | Sending chunk ${chunkNumber}/${totalChunks} | Progress: ${progressPercent}% | Chunk size: ${chunk.size} bytes`);
+    }
+    
     const reader = new FileReader();
     reader.onload = (e) => {
       if (ws.readyState === WebSocket.OPEN) {
-        ws.send(e.target?.result as ArrayBuffer);
-        this.sliceAndSend(file, ws, end);
+        try {
+          ws.send(e.target?.result as ArrayBuffer);
+          // Continue with next chunk
+          this.sliceAndSend(file, ws, end);
+        } catch (sendError) {
+          console.error(`[FRONTEND_UPLOAD] File: ${file.name} | Error sending chunk ${chunkNumber}:`, sendError);
+        }
+      } else {
+        console.warn(`[FRONTEND_UPLOAD] File: ${file.name} | WebSocket closed during chunk ${chunkNumber} send | State: ${ws.readyState}`);
       }
     };
+    
+    reader.onerror = (error) => {
+      console.error(`[FRONTEND_UPLOAD] File: ${file.name} | Error reading chunk ${chunkNumber}:`, error);
+    };
+    
     reader.readAsArrayBuffer(chunk);
   }
 
