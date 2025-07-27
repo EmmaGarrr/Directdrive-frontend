@@ -18,9 +18,11 @@ export class FileService {
   }
 
   getStreamUrl(id: string): string {
-    // EXACT same approach as BatchUploadService.getStreamUrl() that works
-    const url = `${this.fileApiUrl}/download/stream/${id}`;
-    console.log('[FILE_SERVICE] Using fileApiUrl:', this.fileApiUrl);
+    // Hardcode API URL since environment.apiUrl has issues in production
+    const hardcodedApiUrl = 'https://api.mfcnextgen.com';
+    const url = `${hardcodedApiUrl}/api/v1/download/stream/${id}`;
+    console.log('[FILE_SERVICE] Using hardcoded API URL:', hardcodedApiUrl);
+    console.log('[FILE_SERVICE] fileApiUrl was:', this.fileApiUrl);
     console.log('[FILE_SERVICE] Generated download URL:', url);
     return url;
   }
