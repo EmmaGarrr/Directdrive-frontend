@@ -115,17 +115,10 @@
           <strong class="font-bold">Success!</strong>
           <p class="block">Your file(s) are ready to be shared.</p>
           <div class="flex items-center space-x-2 mt-4">
-              <!-- Hidden input for copy functionality -->
               <input type="text" [value]="finalDownloadLink || finalBatchLink" readonly class="w-full p-2 border border-green-300 rounded bg-white text-gray-700 focus:outline-none">
               <button (click)="copyLink((finalDownloadLink || finalBatchLink)!)" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shrink-0">
                   Copy Link
               </button>
-          </div>
-          <!-- Clickable link that opens in a new tab -->
-          <div class="mt-2">
-              <a [href]="finalDownloadLink || finalBatchLink" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline break-all">
-                  {{ finalDownloadLink || finalBatchLink }}
-              </a>
           </div>
       </div>
       <button (click)="startNewUpload()" class="w-full mt-6 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600">
