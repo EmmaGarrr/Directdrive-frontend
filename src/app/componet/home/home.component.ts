@@ -328,8 +328,8 @@ export class HomeComponent implements OnDestroy {
         this.snackBar.open(`Upload completed with errors: ${successCount}/${totalCount} files succeeded`, 'Close', { duration: 5000 });
       } else {
         this.batchState = 'success';
-        // Generate proper batch download link with full API URL
-        this.finalBatchLink = `${environment.apiUrl}/api/v1/batch/download/${batchId}`;
+        // Generate proper batch download link with full API URL (correct endpoint path)
+        this.finalBatchLink = `${environment.apiUrl}/api/v1/batch/download-zip/${batchId}`;
         this.snackBar.open(`All ${totalCount} files uploaded successfully!`, 'Close', { duration: 3000 });
       }
       
