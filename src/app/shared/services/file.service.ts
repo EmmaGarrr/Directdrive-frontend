@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class FileService {
-  // Construct the specific API path for files
+  // Construct the specific API path for files - EXACT same as BatchUploadService
   private fileApiUrl = `${environment.apiUrl}/api/v1`;
 
   constructor(private http: HttpClient) { }
@@ -18,12 +18,9 @@ export class FileService {
   }
 
   getStreamUrl(id: string): string {
-    // Generate complete download URL using same approach as batch downloads
-    // Use production API URL directly since environment.apiUrl has issues in production
-    const apiUrl = 'https://api.mfcnextgen.com';
-    const url = `${apiUrl}/api/v1/download/stream/${id}`;
-    
-    console.log('[FILE_SERVICE] Using direct API URL:', apiUrl);
+    // EXACT same approach as BatchUploadService.getStreamUrl() that works
+    const url = `${this.fileApiUrl}/download/stream/${id}`;
+    console.log('[FILE_SERVICE] Using fileApiUrl:', this.fileApiUrl);
     console.log('[FILE_SERVICE] Generated download URL:', url);
     return url;
   }
