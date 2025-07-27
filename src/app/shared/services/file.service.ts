@@ -19,9 +19,16 @@ export class FileService {
 
   getStreamUrl(id: string): string {
     // Generate complete download URL using environment API URL (same fix as batch downloads)
-    const url = `${environment.apiUrl}/api/v1/download/stream/${id}`;
-    console.log('[FILE_SERVICE] Generated download URL:', url);
+    console.log('[FILE_SERVICE] Raw environment object:', environment);
     console.log('[FILE_SERVICE] environment.apiUrl:', environment.apiUrl);
+    console.log('[FILE_SERVICE] environment.production:', environment.production);
+    
+    // Ensure we have a proper API URL - fallback if environment is not loaded
+    const apiUrl = environment.apiUrl || 'https://api.mfcnextgen.com';
+    const url = `${apiUrl}/api/v1/download/stream/${id}`;
+    
+    console.log('[FILE_SERVICE] Final apiUrl used:', apiUrl);
+    console.log('[FILE_SERVICE] Generated download URL:', url);
     return url;
   }
 
