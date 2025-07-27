@@ -193,7 +193,7 @@ export class BatchUploadComponent implements OnDestroy {
 
   private createIndividualUploadObservable(fileState: IFileState, fileId: string, gdriveUploadUrl: string): Observable<UploadEvent | null> {
     return new Observable((observer: Observer<UploadEvent | null>) => {
-      const finalWsUrl = `${this.wsUrl}/upload/${fileId}?gdrive_url=${encodeURIComponent(gdriveUploadUrl)}`;
+      const finalWsUrl = `${this.wsUrl}/ws_api/upload/${fileId}?gdrive_url=${encodeURIComponent(gdriveUploadUrl)}`;
       
       // Store fileId for HTTP cancel requests
       fileState.fileId = fileId;
@@ -206,8 +206,20 @@ export class BatchUploadComponent implements OnDestroy {
       
       // Store WebSocket reference for cancellation
       fileState.websocket = ws;
+      
+      // Add connection timeout to prevent infinite waiting
+      const connectionTimeout = setTimeout(() => {
+        if (ws.readyState === WebSocket.CONNECTING) {
+          console.error(`[FRONTEND_UPLOAD] File: ${fileState.file.name} (${fileId}) | Connection timeout after 30 seconds`);
+          ws.close();
+          fileState.state = 'error';
+          fileState.error = 'Connection timeout - server may be unavailable';
+          observer.error(new Error('Connection timeout'));
+        }
+      }, 30000); // 30 second timeout
 
       ws.onopen = () => {
+        clearTimeout(connectionTimeout); // Clear timeout on successful connection
         const connectionTime = Date.now() - connectionStartTime;
         console.log(`[FRONTEND_UPLOAD] File: ${fileState.file.name} (${fileId}) | WebSocket connected successfully | Connection time: ${connectionTime}ms`);
         fileState.state = 'uploading';
@@ -258,6 +270,7 @@ export class BatchUploadComponent implements OnDestroy {
       };
       
       ws.onerror = (errorEvent) => {
+        clearTimeout(connectionTimeout); // Clear timeout on error
         console.error(`[FRONTEND_UPLOAD] File: ${fileState.file.name} (${fileId}) | WebSocket error:`, errorEvent);
         fileState.state = 'error';
         fileState.error = 'Connection to server failed. Please check your internet connection.';
@@ -266,6 +279,7 @@ export class BatchUploadComponent implements OnDestroy {
       };
       
       ws.onclose = (event) => {
+        clearTimeout(connectionTimeout); // Clear timeout on close
         const wasClean = event.wasClean;
         const code = event.code;
         const reason = event.reason;
