@@ -193,7 +193,7 @@ export class BatchUploadComponent implements OnDestroy {
 
   private createIndividualUploadObservable(fileState: IFileState, fileId: string, gdriveUploadUrl: string): Observable<UploadEvent | null> {
     return new Observable((observer: Observer<UploadEvent | null>) => {
-      const finalWsUrl = `${this.wsUrl}/ws_api/upload/${fileId}?gdrive_url=${encodeURIComponent(gdriveUploadUrl)}`;
+      const finalWsUrl = `${this.wsUrl}/upload/${fileId}?gdrive_url=${encodeURIComponent(gdriveUploadUrl)}`;
       
       // Store fileId for HTTP cancel requests
       fileState.fileId = fileId;
