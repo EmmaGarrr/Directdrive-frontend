@@ -188,19 +188,35 @@ export class HomeComponent implements OnDestroy {
 
     const observer: Observer<any> = {
       next: (response) => {
-        const fileInfo = response.files.find((f: any) => f.name === this.batchFiles[0].file.name);
-        if (fileInfo) {
-          const sub = this.createIndividualUploadObservable(
-            this.batchFiles[0], 
-            fileInfo.file_id, 
-            fileInfo.gdrive_upload_url
-          ).subscribe({
-            complete: () => {
-              this.checkBatchCompletion(response.batch_id);
-            }
-          });
-          this.batchSubscriptions.push(sub);
-        }
+        console.log(`[HOME_BATCH] Initiating upload for ${response.files.length} files`);
+        
+        // FIXED: Process ALL files, not just the first one
+        response.files.forEach((fileInfo: any) => {
+          const matchingFile = this.batchFiles.find(bf => bf.file.name === fileInfo.original_filename);
+          if (matchingFile) {
+            console.log(`[HOME_BATCH] Starting upload for: ${matchingFile.file.name} (${fileInfo.file_id})`);
+            
+            const sub = this.createIndividualUploadObservable(
+              matchingFile, 
+              fileInfo.file_id, 
+              fileInfo.gdrive_upload_url
+            ).subscribe({
+              complete: () => {
+                console.log(`[HOME_BATCH] Upload completed for: ${matchingFile.file.name}`);
+                this.checkBatchCompletion(response.batch_id);
+              },
+              error: (error) => {
+                console.error(`[HOME_BATCH] Upload failed for: ${matchingFile.file.name}`, error);
+                matchingFile.state = 'error';
+                matchingFile.error = error.message || 'Upload failed';
+                this.checkBatchCompletion(response.batch_id);
+              }
+            });
+            this.batchSubscriptions.push(sub);
+          } else {
+            console.error(`[HOME_BATCH] No matching file found for: ${fileInfo.original_filename}`);
+          }
+        });
       },
       error: (err) => {
         this.batchState = 'error';
@@ -215,12 +231,30 @@ export class HomeComponent implements OnDestroy {
   private createIndividualUploadObservable(fileState: IFileState, fileId: string, gdriveUploadUrl: string): Observable<UploadEvent | null> {
     return new Observable(observer => {
       const wsUrl = `${this.wsUrl}/ws_api/upload/${fileId}?gdrive_url=${encodeURIComponent(gdriveUploadUrl)}`;
+      
+      // Enhanced logging for connection attempts (matching single upload)
+      console.log(`[HOME_BATCH] Connecting to WebSocket: ${wsUrl}`);
       const ws = new WebSocket(wsUrl);
+      let connectionStartTime = Date.now();
       
       // Assign WebSocket reference for cancel functionality
       fileState.websocket = ws;
       
+      // Add connection timeout to prevent infinite waiting
+      const connectionTimeout = setTimeout(() => {
+        if (ws.readyState === WebSocket.CONNECTING) {
+          console.error(`[HOME_BATCH] Connection timeout for file: ${fileState.file.name} (${fileId})`);
+          ws.close();
+          fileState.state = 'error';
+          fileState.error = 'Connection timeout - server may be unavailable';
+          observer.error(new Error('Connection timeout'));
+        }
+      }, 30000); // 30 second timeout
+      
       ws.onopen = () => {
+        clearTimeout(connectionTimeout);
+        const connectionTime = Date.now() - connectionStartTime;
+        console.log(`[HOME_BATCH WS] Connection opened for ${fileId}. Starting file stream. | Connection time: ${connectionTime}ms`);
         fileState.state = 'uploading';
         this.sliceAndSend(fileState.file, ws);
       };
@@ -241,7 +275,9 @@ export class HomeComponent implements OnDestroy {
         }
       };
       
-      ws.onerror = () => {
+      ws.onerror = (errorEvent) => {
+        clearTimeout(connectionTimeout); // Clear timeout on error
+        console.error(`[HOME_BATCH] WebSocket error for file: ${fileState.file.name} (${fileId})`, errorEvent);
         fileState.state = 'error';
         fileState.error = 'WebSocket connection failed';
         fileState.websocket = undefined; // Clean up reference
@@ -249,6 +285,8 @@ export class HomeComponent implements OnDestroy {
       };
       
       ws.onclose = (event) => {
+        clearTimeout(connectionTimeout); // Clear timeout on close
+        console.log(`[HOME_BATCH] WebSocket closed for file: ${fileState.file.name} (${fileId}) | Clean: ${event.wasClean} | Code: ${event.code}`);
         if (fileState.state === 'uploading') {
           fileState.state = 'cancelled';
         }
