@@ -113,8 +113,10 @@ export class HomeComponent implements OnDestroy {
           } else {
             // Handle regular upload success
             this.currentState = 'success';
-            // Fix: Generate proper download link with full API URL instead of relative path
-            this.finalDownloadLink = `${environment.apiUrl}${event.value}`;
+            // Extract file ID from the API path
+            const fileId = event.value.split('/').pop();
+            // Generate frontend route URL like batch downloads (not direct API URL)
+            this.finalDownloadLink = `${window.location.origin}/download/${fileId}`;
             this.snackBar.open('File uploaded successfully!', 'Close', { duration: 3000 });
           }
         }
