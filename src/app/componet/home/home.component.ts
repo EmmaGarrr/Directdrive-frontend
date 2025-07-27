@@ -173,59 +173,56 @@ export class HomeComponent implements OnDestroy {
     }
   }
 
-  // Batch upload methods
+  // Batch upload methods - Using single upload approach to bypass rate limiting
   onUploadBatch(): void {
     if (this.batchFiles.length === 0 || this.batchState === 'processing') return;
 
     this.batchState = 'processing';
     this.finalBatchLink = null;
 
-    const fileInfos: IBatchFileInfo[] = this.batchFiles.map(f => ({
-      filename: f.file.name,
-      size: f.file.size,
-      content_type: f.file.type || 'application/octet-stream'
-    }));
-
-    const observer: Observer<any> = {
-      next: (response) => {
-        console.log(`[HOME_BATCH] Initiating upload for ${response.files.length} files`);
-        
-        // FIXED: Process ALL files, not just the first one
-        response.files.forEach((fileInfo: any) => {
-          const matchingFile = this.batchFiles.find(bf => bf.file.name === fileInfo.original_filename);
-          if (matchingFile) {
-            console.log(`[HOME_BATCH] Starting upload for: ${matchingFile.file.name} (${fileInfo.file_id})`);
-            
-            const sub = this.createIndividualUploadObservable(
-              matchingFile, 
-              fileInfo.file_id, 
-              fileInfo.gdrive_upload_url
-            ).subscribe({
-              complete: () => {
-                console.log(`[HOME_BATCH] Upload completed for: ${matchingFile.file.name}`);
-                this.checkBatchCompletion(response.batch_id);
-              },
-              error: (error) => {
-                console.error(`[HOME_BATCH] Upload failed for: ${matchingFile.file.name}`, error);
-                matchingFile.state = 'error';
-                matchingFile.error = error.message || 'Upload failed';
-                this.checkBatchCompletion(response.batch_id);
-              }
-            });
-            this.batchSubscriptions.push(sub);
-          } else {
-            console.error(`[HOME_BATCH] No matching file found for: ${fileInfo.original_filename}`);
-          }
-        });
-      },
-      error: (err) => {
-        this.batchState = 'error';
-        this.snackBar.open('Batch upload initiation failed', 'Close', { duration: 5000 });
-      },
-      complete: () => {}
-    };
-
-    this.batchUploadService.initiateBatch(fileInfos).subscribe(observer);
+    console.log(`[HOME_BATCH] Initiating upload for ${this.batchFiles.length} files using single upload approach`);
+    
+    // Use single upload initiation for each file to bypass rate-limited batch endpoint
+    this.batchFiles.forEach((fileState, index) => {
+      const fileInfo = {
+        filename: fileState.file.name,
+        size: fileState.file.size,
+        content_type: fileState.file.type || 'application/octet-stream'
+      };
+      
+      console.log(`[HOME_BATCH] Initiating single upload for: ${fileState.file.name}`);
+      
+      // Use the same single upload initiation as working single upload
+      this.uploadService.initiateUpload(fileInfo).subscribe({
+        next: (response) => {
+          console.log(`[HOME_BATCH] Single upload initiated for: ${fileState.file.name} (${response.file_id})`);
+          
+          const sub = this.createIndividualUploadObservable(
+            fileState, 
+            response.file_id, 
+            response.gdrive_upload_url
+          ).subscribe({
+            complete: () => {
+              console.log(`[HOME_BATCH] Upload completed for: ${fileState.file.name}`);
+              this.checkBatchCompletion('individual_uploads');
+            },
+            error: (error) => {
+              console.error(`[HOME_BATCH] Upload failed for: ${fileState.file.name}`, error);
+              fileState.state = 'error';
+              fileState.error = error.message || 'Upload failed';
+              this.checkBatchCompletion('individual_uploads');
+            }
+          });
+          this.batchSubscriptions.push(sub);
+        },
+        error: (err) => {
+          console.error(`[HOME_BATCH] Single upload initiation failed for: ${fileState.file.name}`, err);
+          fileState.state = 'error';
+          fileState.error = 'Failed to initiate upload: ' + (err.message || 'Unknown error');
+          this.checkBatchCompletion('individual_uploads');
+        }
+      });
+    });
   }
 
   private createIndividualUploadObservable(fileState: IFileState, fileId: string, gdriveUploadUrl: string): Observable<UploadEvent | null> {
@@ -313,18 +310,24 @@ export class HomeComponent implements OnDestroy {
     reader.readAsArrayBuffer(chunk);
   }
 
-  private checkBatchCompletion(batchId: string): void {
+  private checkBatchCompletion(uploadType: string): void {
     const allFinished = this.batchFiles.every(f => f.state !== 'uploading');
     if (allFinished) {
       const hasErrors = this.batchFiles.some(f => f.state === 'error');
+      const successCount = this.batchFiles.filter(f => f.state === 'success').length;
+      const totalCount = this.batchFiles.length;
+      
       if (hasErrors) {
         this.batchState = 'error';
-        this.snackBar.open('Some files failed to upload', 'Close', { duration: 5000 });
+        this.snackBar.open(`Upload completed with errors: ${successCount}/${totalCount} files succeeded`, 'Close', { duration: 5000 });
       } else {
         this.batchState = 'success';
-        this.finalBatchLink = `/api/v1/batch/download/${batchId}`;
-        this.snackBar.open('All files uploaded successfully!', 'Close', { duration: 3000 });
+        // For individual uploads, we don't have a batch download link
+        this.finalBatchLink = null;
+        this.snackBar.open(`All ${totalCount} files uploaded successfully!`, 'Close', { duration: 3000 });
       }
+      
+      console.log(`[HOME_BATCH] Upload batch completed: ${successCount}/${totalCount} files succeeded`);
     }
   }
 

@@ -151,7 +151,7 @@ export class UploadService {
     return true;
   }
 
-  private initiateUpload(fileInfo: { filename: string; size: number; content_type: string; }): Observable<InitiateUploadResponse> {
+  public initiateUpload(fileInfo: { filename: string; size: number; content_type: string; }): Observable<InitiateUploadResponse> {
     return this.http.post<InitiateUploadResponse>(`${this.apiUrl}/api/v1/upload/initiate`, fileInfo);
   }
 
