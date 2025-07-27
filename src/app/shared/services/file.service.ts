@@ -18,10 +18,10 @@ export class FileService {
   }
 
   getStreamUrl(id: string): string {
-    // This now correctly constructs the full backend URL for downloads
-    const url = `${this.fileApiUrl}/download/stream/${id}`;
+    // Generate complete download URL using environment API URL (same fix as batch downloads)
+    const url = `${environment.apiUrl}/api/v1/download/stream/${id}`;
     console.log('[FILE_SERVICE] Generated download URL:', url);
-    console.log('[FILE_SERVICE] fileApiUrl:', this.fileApiUrl);
+    console.log('[FILE_SERVICE] environment.apiUrl:', environment.apiUrl);
     return url;
   }
 
