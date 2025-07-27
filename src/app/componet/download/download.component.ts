@@ -25,6 +25,8 @@ export class DownloadComponent implements OnInit {
     if (this.fileId) {
       this.fileMeta$ = this.fileService.getFileMeta(this.fileId);
       this.downloadUrl = this.fileService.getStreamUrl(this.fileId);
+      console.log('[DOWNLOAD_COMPONENT] fileId:', this.fileId);
+      console.log('[DOWNLOAD_COMPONENT] downloadUrl set to:', this.downloadUrl);
     }
   }
 }
