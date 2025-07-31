@@ -23,12 +23,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { BatchUploadComponent } from './componet/batch-upload.component';
 import { BatchDownloadComponent } from './componet/batch-download.component';
 import { AdminPanelComponent } from './admin-panel/admin-panel.component';
 import { ForgotPasswordComponent } from './componet/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './componet/reset-password/reset-password.component';
+import { FilePreviewComponent } from './componet/file-preview/file-preview.component';
+import { SafePipe } from './shared/pipes/safe.pipe';
 
 
 @NgModule({
@@ -45,7 +48,9 @@ import { ResetPasswordComponent } from './componet/reset-password/reset-password
     BatchDownloadComponent,
     AdminPanelComponent,
     ForgotPasswordComponent,
-    ResetPasswordComponent
+    ResetPasswordComponent,
+    FilePreviewComponent,
+    SafePipe
   ],
   imports: [
     BrowserModule,
@@ -61,7 +66,8 @@ import { ResetPasswordComponent } from './componet/reset-password/reset-password
     MatIconModule,
     MatProgressSpinnerModule,
     MatCardModule,
-    MatDialogModule
+    MatDialogModule,
+    MatMenuModule
   ],
   providers: [
     provideAnimationsAsync(),

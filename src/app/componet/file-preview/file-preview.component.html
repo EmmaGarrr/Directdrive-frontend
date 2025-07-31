@@ -68,10 +68,10 @@
         Your browser does not support the video tag.
       </video>
       <div class="video-info" *ngIf="mediaInfo">
-        <p *ngIf="mediaInfo.format">Format: {{ mediaInfo.format }}</p>
-        <p *ngIf="mediaInfo.bitrate">Bitrate: {{ mediaInfo.bitrate }} kbps</p>
-        <p *ngIf="mediaInfo.fps">Frame Rate: {{ mediaInfo.fps }} fps</p>
-        <p *ngIf="mediaInfo.has_audio !== undefined">
+        <p *ngIf="mediaInfo && mediaInfo.format">Format: {{ mediaInfo.format }}</p>
+        <p *ngIf="mediaInfo && mediaInfo.bitrate">Bitrate: {{ mediaInfo.bitrate }} kbps</p>
+        <p *ngIf="mediaInfo && mediaInfo.fps">Frame Rate: {{ mediaInfo.fps }} fps</p>
+        <p *ngIf="mediaInfo && mediaInfo.has_audio !== undefined">
           Audio: {{ mediaInfo.has_audio ? 'Yes' : 'No' }}
         </p>
       </div>
@@ -91,10 +91,10 @@
         </audio>
       </div>
       <div class="audio-info" *ngIf="mediaInfo">
-        <p *ngIf="mediaInfo.format">Format: {{ mediaInfo.format }}</p>
-        <p *ngIf="mediaInfo.bitrate">Bitrate: {{ mediaInfo.bitrate }} kbps</p>
-        <p *ngIf="mediaInfo.sample_rate">Sample Rate: {{ mediaInfo.sample_rate }} Hz</p>
-        <p *ngIf="mediaInfo.channels">Channels: {{ mediaInfo.channels }}</p>
+        <p *ngIf="mediaInfo && mediaInfo.format">Format: {{ mediaInfo.format }}</p>
+        <p *ngIf="mediaInfo && mediaInfo.bitrate">Bitrate: {{ mediaInfo.bitrate }} kbps</p>
+        <p *ngIf="mediaInfo && mediaInfo.sample_rate">Sample Rate: {{ mediaInfo.sample_rate }} Hz</p>
+        <p *ngIf="mediaInfo && mediaInfo.channels">Channels: {{ mediaInfo.channels }}</p>
       </div>
     </div>
 
@@ -113,8 +113,8 @@
         </div>
       </div>
       <div class="image-info" *ngIf="mediaInfo">
-        <p *ngIf="mediaInfo.format">Format: {{ mediaInfo.format }}</p>
-        <p *ngIf="mediaInfo.width && mediaInfo.height">
+        <p *ngIf="mediaInfo && mediaInfo.format">Format: {{ mediaInfo.format }}</p>
+        <p *ngIf="mediaInfo && mediaInfo.width && mediaInfo.height">
           Dimensions: {{ mediaInfo.width }} × {{ mediaInfo.height }}
         </p>
       </div>
@@ -137,7 +137,7 @@
       </div>
       <div class="pdf-info">
         <p>PDF Document</p>
-        <p *ngIf="mediaInfo?.format">Format: {{ mediaInfo.format }}</p>
+        <p *ngIf="mediaInfo && mediaInfo.format">Format: {{ mediaInfo.format }}</p>
       </div>
     </div>
 
@@ -156,7 +156,7 @@
       </div>
       <div class="text-info">
         <p>Text File</p>
-        <p *ngIf="mediaInfo?.format">Format: {{ mediaInfo.format }}</p>
+        <p *ngIf="mediaInfo && mediaInfo.format">Format: {{ mediaInfo.format }}</p>
       </div>
     </div>
 
