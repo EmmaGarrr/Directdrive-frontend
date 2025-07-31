@@ -1,0 +1,41 @@
+<div class="dialog-container" (click)="closeDialog()">
+  <div class="dialog-content" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="dialog-header">
+      <h2 class="filename" mat-dialog-title>{{ data.filename }}</h2>
+      <button mat-icon-button (click)="closeDialog()" aria-label="Close dialog">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <mat-dialog-content class="mat-typography preview-area">
+      <div *ngIf="isLoading" class="loading-spinner">
+        <mat-spinner diameter="50"></mat-spinner>
+      </div>
+
+      <ng-container [ngSwitch]="previewType">
+        <!-- Image Preview -->
+        <img *ngSwitchCase="'image'" [src]="previewUrl" [alt]="data.filename" class="preview-media">
+
+        <!-- Video Preview -->
+        <video *ngSwitchCase="'video'" [src]="previewUrl" controls class="preview-media"></video>
+
+        <!-- PDF Preview -->
+        <embed *ngSwitchCase="'pdf'" [src]="previewUrl" type="application/pdf" class="preview-embed">
+
+        <!-- Text/Code Preview -->
+        <div *ngSwitchCase="'text'" class="preview-text">
+          <pre><code>{{ textContent | async }}</code></pre>
+        </div>
+
+        <!-- Unsupported Fallback -->
+        <div *ngSwitchDefault class="unsupported-preview">
+          <mat-icon>error_outline</mat-icon>
+          <p>Preview is not available for this file type.</p>
+          <p class="content-type">Content Type: {{ data.contentType }}</p>
+        </div>
+      </ng-container>
+    </mat-dialog-content>
+  </div>
+</div>

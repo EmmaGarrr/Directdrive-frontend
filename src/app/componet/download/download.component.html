@@ -1,27 +1,63 @@
-<div class="flex justify-center items-center min-h-[60vh]">
-  <div *ngIf="fileMeta$ | async as file; else loadingOrError" class="w-full max-w-lg p-8 bg-white rounded-lg shadow-2xl text-center">
+<div class="flex flex-col items-center min-h-[80vh] py-8">
+  <div *ngIf="fileMeta$ | async as file; else loadingOrError" class="w-full max-w-4xl">
     
-    <div class="mb-6">
-      <!-- You can add a file type icon here later -->
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-20 h-20 mx-auto text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center p-6 bg-white rounded-t-lg shadow-lg border-b">
+      <div class="flex items-center mb-4 md:mb-0">
+        <mat-icon class="text-blue-500 text-4xl mr-4">description</mat-icon>
+        <div>
+          <h2 class="text-2xl font-bold text-gray-800 break-words">{{ file.filename }}</h2>
+          <p class="text-sm text-gray-500">
+            <span>{{ file.size_bytes / 1024 / 1024 | number:'1.2-2' }} MB</span>
+            <span class="mx-2">|</span>
+            <span>Shared by You</span> <!-- Placeholder -->
+            <span class="mx-2">|</span>
+            <span class="text-orange-500 font-semibold">Expires in 1w</span> <!-- Placeholder -->
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2 shrink-0">
+        <!-- NEW: Preview Button - shown for non-embedded types -->
+        <button *ngIf="previewType === 'other'" (click)="openPreview(file)" mat-stroked-button color="primary">
+          <mat-icon>visibility</mat-icon>
+          Preview
+        </button>
+        <a [href]="downloadUrl" download class="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors duration-300 flex items-center">
+          <mat-icon class="mr-2">download</mat-icon>
+          Download
+        </a>
+      </div>
     </div>
-    
-    <h2 class="text-2xl font-bold text-gray-800 break-words mb-2">{{ file.filename }}</h2>
-    <p class="text-gray-500 mb-8">{{ file.size_bytes / 1024 / 1024 | number:'1.2-2' }} MB</p>
 
-    <a [href]="downloadUrl" 
-       download
-       class="w-full inline-block px-6 py-4 bg-blue-600 text-white font-bold text-lg rounded-lg hover:bg-blue-700 transition-colors duration-300">
-      Download File
-    </a>
+    <!-- Preview Section -->
+    <div class="p-4 bg-gray-800 rounded-b-lg shadow-lg flex justify-center items-center min-h-[50vh]">
+      <ng-container [ngSwitch]="previewType">
+        <!-- Embedded Image -->
+        <img *ngSwitchCase="'image'" [src]="previewUrl" [alt]="file.filename" class="max-w-full max-h-[70vh] object-contain rounded-md">
+        
+        <!-- Embedded Video -->
+        <video *ngSwitchCase="'video'" [src]="previewUrl" controls class="max-w-full max-h-[70vh] rounded-md"></video>
+        
+        <!-- Fallback for ZIP files -->
+        <div *ngSwitchCase="'zip'" class="text-center text-gray-400">
+          <mat-icon class="text-6xl">folder_zip</mat-icon>
+          <p class="mt-4 text-lg">Preview is not available for ZIP archives.</p>
+        </div>
+
+        <!-- Fallback for other types -->
+        <div *ngSwitchDefault class="text-center text-gray-400">
+          <mat-icon class="text-6xl">insert_drive_file</mat-icon>
+          <p class="mt-4 text-lg">Click the 'Preview' button above to view this file.</p>
+        </div>
+      </ng-container>
+    </div>
 
   </div>
 
   <ng-template #loadingOrError>
-    <!-- You can add a spinner here for a better loading state -->
-    <p class="text-gray-500">Loading file information...</p>
-    <!-- In a real app, you would also handle the case where the file is not found -->
+    <div class="text-center">
+      <mat-spinner></mat-spinner>
+      <p class="mt-4 text-gray-500">Loading file information...</p>
+    </div>
   </ng-template>
 </div>

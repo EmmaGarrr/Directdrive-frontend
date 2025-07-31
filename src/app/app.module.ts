@@ -27,7 +27,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { BatchUploadComponent } from './componet/batch-upload.component';
 import { BatchDownloadComponent } from './componet/batch-download.component';
 import { AdminPanelComponent } from './admin-panel/admin-panel.component';
-
+import { PreviewDialogComponent } from './shared/component/preview-dialog/preview-dialog.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +41,8 @@ import { AdminPanelComponent } from './admin-panel/admin-panel.component';
     HeaderComponent,
     BatchUploadComponent,
     BatchDownloadComponent,
-    AdminPanelComponent
+    AdminPanelComponent,
+    PreviewDialogComponent
   ],
   imports: [
     BrowserModule,

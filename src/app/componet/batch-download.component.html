@@ -1,48 +1,79 @@
-<!-- File: src/app/componet/batch-download.component.html -->
+<div class="max-w-4xl mx-auto mt-8">
+  <!-- The *ngIf now ensures 'files' is a valid array before we try to use it -->
+  <div *ngIf="filesMeta$ | async as files" class="bg-white rounded-lg shadow-2xl overflow-hidden">
 
-<div class="flex justify-center items-center min-h-[60vh]">
-  <div *ngIf="filesMeta$ | async as files; else loadingOrError" class="w-full max-w-2xl p-6 bg-white rounded-lg shadow-2xl">
-
-    <div class="flex justify-between items-center mb-6 border-b pb-4">
-        <h2 class="text-2xl font-bold text-gray-800">Files Ready for Download</h2>
-        <!-- ### THIS IS THE MODIFIED PART ### -->
-        <!-- It's now a direct link to the backend zip endpoint -->
-        <a [href]="batchUploadService.batchApiUrl + '/download-zip/' + batchId"
-           class="px-4 py-2 bg-blue-600 text-white font-semibold text-sm rounded-lg hover:bg-blue-700 transition-colors duration-300 shrink-0">
-          Download All (ZIP)  
-        </a>
-        <!-- ### END OF MODIFIED PART ### -->
-    </div>
-
-    <!-- List of files -->
-    <div class="space-y-3">
-      <div *ngFor="let file of files" class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-        <!-- File Icon -->
-        <div class="mr-4">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+    <!-- Header -->
+    <div class="p-6 border-b">
+      <div class="flex justify-between items-center">
+        <div>
+          <!-- FIX 1: Replaced 'files[0]?.filename' with a safer check -->
+          <h2 class="text-2xl font-bold text-gray-800">{{ (files.length > 0 ? files[0].filename : 'Batch Download') }}</h2>
+          <p class="text-sm text-gray-500">
+            <span>{{ files.length }} Files</span>
+            <span class="mx-2">|</span>
+            <!-- FIX 2: Replaced invalid syntax with a call to our new method -->
+            <span>Total Size: {{ calculateTotalSize(files) / 1024 / 1024 | number:'1.2-2' }} MB</span>
+            <span class="mx-2">|</span>
+            <span class="text-orange-500 font-semibold">Expires in 1w</span> <!-- Placeholder -->
+          </p>
         </div>
-        
-        <!-- File Name and Size -->
-        <div class="flex-grow">
-          <p class="font-semibold text-gray-800 break-all">{{ file.filename }}</p>
-          <p class="text-sm text-gray-500">{{ file.size_bytes / 1024 / 1024 | number:'1.2-2' }} MB</p>
+        <div class="flex items-center space-x-2">
+            <a [href]="batchUploadService.batchApiUrl + '/download-zip/' + batchId"
+              class="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors duration-300 flex items-center shrink-0">
+              <mat-icon class="mr-2">folder_zip</mat-icon>
+              Download All
+            </a>
         </div>
-
-        <!-- Individual Download Button -->
-        <a [href]="batchUploadService.getStreamUrl(file._id)" 
-           download
-           class="ml-4 px-3 py-1.5 bg-green-500 text-white font-bold text-xs rounded-md hover:bg-green-600 transition-colors duration-300 shrink-0">
-          Download
-        </a>
       </div>
     </div>
 
+    <!-- File List (No changes needed below this line) -->
+    <div class="p-4">
+      <div class="space-y-2">
+        <!-- File Item -->
+        <div *ngFor="let file of files" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+          <!-- File Icon -->
+          <div class="mr-4">
+            <ng-container [ngSwitch]="getFileType(file.filename)">
+              <mat-icon *ngSwitchCase="'image'" class="text-purple-500">image</mat-icon>
+              <mat-icon *ngSwitchCase="'video'" class="text-red-500">videocam</mat-icon>
+              <mat-icon *ngSwitchCase="'pdf'" class="text-orange-500">picture_as_pdf</mat-icon>
+              <mat-icon *ngSwitchCase="'zip'" class="text-yellow-600">folder_zip</mat-icon>
+              <mat-icon *ngSwitchDefault class="text-blue-500">article</mat-icon>
+            </ng-container>
+          </div>
+          
+          <!-- File Name and Size -->
+          <div class="flex-grow">
+            <p class="font-semibold text-gray-800 break-all">{{ file.filename }}</p>
+            <p class="text-sm text-gray-500">{{ file.size_bytes / 1024 | number:'1.1-1' }} KB</p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="ml-4 flex items-center space-x-2 shrink-0">
+            <!-- NEW PREVIEW BUTTON: Hidden for ZIPs -->
+            <button *ngIf="!file.filename.toLowerCase().endsWith('.zip')" 
+                    mat-icon-button 
+                    (click)="openPreview(file)"
+                    matTooltip="Preview File">
+              <mat-icon class="text-gray-600 hover:text-blue-600">visibility</mat-icon>
+            </button>
+            <a [href]="batchUploadService.getStreamUrl(file._id)" 
+              download
+              mat-icon-button
+              matTooltip="Download File">
+              <mat-icon class="text-gray-600 hover:text-green-600">download</mat-icon>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <ng-template #loadingOrError>
-    <p class="text-gray-500 text-lg">Loading batch information...</p>
-    <!-- You could add more sophisticated error handling here based on API response -->
+    <div class="text-center py-16">
+      <mat-spinner></mat-spinner>
+      <p class="mt-4 text-gray-500 text-lg">Loading batch information...</p>
+    </div>
   </ng-template>
 </div>
