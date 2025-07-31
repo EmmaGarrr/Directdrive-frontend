@@ -72,11 +72,14 @@ export class FileService {
   getPreviewStreamUrl(id: string): string {
     // Get the JWT token from localStorage
     const token = localStorage.getItem('access_token');
+    console.log('[FILE_SERVICE] Token from localStorage:', token ? 'Token found' : 'No token found');
+    
     const url = `${this.hardcodedApiUrl}/api/v1/preview/stream/${id}`;
     
     // Add token as query parameter for authentication
     const authenticatedUrl = token ? `${url}?token=${token}` : url;
     console.log('[FILE_SERVICE] Generated preview stream URL:', authenticatedUrl);
+    console.log('[FILE_SERVICE] Token included:', !!token);
     return authenticatedUrl;
   }
 
