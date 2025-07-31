@@ -60,6 +60,8 @@ import { AuthGuard } from './guards/auth.guard';
 import { BatchUploadComponent } from './componet/batch-upload.component'; 
 import { BatchDownloadComponent } from './componet/batch-download.component';
 import { AdminPanelComponent } from './admin-panel/admin-panel.component';
+import { ForgotPasswordComponent } from './componet/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './componet/reset-password/reset-password.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -67,6 +69,8 @@ const routes: Routes = [
   { path: 'batch-download/:batchId', component: BatchDownloadComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] }, // FIXED: Added missing profile route
   { path: 'download/:id', component: DownloadComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },

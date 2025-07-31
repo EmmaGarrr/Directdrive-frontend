@@ -27,6 +27,15 @@ export interface PasswordChangeData {
   new_password: string;
 }
 
+export interface ForgotPasswordData {
+  email: string;
+}
+
+export interface ResetPasswordData {
+  reset_token: string;
+  new_password: string;
+}
+
 export interface AuthResponse {
   access_token: string;
   token_type: string;
@@ -116,6 +125,20 @@ export class AuthService {
     }).pipe(
       catchError(this.handleError)
     );
+  }
+
+  forgotPassword(forgotData: ForgotPasswordData): Observable<any> {
+    return this.http.post(`${this.API_URL}/forgot-password`, forgotData)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  resetPassword(resetData: ResetPasswordData): Observable<any> {
+    return this.http.post(`${this.API_URL}/reset-password`, resetData)
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 
   loadUserProfile(): Observable<User> {
