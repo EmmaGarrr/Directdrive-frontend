@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FileService, PreviewMetadata, MediaInfo } from '../../shared/services/file.service';
 
@@ -9,6 +9,7 @@ import { FileService, PreviewMetadata, MediaInfo } from '../../shared/services/f
 })
 export class FilePreviewComponent implements OnInit, OnDestroy {
   @Input() fileId!: string;
+  @ViewChild('videoPlayer') videoPlayer!: ElementRef<HTMLVideoElement>;
   
   previewMetadata?: PreviewMetadata;
   loading = true;
@@ -176,5 +177,26 @@ export class FilePreviewComponent implements OnInit, OnDestroy {
 
   retry(): void {
     this.loadPreviewMetadata();
+  }
+
+  // Video control methods
+  onVideoLoaded(): void {
+    console.log('[VIDEO] Video metadata loaded, seeking should now work properly');
+  }
+
+  skipForward(): void {
+    if (this.videoPlayer && this.videoPlayer.nativeElement) {
+      const video = this.videoPlayer.nativeElement;
+      video.currentTime = Math.min(video.currentTime + 10, video.duration || 0);
+      console.log(`[VIDEO] Skipped forward 10s to ${video.currentTime}s`);
+    }
+  }
+
+  skipBackward(): void {
+    if (this.videoPlayer && this.videoPlayer.nativeElement) {
+      const video = this.videoPlayer.nativeElement;
+      video.currentTime = Math.max(video.currentTime - 10, 0);
+      console.log(`[VIDEO] Skipped backward 10s to ${video.currentTime}s`);
+    }
   }
 } 
