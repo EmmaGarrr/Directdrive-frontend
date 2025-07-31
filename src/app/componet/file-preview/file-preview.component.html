@@ -61,10 +61,9 @@
       <video 
         [src]="mediaUrl" 
         controls 
-        preload="metadata"
+        preload="none"
         class="video-player"
-        (error)="onVideoError($event)"
-        crossorigin="anonymous">
+        (error)="onVideoError($event)">
         Your browser does not support the video tag.
       </video>
       <div class="video-info" *ngIf="mediaInfo">
@@ -83,10 +82,9 @@
         <audio 
           [src]="mediaUrl" 
           controls 
-          preload="metadata"
+          preload="none"
           class="audio-player"
-          (error)="onAudioError($event)"
-          crossorigin="anonymous">
+          (error)="onAudioError($event)">
           Your browser does not support the audio tag.
         </audio>
       </div>
@@ -106,8 +104,7 @@
           [alt]="previewMetadata.filename"
           class="preview-image"
           (error)="onImageError()"
-          (load)="imageLoading = false"
-          crossorigin="anonymous">
+          (load)="imageLoading = false">
         <div *ngIf="imageLoading" class="image-loading">
           <mat-spinner diameter="30"></mat-spinner>
         </div>
