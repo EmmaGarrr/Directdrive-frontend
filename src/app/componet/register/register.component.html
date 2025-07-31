@@ -1,130 +1,312 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md w-full space-y-8">
-    <!-- Header -->
-    <div class="text-center">
-      <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
-        Create DirectDrive Account
-      </h2>
-      <p class="mt-2 text-sm text-gray-600">
-        Join our secure file storage platform
-      </p>
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-emerald-50 py-12 px-4 sm:px-6 lg:px-8">
+  <!-- Modern Card Container with Enhanced Design -->
+  <div class="max-w-md w-full">
+    <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all duration-300 hover:shadow-3xl">
+      
+      <!-- Header Section with Enhanced Typography -->
+      <div class="px-8 pt-8 pb-6 text-center">
+        <div class="mb-6">
+          <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <mat-icon class="text-white text-2xl">person_add</mat-icon>
+          </div>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">
+            Create Account
+          </h1>
+          <p class="text-gray-600 text-sm">
+            Join our secure file storage platform
+          </p>
+        </div>
+      </div>
+
+      <!-- Enhanced Registration Form -->
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="px-8 pb-8">
+        <div class="space-y-6">
+          
+          <!-- Enhanced Email Field with Real-time Validation -->
+          <div class="space-y-2">
+            <label for="email" class="block text-sm font-medium text-gray-700">
+              Email Address
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <mat-icon class="h-5 w-5 text-gray-400">email</mat-icon>
+              </div>
+              <input 
+                id="email"
+                type="email" 
+                formControlName="email" 
+                placeholder="Enter your email address"
+                class="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 text-gray-900 placeholder-gray-500"
+                [class.border-green-500]="registerForm.get('email')?.valid && registerForm.get('email')?.touched"
+                [class.border-red-500]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+                [class.focus:ring-green-500]="registerForm.get('email')?.valid && registerForm.get('email')?.touched"
+                [class.focus:border-green-500]="registerForm.get('email')?.valid && registerForm.get('email')?.touched"
+                [attr.aria-describedby]="'email-error'"
+                [attr.aria-invalid]="registerForm.get('email')?.invalid">
+              
+              <!-- Validation Icon -->
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                <mat-icon 
+                  *ngIf="registerForm.get('email')?.touched"
+                  class="h-5 w-5"
+                  [class.text-green-500]="registerForm.get('email')?.valid"
+                  [class.text-red-500]="registerForm.get('email')?.invalid">
+                  {{ registerForm.get('email')?.valid ? 'check_circle' : 'error' }}
+                </mat-icon>
+              </div>
+            </div>
+            
+            <!-- Enhanced Error Message -->
+            <div 
+              *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+              id="email-error"
+              class="flex items-center text-sm text-red-600 mt-1 animate-fadeIn">
+              <mat-icon class="h-4 w-4 mr-1">error_outline</mat-icon>
+              {{ getEmailErrorMessage() }}
+            </div>
+          </div>
+
+          <!-- Enhanced Password Field with Strength Indicator -->
+          <div class="space-y-2">
+            <label for="password" class="block text-sm font-medium text-gray-700">
+              Password
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <mat-icon class="h-5 w-5 text-gray-400">lock</mat-icon>
+              </div>
+              <input 
+                id="password"
+                [type]="hidePassword ? 'password' : 'text'" 
+                formControlName="password" 
+                placeholder="Create a strong password"
+                class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 text-gray-900 placeholder-gray-500"
+                [class.border-green-500]="registerForm.get('password')?.valid && registerForm.get('password')?.touched"
+                [class.border-red-500]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+                [class.focus:ring-green-500]="registerForm.get('password')?.valid && registerForm.get('password')?.touched"
+                [class.focus:border-green-500]="registerForm.get('password')?.valid && registerForm.get('password')?.touched"
+                [attr.aria-describedby]="'password-error'"
+                [attr.aria-invalid]="registerForm.get('password')?.invalid">
+              
+              <!-- Password Toggle Button -->
+              <button 
+                type="button"
+                (click)="hidePassword = !hidePassword"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                [attr.aria-label]="hidePassword ? 'Show password' : 'Hide password'">
+                <mat-icon class="h-5 w-5">
+                  {{ hidePassword ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
+              </button>
+            </div>
+            
+            <!-- Password Strength Indicator -->
+            <div *ngIf="registerForm.get('password')?.value" class="space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-gray-600">Password strength:</span>
+                <span [class]="getPasswordStrengthClass()">{{ getPasswordStrengthText() }}</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  class="h-2 rounded-full transition-all duration-300"
+                  [class]="getPasswordStrengthBarClass()"
+                  [style.width]="getPasswordStrengthPercentage() + '%'">
+                </div>
+              </div>
+            </div>
+            
+            <!-- Enhanced Error Message -->
+            <div 
+              *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+              id="password-error"
+              class="flex items-center text-sm text-red-600 mt-1 animate-fadeIn">
+              <mat-icon class="h-4 w-4 mr-1">error_outline</mat-icon>
+              {{ getPasswordErrorMessage() }}
+            </div>
+          </div>
+
+          <!-- Enhanced Confirm Password Field -->
+          <div class="space-y-2">
+            <label for="confirmPassword" class="block text-sm font-medium text-gray-700">
+              Confirm Password
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <mat-icon class="h-5 w-5 text-gray-400">lock_reset</mat-icon>
+              </div>
+              <input 
+                id="confirmPassword"
+                [type]="hideConfirmPassword ? 'password' : 'text'" 
+                formControlName="confirmPassword" 
+                placeholder="Confirm your password"
+                class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 text-gray-900 placeholder-gray-500"
+                [class.border-green-500]="!registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.value && registerForm.get('password')?.value"
+                [class.border-red-500]="registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.touched"
+                [class.focus:ring-green-500]="!registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.value && registerForm.get('password')?.value"
+                [class.focus:border-green-500]="!registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.value && registerForm.get('password')?.value"
+                [attr.aria-describedby]="'confirm-password-error'"
+                [attr.aria-invalid]="registerForm.hasError('passwordMismatch')">
+              
+              <!-- Password Toggle Button -->
+              <button 
+                type="button"
+                (click)="hideConfirmPassword = !hideConfirmPassword"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                [attr.aria-label]="hideConfirmPassword ? 'Show password' : 'Hide password'">
+                <mat-icon class="h-5 w-5">
+                  {{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
+              </button>
+            </div>
+            
+            <!-- Password Match Indicator -->
+            <div *ngIf="registerForm.get('confirmPassword')?.value && registerForm.get('password')?.value" class="flex items-center text-sm mt-1">
+              <mat-icon 
+                class="h-4 w-4 mr-1"
+                [class.text-green-500]="!registerForm.hasError('passwordMismatch')"
+                [class.text-red-500]="registerForm.hasError('passwordMismatch')">
+                {{ !registerForm.hasError('passwordMismatch') ? 'check_circle' : 'error' }}
+              </mat-icon>
+              <span 
+                [class.text-green-600]="!registerForm.hasError('passwordMismatch')"
+                [class.text-red-600]="registerForm.hasError('passwordMismatch')">
+                {{ !registerForm.hasError('passwordMismatch') ? 'Passwords match' : 'Passwords do not match' }}
+              </span>
+            </div>
+            
+            <!-- Enhanced Error Message -->
+            <div 
+              *ngIf="registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.touched"
+              id="confirm-password-error"
+              class="flex items-center text-sm text-red-600 mt-1 animate-fadeIn">
+              <mat-icon class="h-4 w-4 mr-1">error_outline</mat-icon>
+              {{ getConfirmPasswordErrorMessage() }}
+            </div>
+          </div>
+
+          <!-- Enhanced Password Requirements -->
+          <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+            <p class="text-sm font-medium text-gray-700 mb-3">Password Requirements:</p>
+            <ul class="text-xs text-gray-600 space-y-2">
+              <li class="flex items-center">
+                <mat-icon class="h-4 w-4 mr-2" 
+                         [class.text-green-500]="registerForm.get('password')?.value?.length >= 6"
+                         [class.text-gray-400]="registerForm.get('password')?.value?.length < 6">
+                  {{ registerForm.get('password')?.value?.length >= 6 ? 'check_circle' : 'radio_button_unchecked' }}
+                </mat-icon>
+                At least 6 characters
+              </li>
+              <li class="flex items-center">
+                <mat-icon class="h-4 w-4 mr-2" 
+                         [class.text-green-500]="!registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.value && registerForm.get('password')?.value"
+                         [class.text-gray-400]="registerForm.hasError('passwordMismatch') || !registerForm.get('confirmPassword')?.value">
+                  {{ !registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.value && registerForm.get('password')?.value ? 'check_circle' : 'radio_button_unchecked' }}
+                </mat-icon>
+                Passwords match
+              </li>
+            </ul>
+          </div>
+
+          <!-- Enhanced Submit Button with Loading State -->
+          <div>
+            <button 
+              type="submit" 
+              class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              [disabled]="!registerForm.valid || loading">
+              
+              <!-- Loading Spinner -->
+              <div *ngIf="loading" class="absolute inset-0 flex items-center justify-center">
+                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              </div>
+              
+              <!-- Button Text -->
+              <span [class.opacity-0]="loading" class="transition-opacity duration-200">
+                {{ loading ? 'Creating account...' : 'Create Account' }}
+              </span>
+            </button>
+          </div>
+
+          <!-- Social Registration Section -->
+          <div class="mt-6">
+            <div class="relative">
+              <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-300"></div>
+              </div>
+              <div class="relative flex justify-center text-sm">
+                <span class="px-2 bg-white text-gray-500">Or continue with</span>
+              </div>
+            </div>
+
+            <div class="mt-6 grid grid-cols-2 gap-3">
+              <!-- Google Sign Up -->
+              <button 
+                type="button"
+                class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors duration-200">
+                <svg class="w-5 h-5" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                <span class="ml-2">Google</span>
+              </button>
+
+              <!-- Apple Sign Up -->
+              <button 
+                type="button"
+                class="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors duration-200">
+                <svg class="w-5 h-5" viewBox="0 0 24 24">
+                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                </svg>
+                <span class="ml-2">Apple</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Enhanced Login Link -->
+          <div class="text-center">
+            <p class="text-sm text-gray-600">
+              Already have an account?
+              <button 
+                type="button" 
+                class="font-medium text-green-600 hover:text-green-500 transition-colors duration-200 ml-1"
+                (click)="navigateToLogin()">
+                Sign in here
+              </button>
+            </p>
+          </div>
+        </div>
+      </form>
     </div>
 
-    <!-- Registration Form -->
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="mt-8 space-y-6">
-      <div class="space-y-4">
-        <!-- Email Field -->
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Email address</mat-label>
-          <input matInput 
-                 type="email" 
-                 formControlName="email" 
-                 placeholder="Enter your email"
-                 [class.mat-form-field-invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
-          <mat-icon matSuffix>email</mat-icon>
-          <mat-error *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
-            {{ getEmailErrorMessage() }}
-          </mat-error>
-        </mat-form-field>
-
-        <!-- Password Field -->
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Password</mat-label>
-          <input matInput 
-                 [type]="hidePassword ? 'password' : 'text'" 
-                 formControlName="password" 
-                 placeholder="Create a password"
-                 [class.mat-form-field-invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
-          <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
-            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-          </button>
-          <mat-error *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
-            {{ getPasswordErrorMessage() }}
-          </mat-error>
-        </mat-form-field>
-
-        <!-- Confirm Password Field -->
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Confirm Password</mat-label>
-          <input matInput 
-                 [type]="hideConfirmPassword ? 'password' : 'text'" 
-                 formControlName="confirmPassword" 
-                 placeholder="Confirm your password"
-                 [class.mat-form-field-invalid]="(registerForm.get('confirmPassword')?.invalid || registerForm.hasError('passwordMismatch')) && registerForm.get('confirmPassword')?.touched">
-          <button mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword" type="button">
-            <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-          </button>
-          <mat-error *ngIf="(registerForm.get('confirmPassword')?.invalid || registerForm.hasError('passwordMismatch')) && registerForm.get('confirmPassword')?.touched">
-            {{ getConfirmPasswordErrorMessage() }}
-          </mat-error>
-        </mat-form-field>
-      </div>
-
-      <!-- Password Requirements -->
-      <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
-        <p class="text-sm font-medium text-gray-700 mb-2">Password Requirements:</p>
-        <ul class="text-xs text-gray-600 space-y-1">
-          <li class="flex items-center">
-            <mat-icon class="h-3 w-3 mr-2" 
-                     [class.text-green-500]="registerForm.get('password')?.value?.length >= 6"
-                     [class.text-gray-400]="registerForm.get('password')?.value?.length < 6">
-              {{ registerForm.get('password')?.value?.length >= 6 ? 'check_circle' : 'radio_button_unchecked' }}
-            </mat-icon>
-            At least 6 characters
-          </li>
-          <li class="flex items-center">
-            <mat-icon class="h-3 w-3 mr-2" 
-                     [class.text-green-500]="!registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.value && registerForm.get('password')?.value"
-                     [class.text-gray-400]="registerForm.hasError('passwordMismatch') || !registerForm.get('confirmPassword')?.value">
-              {{ !registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.value && registerForm.get('password')?.value ? 'check_circle' : 'radio_button_unchecked' }}
-            </mat-icon>
-            Passwords match
-          </li>
-        </ul>
-      </div>
-
-      <!-- Submit Button -->
-      <div>
-        <button mat-raised-button 
-                color="primary" 
-                type="submit" 
-                class="w-full" 
-                [disabled]="!registerForm.valid || loading">
-          <span *ngIf="loading" class="flex items-center justify-center">
-            <mat-spinner diameter="20" class="mr-2"></mat-spinner>
-            Creating account...
-          </span>
-          <span *ngIf="!loading">Create Account</span>
-        </button>
-      </div>
-
-      <!-- Login Link -->
-      <div class="text-center">
-        <p class="text-sm text-gray-600">
-          Already have an account?
-          <button type="button" 
-                  mat-button 
-                  color="primary" 
-                  (click)="navigateToLogin()"
-                  class="ml-1">
-            Sign in here
-          </button>
-        </p>
-      </div>
-    </form>
-
-    <!-- Benefits Info -->
-    <div class="mt-6 text-center">
-      <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-        <div class="flex items-center justify-center">
-          <mat-icon class="h-5 w-5 text-green-400 mr-2">verified_user</mat-icon>
-          <div class="text-sm text-green-700">
-            <p class="font-medium">Get access to premium features:</p>
-            <ul class="mt-1 text-xs list-disc list-inside">
-              <li>10GB storage limit</li>
-              <li>ZIP download for multiple files</li>
-              <li>Batch upload capabilities</li>
-              <li>Secure cloud storage</li>
+    <!-- Enhanced Benefits Info Card -->
+    <div class="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-6 shadow-lg">
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+            <mat-icon class="h-5 w-5 text-green-600">verified_user</mat-icon>
+          </div>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-green-900">Get access to premium features</h3>
+          <div class="mt-2 text-sm text-green-700">
+            <ul class="space-y-1">
+              <li class="flex items-center">
+                <mat-icon class="h-4 w-4 mr-2 text-green-500">check_circle</mat-icon>
+                10GB storage limit
+              </li>
+              <li class="flex items-center">
+                <mat-icon class="h-4 w-4 mr-2 text-green-500">check_circle</mat-icon>
+                ZIP download for multiple files
+              </li>
+              <li class="flex items-center">
+                <mat-icon class="h-4 w-4 mr-2 text-green-500">check_circle</mat-icon>
+                Batch upload capabilities
+              </li>
+              <li class="flex items-center">
+                <mat-icon class="h-4 w-4 mr-2 text-green-500">check_circle</mat-icon>
+                Secure cloud storage
+              </li>
             </ul>
           </div>
         </div>

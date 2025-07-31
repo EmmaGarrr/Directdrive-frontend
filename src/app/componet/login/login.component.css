@@ -1,0 +1,309 @@
+/* Enhanced Login Component Styles */
+
+/* Custom animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Animation classes */
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.3s ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Enhanced form field styles */
+.form-field-enhanced {
+  transition: all 0.2s ease-in-out;
+}
+
+.form-field-enhanced:focus-within {
+  transform: translateY(-1px);
+}
+
+/* Custom input styles */
+.custom-input {
+  transition: all 0.2s ease-in-out;
+  border-radius: 12px;
+}
+
+.custom-input:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Validation states */
+.input-valid {
+  border-color: #10b981;
+  box-shadow: 0 0 0 1px #10b981;
+}
+
+.input-invalid {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 1px #ef4444;
+}
+
+/* Enhanced button styles */
+.btn-enhanced {
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-enhanced:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.btn-enhanced:active {
+  transform: translateY(0);
+}
+
+.btn-enhanced:disabled {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Loading spinner styles */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Social login button styles */
+.social-btn {
+  transition: all 0.2s ease-in-out;
+  border: 1px solid #e5e7eb;
+}
+
+.social-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #d1d5db;
+}
+
+/* Enhanced card styles */
+.card-enhanced {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive design improvements */
+@media (max-width: 640px) {
+  .card-enhanced {
+    margin: 1rem;
+    border-radius: 16px;
+  }
+  
+  .custom-input {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fadeIn,
+  .animate-slideIn,
+  .animate-scaleIn,
+  .animate-pulse {
+    animation: none;
+  }
+  
+  .btn-enhanced:hover,
+  .social-btn:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .custom-input {
+    border-width: 2px;
+  }
+  
+  .btn-enhanced {
+    border-width: 2px;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.custom-input:focus,
+.btn-enhanced:focus,
+.social-btn:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Enhanced snackbar styles */
+.enhanced-snackbar {
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.success-snackbar {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.error-snackbar {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.info-snackbar {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+}
+
+/* Icon animations */
+.icon-valid {
+  animation: scaleIn 0.2s ease-out;
+}
+
+.icon-invalid {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+/* Password strength indicator styles */
+.password-strength {
+  height: 4px;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.strength-weak {
+  background: linear-gradient(90deg, #ef4444 0%, #ef4444 25%, #e5e7eb 25%, #e5e7eb 100%);
+}
+
+.strength-fair {
+  background: linear-gradient(90deg, #f59e0b 0%, #f59e0b 50%, #e5e7eb 50%, #e5e7eb 100%);
+}
+
+.strength-good {
+  background: linear-gradient(90deg, #10b981 0%, #10b981 75%, #e5e7eb 75%, #e5e7eb 100%);
+}
+
+.strength-strong {
+  background: linear-gradient(90deg, #10b981 0%, #10b981 100%);
+}
+
+/* Remember me checkbox styles */
+.remember-me-checkbox {
+  accent-color: #3b82f6;
+}
+
+/* Enhanced typography */
+.text-gradient {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Hover effects for interactive elements */
+.interactive-hover {
+  transition: all 0.2s ease-in-out;
+}
+
+.interactive-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Form validation feedback */
+.validation-feedback {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.validation-feedback.error {
+  color: #ef4444;
+}
+
+.validation-feedback.success {
+  color: #10b981;
+}
+
+/* Enhanced focus ring for better accessibility */
+.focus-ring {
+  position: relative;
+}
+
+.focus-ring:focus-within::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border: 2px solid #3b82f6;
+  border-radius: 14px;
+  pointer-events: none;
+  z-index: -1;
+}

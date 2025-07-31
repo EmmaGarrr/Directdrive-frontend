@@ -8,11 +8,12 @@ import { HomeComponent } from './componet/home/home.component';
 import { DownloadComponent } from './componet/download/download.component';
 import { LoginComponent } from './componet/login/login.component';
 import { RegisterComponent } from './componet/register/register.component';
+import { ForgotPasswordComponent } from './componet/forgot-password/forgot-password.component';
 import { ProfileComponent } from './componet/profile/profile.component';
 import { DashboardComponent } from './componet/dashboard/dashboard.component';
 import { HeaderComponent } from './shared/component/header/header.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -36,6 +37,7 @@ import { AdminPanelComponent } from './admin-panel/admin-panel.component';
     DownloadComponent,
     LoginComponent,
     RegisterComponent,
+    ForgotPasswordComponent,
     ProfileComponent,
     DashboardComponent,
     HeaderComponent,
@@ -48,6 +50,7 @@ import { AdminPanelComponent } from './admin-panel/admin-panel.component';
     AppRoutingModule,
     HttpClientModule,
     ReactiveFormsModule,
+    FormsModule,
     BrowserAnimationsModule,
     MatProgressBarModule,
     MatSnackBarModule,
