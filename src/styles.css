@@ -403,3 +403,67 @@ body {
 .border-warning-20 {
   border-color: color-mix(in srgb, var(--warning) 20%, transparent);
 }
+
+/* Enhanced Upload Card Styling */
+.upload-card {
+  min-height: 200px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-card:hover {
+  box-shadow: 0 4px 12px 0 rgb(0 0 0 / 0.15);
+  transform: translateY(-1px);
+}
+
+.upload-card.border-dashed {
+  border-style: dashed;
+  border-width: 2px;
+}
+
+/* Enhanced Download Link Display */
+.download-link-container {
+  background: linear-gradient(145deg, var(--muted), color-mix(in srgb, var(--muted) 90%, white));
+}
+
+.download-link-wrapper {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+.download-link-wrapper p {
+  word-break: break-all;
+  line-height: 1.4;
+  max-height: 4.2em;
+  overflow-y: auto;
+}
+
+/* Success Card Enhancement */
+.card[style*="border-color: var(--success)"] {
+  box-shadow: 0 4px 12px 0 color-mix(in srgb, var(--success) 20%, transparent);
+}
+
+/* Improved Button Spacing */
+.btn-primary + .btn-outline,
+.btn-outline + .btn-primary {
+  margin-left: 0;
+}
+
+/* File Selection Improvements */
+.card .w-10.h-10 {
+  transition: all 0.2s ease;
+}
+
+.card:hover .w-10.h-10 {
+  transform: scale(1.05);
+}
+
+/* Progress Bar Enhancement */
+.progress {
+  box-shadow: inset 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+.progress-indicator {
+  background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 80%, white));
+}
