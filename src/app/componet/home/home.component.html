@@ -1,140 +1,268 @@
-<!-- FINAL UNIFIED UI File: src/app/componet/home/home.component.html -->
+<!-- Modern DirectDrive Upload Interface -->
+<div class="min-h-screen bg-background">
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Upload Area -->
+    <div class="mb-8">
+      <div class="text-center mb-6">
+        <h2 class="text-2xl font-semibold mb-2">Upload Your Files</h2>
+        <p class="text-muted-foreground">
+          Drag and drop files or click to select. Get instant download links.
+        </p>
+      </div>
 
-<div class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
-
-  <!-- Unified Header -->
-  <h2 class="text-2xl font-bold text-center mb-6">
-    <span *ngIf="currentState === 'idle' && batchState === 'idle'">Select File(s) to Upload</span>
-    <span *ngIf="currentState === 'selected' || batchState === 'selected'">Ready to Upload</span>
-    <span *ngIf="currentState === 'uploading' || batchState === 'processing'">Uploading...</span>
-    <span *ngIf="currentState === 'success' || batchState === 'success'">Upload Complete!</span>
-    <span *ngIf="currentState === 'error' || batchState === 'error'">Upload Failed</span>
-  </h2>
-
-  <!-- Unified Drag & Drop Area -->
-  <div *ngIf="(currentState === 'idle' || currentState === 'selected') && (batchState === 'idle' || batchState === 'selected')"
-       class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-500 transition-colors"
-       (click)="fileInput.click()" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
-    <input type="file" #fileInput (change)="onFileSelect($event)" class="hidden" multiple>
-
-    <p class="text-gray-500">Drag & Drop your file(s) here</p>
-    <p class="text-gray-400 text-sm">or click to select</p>
-  </div>
-
-  <!-- ###################### THIS BLOCK IS MODIFIED ###################### -->
-  <!-- SINGLE FILE PREVIEW (Now includes progress bar) -->
-  <div *ngIf="selectedFile && (currentState === 'selected' || currentState === 'uploading')" class="mt-4 p-4 border rounded-lg bg-gray-50 flex items-center space-x-4">
-    <!-- Icon -->
-
-    <div class="shrink-0">
-    <!-- Show the "file" icon only when the state is 'selected' -->
-    <svg *ngIf="currentState === 'selected'" class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-    <!-- Show the "spinning" icon only when the state is 'uploading' -->
-    <svg *ngIf="currentState === 'uploading'" class="w-8 h-8 text-blue-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 9a9 9 0 0114.65-5.35M20 15a9 9 0 01-14.65 5.35"></path></svg>
-    </div>
-
-    <!-- File Details & Progress -->
-    <div class="flex-grow">
-      <p class="text-gray-700 font-semibold break-all">{{ selectedFile.name }}</p>
-      <p class="text-sm text-gray-500">{{ selectedFile.size / 1024 / 1024 | number:'1.2-2' }} MB</p>
-      <!-- Integrated progress bar for single file upload -->
-      <div *ngIf="currentState === 'uploading'" class="mt-2">
-        <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
-        <p class="text-center font-mono text-sm mt-1">{{ uploadProgress }}%</p>
+      <!-- Modern Upload Card -->
+      <div class="card transition-all duration-200" 
+           [class.border-primary]="isDragOver" 
+           [class.bg-primary-5]="isDragOver"
+           [class.border-dashed]="!isDragOver">
+        <div class="card-content p-8">
+          <div class="text-center"
+               (dragover)="onDragOver($event)" 
+               (dragleave)="onDragLeave($event)" 
+               (drop)="onDrop($event)"
+               (click)="fileInput.click()">
+            <input type="file" #fileInput (change)="onFileSelect($event)" class="hidden" multiple>
+            
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center"
+                 [class.bg-primary-10]="isDragOver">
+              <!-- Upload Icon -->
+              <svg class="w-8 h-8" 
+                   [class.text-primary]="isDragOver" 
+                   [class.text-muted-foreground]="!isDragOver"
+                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+              </svg>
+            </div>
+            
+            <h3 class="mb-2 font-medium">
+              {{ isDragOver ? 'Drop files here' : 'Drag & drop your files here' }}
+            </h3>
+            <p class="text-muted-foreground mb-4">
+              or click the button below to select files
+            </p>
+            
+            <button class="btn-primary cursor-pointer">
+              Choose Files
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-    <!-- Upload and Cancel buttons -->
-    <button *ngIf="currentState === 'selected'" (click)="onUploadSingle()" class="ml-4 px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 shrink-0">
-      Upload
-    </button>
-    <button *ngIf="currentState === 'uploading' && !isCancelling" (click)="onCancelUpload()" class="ml-4 px-4 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 shrink-0">
-      Cancel
-    </button>
-    <button *ngIf="currentState === 'uploading' && isCancelling" disabled class="ml-4 px-4 py-2 bg-gray-400 text-white rounded-lg font-semibold cursor-not-allowed shrink-0">
-      Cancelling...
-    </button>
-  </div>
-  <!-- #################### END OF MODIFIED BLOCK ##################### -->
 
-  <!-- BATCH FILE LIST PREVIEW -->
-  <div *ngIf="batchFiles.length > 0 && (batchState === 'selected' || batchState === 'processing')" class="space-y-4 mt-4 max-h-96 overflow-y-auto pr-2">
-    <div *ngFor="let f of batchFiles" class="p-4 border rounded-lg bg-gray-50 flex items-center space-x-4">
-      <!-- Enhanced Icon States -->
-      <div class="shrink-0">
-        <svg *ngIf="f.state === 'pending'" class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-        <svg *ngIf="f.state === 'uploading'" class="w-8 h-8 text-blue-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 9a9 9 0 0114.65-5.35M20 15a9 9 0 01-14.65 5.35"></path></svg>
-        <svg *ngIf="f.state === 'success'" class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        <svg *ngIf="f.state === 'error'" class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-        <svg *ngIf="f.state === 'cancelled'" class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"></path></svg>
+    <!-- Single File Upload -->
+    <div *ngIf="selectedFile && (currentState === 'selected' || currentState === 'uploading')" class="mb-8">
+      <h3 class="mb-4 font-medium">Selected File</h3>
+      <div class="card">
+        <div class="card-content p-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3 flex-1 min-w-0">
+              <div class="w-10 h-10 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                <!-- File icon when selected -->
+                <svg *ngIf="currentState === 'selected'" class="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <!-- Spinning icon when uploading -->
+                <svg *ngIf="currentState === 'uploading'" class="w-5 h-5 text-primary animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 9a9 9 0 0114.65-5.35M20 15a9 9 0 01-14.65 5.35"></path>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="truncate font-medium">{{ selectedFile.name }}</p>
+                <p class="text-sm text-muted-foreground">{{ selectedFile.size / 1024 / 1024 | number:'1.2-2' }} MB</p>
+              </div>
+              <div class="flex items-center space-x-2">
+                <span class="badge" 
+                      [class.badge-secondary]="currentState === 'selected'"
+                      [class.badge-default]="currentState === 'uploading'">
+                  {{ currentState === 'selected' ? 'Ready' : 'Uploading' }}
+                </span>
+                <button *ngIf="currentState === 'selected'" (click)="onUploadSingle()" class="btn-primary">
+                  Upload
+                </button>
+                <button *ngIf="currentState === 'uploading' && !isCancelling" (click)="onCancelUpload()" class="btn-destructive">
+                  Cancel
+                </button>
+                <button *ngIf="currentState === 'uploading' && isCancelling" disabled class="btn-secondary opacity-50 cursor-not-allowed">
+                  Cancelling...
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Progress bar for single file upload -->
+          <div *ngIf="currentState === 'uploading'" class="mt-3">
+            <div class="progress">
+              <div class="progress-indicator" [style.transform]="'translateX(-' + (100 - uploadProgress) + '%)'"></div>
+            </div>
+            <p class="text-sm text-muted-foreground mt-1 text-center">
+              {{ Math.round(uploadProgress) }}% uploaded
+            </p>
+          </div>
+        </div>
       </div>
-      <!-- Enhanced File Details & Progress -->
-      <div class="flex-grow">
-        <p class="font-semibold text-gray-800 break-all">{{ f.file.name }}</p>
-        <p class="text-sm text-gray-500">{{ f.file.size / 1024 / 1024 | number:'1.2-2' }} MB</p>
-        <mat-progress-bar *ngIf="f.state === 'uploading'" mode="determinate" [value]="f.progress" class="mt-1"></mat-progress-bar>
-        <p *ngIf="f.state === 'uploading'" class="text-center font-mono text-sm mt-1">{{ f.progress }}%</p>
-        <p *ngIf="f.state === 'error'" class="text-xs text-red-600 mt-1">{{ f.error }}</p>
-        <p *ngIf="f.state === 'cancelled'" class="text-xs text-orange-600 mt-1">Upload cancelled by user</p>
+    </div>
+
+    <!-- Batch Files Upload -->
+    <div *ngIf="batchFiles.length > 0 && (batchState === 'selected' || batchState === 'processing')" class="mb-8">
+      <h3 class="mb-4 font-medium">Selected Files</h3>
+      <div class="space-y-4 max-h-96 overflow-y-auto">
+        <div *ngFor="let f of batchFiles" class="card">
+          <div class="card-content p-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-3 flex-1 min-w-0">
+                <div class="w-10 h-10 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                  <!-- File state icons -->
+                  <svg *ngIf="f.state === 'pending'" class="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                  <svg *ngIf="f.state === 'uploading'" class="w-5 h-5 text-primary animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 9a9 9 0 0114.65-5.35M20 15a9 9 0 01-14.65 5.35"></path>
+                  </svg>
+                  <!-- Success icon -->
+                  <svg *ngIf="f.state === 'success'" class="w-5 h-5" style="color: var(--success)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <!-- Error icon -->
+                  <svg *ngIf="f.state === 'error'" class="w-5 h-5" style="color: var(--destructive)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <!-- Cancelled icon -->
+                  <svg *ngIf="f.state === 'cancelled'" class="w-5 h-5" style="color: var(--warning)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"></path>
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="truncate font-medium">{{ f.file.name }}</p>
+                  <p class="text-sm text-muted-foreground">{{ f.file.size / 1024 / 1024 | number:'1.2-2' }} MB</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <span class="badge" 
+                        [class.badge-secondary]="f.state === 'pending'"
+                        [class.badge-default]="f.state === 'uploading'"
+                        [class.badge-default]="f.state === 'success'"
+                        [class.badge-destructive]="f.state === 'error'"
+                        [class.badge-outline]="f.state === 'cancelled'">
+                    {{ f.state | titlecase }}
+                  </span>
+                  <button *ngIf="f.state === 'uploading'" (click)="onCancelSingleBatchFile(f)" class="btn-destructive btn-sm">
+                    <!-- X icon -->
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Progress bar for individual files -->
+            <div *ngIf="f.state === 'uploading'" class="mt-3">
+              <div class="progress">
+                <div class="progress-indicator" [style.transform]="'translateX(-' + (100 - f.progress) + '%)'"></div>
+              </div>
+              <p class="text-sm text-muted-foreground mt-1 text-center">{{ Math.round(f.progress) }}% uploaded</p>
+            </div>
+
+            <!-- Error message -->
+            <div *ngIf="f.state === 'error'" class="mt-3 p-2 bg-destructive-10 border border-destructive-20 rounded text-sm text-destructive">
+              {{ f.error }}
+            </div>
+
+            <!-- Cancelled message -->
+            <div *ngIf="f.state === 'cancelled'" class="mt-3 p-2 bg-warning-10 border border-warning-20 rounded text-sm" style="color: var(--warning)">
+              Upload cancelled by user
+            </div>
+          </div>
+        </div>
       </div>
-      <!-- Per-file Cancel Button -->
-      <div class="shrink-0" *ngIf="f.state === 'uploading'">
-        <button (click)="onCancelSingleBatchFile(f)" class="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">
-          Cancel
+      
+      <!-- Batch action buttons -->
+      <div class="mt-4 space-y-2">
+        <button *ngIf="batchState === 'selected'" (click)="onUploadBatch()" class="w-full btn-primary py-3">
+          Upload {{ batchFiles.length }} File(s)
+        </button>
+        <button *ngIf="batchState === 'processing' && !isCancelling" (click)="onCancelAllBatch()" class="w-full btn-destructive py-3">
+          Cancel All Uploads
+        </button>
+        <button *ngIf="batchState === 'processing' && isCancelling" disabled class="w-full btn-secondary opacity-50 cursor-not-allowed py-3">
+          Cancelling...
         </button>
       </div>
     </div>
-    <!-- Upload All Button -->
-    <button *ngIf="batchState === 'selected'" (click)="onUploadBatch()" class="w-full mt-2 bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600">
-      Upload {{ batchFiles.length }} File(s)
-    </button>
-    <!-- Cancel All Button -->
-    <button *ngIf="batchState === 'processing' && !isCancelling" (click)="onCancelAllBatch()" class="w-full mt-2 bg-red-500 text-white py-3 rounded-lg font-semibold hover:bg-red-600">
-      Cancel All Uploads
-    </button>
-    <button *ngIf="batchState === 'processing' && isCancelling" disabled class="w-full mt-2 bg-gray-400 text-white py-3 rounded-lg font-semibold cursor-not-allowed">
-      Cancelling...
-    </button>
-  </div>
 
-  <!-- ####################### THIS BLOCK IS REMOVED ###################### -->
-  <!-- SINGLE UPLOAD - PROGRESS (Original) -->
-  <!--
-  <div *ngIf="!isBatchMode && currentState === 'uploading'">
-    <div class="flex flex-col items-center justify-center p-8">
-        <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
-        <p class="text-center font-mono text-xl mt-2">{{ uploadProgress }}%</p>
-        <p class="text-center text-gray-500 text-sm mt-4">Please keep this window open.</p>
-    </div>
-  </div>
-  -->
-  <!-- #################### END OF REMOVED BLOCK #################### -->
-
-  <!-- SUCCESS & ERROR MESSAGES (for both single and batch) -->
-  <div *ngIf="currentState === 'success' || batchState === 'success'">
-      <div class="mt-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-800 rounded-lg">
-          <strong class="font-bold">Success!</strong>
-          <p class="block">Your file(s) are ready to be shared.</p>
-          <div class="flex items-center space-x-2 mt-4">
-              <input type="text" [value]="finalDownloadLink || finalBatchLink" readonly class="w-full p-2 border border-green-300 rounded bg-white text-gray-700 focus:outline-none">
-              <button (click)="copyLink((finalDownloadLink || finalBatchLink)!)" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shrink-0">
-                  Copy Link
-              </button>
+    <!-- Success State -->
+    <div *ngIf="currentState === 'success' || batchState === 'success'" class="mb-8">
+      <div class="card" style="border-color: var(--success); background-color: color-mix(in srgb, var(--success) 5%, var(--card))">
+        <div class="card-content p-6">
+          <div class="flex items-start space-x-3">
+            <!-- Success icon -->
+            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background-color: var(--success)">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-semibold mb-1" style="color: var(--success)">Upload Complete!</h3>
+              <p class="text-sm text-muted-foreground mb-4">Your file(s) are ready to be shared.</p>
+              
+              <!-- Download link display -->
+              <div class="p-3 bg-muted rounded-lg">
+                <div class="flex items-center justify-between">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm text-muted-foreground mb-1">Download Link:</p>
+                    <p class="text-sm font-mono truncate">{{ finalDownloadLink || finalBatchLink }}</p>
+                  </div>
+                  <div class="flex items-center space-x-2 ml-3">
+                    <button (click)="copyLink((finalDownloadLink || finalBatchLink)!)" class="btn-outline">
+                      <!-- Copy icon -->
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                      </svg>
+                      Copy
+                    </button>
+                    <button (click)="openDownloadLink(finalDownloadLink || finalBatchLink)" class="btn-outline">
+                      <!-- Download icon -->
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
       </div>
-      <button (click)="startNewUpload()" class="w-full mt-6 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600">
-          Upload More Files
+      <button (click)="startNewUpload()" class="w-full btn-secondary py-3">
+        Upload More Files
       </button>
-  </div>
+    </div>
 
-  <div *ngIf="currentState === 'error' || batchState === 'error'">
-     <div class="mt-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-800 rounded">
-        <strong class="font-bold">An Error Occurred</strong>
-        <p *ngIf="currentState === 'error'">{{ errorMessage }}</p>
-        <p *ngIf="batchState === 'error'">Some or all files failed to upload. Please check the status above.</p>
-     </div>
-     <button (click)="startNewUpload()" class="w-full mt-6 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600">
+    <!-- Error State -->
+    <div *ngIf="currentState === 'error' || batchState === 'error'" class="mb-8">
+      <div class="card" style="border-color: var(--destructive); background-color: color-mix(in srgb, var(--destructive) 5%, var(--card))">
+        <div class="card-content p-6">
+          <div class="flex items-start space-x-3">
+            <!-- Error icon -->
+            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background-color: var(--destructive)">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-semibold mb-1" style="color: var(--destructive)">Upload Failed</h3>
+              <p class="text-sm text-muted-foreground" *ngIf="currentState === 'error'">{{ errorMessage }}</p>
+              <p class="text-sm text-muted-foreground" *ngIf="batchState === 'error'">Some or all files failed to upload. Please check the status above.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button (click)="startNewUpload()" class="w-full btn-secondary py-3">
         Try Again
-     </button>
-  </div>
-
+      </button>
+    </div>
+  </main>
 </div>

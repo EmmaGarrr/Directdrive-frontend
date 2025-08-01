@@ -33,6 +33,9 @@ export class BatchUploadComponent implements OnDestroy {
   private wsUrl = environment.wsUrl;
   private apiUrl = environment.apiUrl;
 
+  // Math reference for template
+  public Math = Math;
+
   // --- V V V --- ADD THIS GETTER --- V V V ---
   /**
    * A helper property to check if all files have finished uploading (or failed).
@@ -404,6 +407,10 @@ export class BatchUploadComponent implements OnDestroy {
     navigator.clipboard.writeText(link).then(() => {
       this.snackBar.open('Batch link copied to clipboard!', 'Close', { duration: 2000 });
     });
+  }
+
+  openDownloadLink(link: string): void {
+    window.open(link, '_blank');
   }
 
   onDragOver(event: DragEvent) { event.preventDefault(); }

@@ -45,6 +45,12 @@ export class HomeComponent implements OnDestroy {
   public currentUser: any = null;
   private destroy$ = new Subject<void>();
 
+  // UI state for modern interface
+  public isDragOver = false;
+  
+  // Math reference for template
+  public Math = Math;
+
   constructor(
     private uploadService: UploadService,
     private snackBar: MatSnackBar,
@@ -62,6 +68,7 @@ export class HomeComponent implements OnDestroy {
 
   onDrop(event: DragEvent): void {
     event.preventDefault();
+    this.isDragOver = false;
     this._processFileList(event.dataTransfer?.files || null);
   }
 
@@ -377,6 +384,12 @@ export class HomeComponent implements OnDestroy {
     });
   }
 
+  openDownloadLink(link: string | null): void {
+    if (link) {
+      window.open(link, '_blank');
+    }
+  }
+
   // Enhanced batch upload cancel methods
   onCancelSingleBatchFile(fileState: IFileState): void {
     if (fileState.state === 'uploading' && fileState.websocket) {
@@ -428,10 +441,12 @@ export class HomeComponent implements OnDestroy {
   // Drag and drop handlers
   onDragOver(event: DragEvent): void {
     event.preventDefault();
+    this.isDragOver = true;
   }
 
   onDragLeave(event: DragEvent): void {
     event.preventDefault();
+    this.isDragOver = false;
   }
 
   // Authentication placeholders (to be implemented when AuthService is available)

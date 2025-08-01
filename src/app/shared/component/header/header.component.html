@@ -1,19 +1,30 @@
-<nav class="bg-gray-800 text-white p-4 shadow-md">
-  <div class="container mx-auto flex justify-between items-center">
-    <a routerLink="/" class="text-xl font-bold">DirectDrive</a>
-    <div class="flex items-center space-x-4">
+<!-- Modern Header -->
+<header class="border-b bg-card">
+  <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+    <div class="flex items-center space-x-2">
+      <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+        <!-- Upload icon using SVG -->
+        <svg class="w-5 h-5 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+        </svg>
+      </div>
+      <a routerLink="/" class="text-xl font-semibold text-primary hover:text-primary/80 transition-colors">
+        DirectDrive
+      </a>
+    </div>
+    <div class="flex items-center space-x-3">
       <!-- For authenticated users: Show Profile with user email -->
       <div *ngIf="isLoggedIn" class="flex items-center space-x-3">
-        <span class="text-gray-300 text-sm">Welcome, {{ currentUser?.email }}</span>
-        <a routerLink="/profile" class="px-3 py-2 rounded hover:bg-gray-700 bg-blue-600">Profile</a>
-        <button (click)="logout()" class="px-3 py-2 rounded hover:bg-gray-700 text-gray-300">Logout</button>
+        <span class="text-muted-foreground text-sm">Welcome, {{ currentUser?.email }}</span>
+        <a routerLink="/profile" class="btn-primary">Profile</a>
+        <button (click)="logout()" class="btn-ghost">Logout</button>
       </div>
       
       <!-- For anonymous users: Show Login/Register -->
       <div *ngIf="!isLoggedIn" class="flex items-center space-x-2">
-        <a routerLink="/login" class="px-3 py-2 rounded hover:bg-gray-700">Login</a>
-        <a routerLink="/register" class="px-3 py-2 rounded hover:bg-gray-700 bg-blue-600">Register</a>
+        <a routerLink="/login" class="btn-ghost">Login</a>
+        <a routerLink="/register" class="btn-primary">Register</a>
       </div>
     </div>
   </div>
-</nav>
+</header>
