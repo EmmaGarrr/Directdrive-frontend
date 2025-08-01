@@ -1,22 +1,51 @@
-<!-- Modern DirectDrive Upload Interface -->
-<div class="min-h-screen bg-background">
+<!-- Enhanced Modern DirectDrive Upload Interface -->
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
   <!-- Main Content -->
   <main class="container mx-auto px-4 py-8 max-w-4xl">
-    <!-- Upload Area -->
+    <!-- Enhanced Upload Area -->
     <div class="mb-8">
-      <div class="text-center mb-6">
-        <h2 class="text-2xl font-semibold mb-2">Upload Your Files</h2>
-        <p class="text-muted-foreground">
-          Drag and drop files or click to select. Get instant download links.
+      <div class="text-center mb-8 space-y-4">
+        <div class="inline-flex items-center space-x-3 mb-4">
+          <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
+            <svg class="w-7 h-7 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+          </div>
+          <h1 class="text-3xl font-bold text-primary">DirectDrive</h1>
+        </div>
+        <h2 class="text-3xl font-bold text-slate-900 mb-3">Upload Your Files</h2>
+        <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+          Drag and drop files or click to select. Get instant, shareable download links for your files.
         </p>
+        <div class="flex items-center justify-center space-x-6 text-sm text-slate-500 mt-6">
+          <div class="flex items-center space-x-2">
+            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span>No file size limits</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+            </svg>
+            <span>Secure & encrypted</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            <span>Lightning fast</span>
+          </div>
+        </div>
       </div>
 
-      <!-- Modern Upload Card -->
-      <div class="card upload-card transition-all duration-200" 
+      <!-- Enhanced Modern Upload Card -->
+      <div class="card card-elevated upload-card transition-all duration-300" 
            [class.border-primary]="isDragOver" 
            [class.bg-primary-5]="isDragOver"
-           [class.border-dashed]="!isDragOver">
-        <div class="card-content p-8">
+           [class.border-dashed]="!isDragOver"
+           [class.shadow-xl]="isDragOver">
+        <div class="card-content p-12">
           <div class="text-center"
                (dragover)="onDragOver($event)" 
                (dragleave)="onDragLeave($event)" 
@@ -24,68 +53,83 @@
                (click)="fileInput.click()">
             <input type="file" #fileInput (change)="onFileSelect($event)" class="hidden" multiple>
             
-            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center"
-                 [class.bg-primary-10]="isDragOver">
-              <!-- Upload Icon -->
-              <svg class="w-8 h-8" 
-                   [class.text-primary]="isDragOver" 
+            <div class="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center transition-all duration-300"
+                 [class.bg-primary]="isDragOver"
+                 [class.bg-muted]="!isDragOver"
+                 [class.scale-110]="isDragOver">
+              <!-- Enhanced Upload Icon -->
+              <svg class="w-10 h-10 transition-all duration-300" 
+                   [class.text-white]="isDragOver" 
                    [class.text-muted-foreground]="!isDragOver"
+                   [class.animate-bounce]="isDragOver"
                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                       d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
               </svg>
             </div>
             
-            <h3 class="mb-2 font-medium">
+            <h3 class="mb-3 text-xl font-semibold text-slate-900">
               {{ isDragOver ? 'Drop files here' : 'Drag & drop your files here' }}
             </h3>
-            <p class="text-muted-foreground mb-4">
-              or click the button below to select files
+            <p class="text-slate-600 mb-6 text-base">
+              or click the button below to select files from your device
             </p>
             
-            <button class="btn-primary cursor-pointer">
+            <button class="btn-primary px-8 py-3 text-base font-medium cursor-pointer transform transition-all duration-200 hover:scale-105">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
               Choose Files
             </button>
+            
+            <div class="mt-4 text-xs text-slate-500">
+              Supports all file types • No size limits • Secure upload
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Single File Upload -->
+    <!-- Enhanced Single File Upload -->
     <div *ngIf="selectedFile && (currentState === 'selected' || currentState === 'uploading')" class="mb-8">
-      <h3 class="mb-4 font-medium">Selected File</h3>
-      <div class="card">
-        <div class="card-content p-4">
+      <h3 class="mb-6 text-xl font-semibold text-slate-900">Selected File</h3>
+      <div class="card card-elevated">
+        <div class="card-content p-6">
           <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3 flex-1 min-w-0">
-              <div class="w-10 h-10 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+            <div class="flex items-center space-x-4 flex-1 min-w-0">
+              <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-200"
+                   [class.bg-muted]="currentState === 'selected'"
+                   [class.bg-primary]="currentState === 'uploading'">
                 <!-- File icon when selected -->
-                <svg *ngIf="currentState === 'selected'" class="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg *ngIf="currentState === 'selected'" class="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
                 <!-- Spinning icon when uploading -->
-                <svg *ngIf="currentState === 'uploading'" class="w-5 h-5 text-primary animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg *ngIf="currentState === 'uploading'" class="w-6 h-6 text-white animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5"></path>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 9a9 9 0 0114.65-5.35M20 15a9 9 0 01-14.65 5.35"></path>
                 </svg>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="truncate font-medium">{{ selectedFile.name }}</p>
-                <p class="text-sm text-muted-foreground">{{ selectedFile.size / 1024 / 1024 | number:'1.2-2' }} MB</p>
+                <p class="truncate font-semibold text-slate-900 text-lg">{{ selectedFile.name }}</p>
+                <p class="text-slate-600">{{ selectedFile.size / 1024 / 1024 | number:'1.2-2' }} MB</p>
               </div>
-              <div class="flex items-center space-x-2">
-                <span class="badge" 
+              <div class="flex items-center space-x-3">
+                <span class="badge px-3 py-1" 
                       [class.badge-secondary]="currentState === 'selected'"
                       [class.badge-default]="currentState === 'uploading'">
                   {{ currentState === 'selected' ? 'Ready' : 'Uploading' }}
                 </span>
-                <button *ngIf="currentState === 'selected'" (click)="onUploadSingle()" class="btn-primary">
+                <button *ngIf="currentState === 'selected'" (click)="onUploadSingle()" class="btn-primary px-6 py-2">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                  </svg>
                   Upload
                 </button>
-                <button *ngIf="currentState === 'uploading' && !isCancelling" (click)="onCancelUpload()" class="btn-destructive">
+                <button *ngIf="currentState === 'uploading' && !isCancelling" (click)="onCancelUpload()" class="btn-destructive px-4 py-2">
                   Cancel
                 </button>
-                <button *ngIf="currentState === 'uploading' && isCancelling" disabled class="btn-secondary opacity-50 cursor-not-allowed">
+                <button *ngIf="currentState === 'uploading' && isCancelling" disabled class="btn-secondary opacity-50 cursor-not-allowed px-4 py-2">
                   Cancelling...
                 </button>
               </div>
@@ -193,51 +237,67 @@
       </div>
     </div>
 
-    <!-- Success State -->
+    <!-- Enhanced Success State -->
     <div *ngIf="currentState === 'success' || batchState === 'success'" class="mb-8">
-      <div class="card" style="border-color: var(--success); background-color: color-mix(in srgb, var(--success) 5%, var(--card))">
-        <div class="card-content p-6">
-          <div class="flex items-start space-x-3">
-            <!-- Success icon -->
-            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background-color: var(--success)">
-              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="card card-elevated" style="border-color: var(--success); background: linear-gradient(145deg, color-mix(in srgb, var(--success) 5%, var(--card)), var(--card));">
+        <div class="card-content p-8">
+          <div class="flex items-start space-x-4">
+            <!-- Enhanced Success icon -->
+            <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 animate-pulse" style="background-color: var(--success)">
+              <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
               </svg>
             </div>
             <div class="flex-1">
-              <h3 class="font-semibold mb-1" style="color: var(--success)">Upload Complete!</h3>
-              <p class="text-sm text-muted-foreground mb-4">Your file(s) are ready to be shared.</p>
+              <h3 class="text-2xl font-bold mb-2" style="color: var(--success)">Upload Complete!</h3>
+              <p class="text-slate-600 mb-6">Your file(s) are ready to be shared. Copy the link below or download directly.</p>
               
-              <!-- Download link display -->
-              <div class="download-link-container p-4 bg-muted rounded-lg">
-                <div class="mb-3">
-                  <p class="text-sm font-medium text-muted-foreground mb-2">Download Link:</p>
-                  <div class="download-link-wrapper p-3 bg-background rounded border">
-                    <p class="text-sm font-mono break-all text-foreground">{{ finalDownloadLink || finalBatchLink }}</p>
+              <!-- Enhanced Download link display -->
+              <div class="download-link-container p-6 bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl border border-slate-200">
+                <div class="mb-4">
+                  <p class="text-sm font-semibold text-slate-700 mb-3">Share this download link:</p>
+                  <div class="download-link-wrapper p-4 bg-white rounded-lg border-2 border-slate-200 shadow-sm">
+                    <p class="text-sm font-mono break-all text-slate-800 leading-relaxed">{{ finalDownloadLink || finalBatchLink }}</p>
                   </div>
                 </div>
-                <div class="flex items-center justify-center space-x-3">
-                  <button (click)="copyLink((finalDownloadLink || finalBatchLink)!)" class="btn-primary flex items-center">
+                <div class="flex items-center justify-center space-x-4">
+                  <button (click)="copyLink((finalDownloadLink || finalBatchLink)!)" class="btn-primary flex items-center px-6 py-3 transform transition-all duration-200 hover:scale-105">
                     <!-- Copy icon -->
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                     </svg>
                     Copy Link
                   </button>
-                  <button (click)="openDownloadLink(finalDownloadLink || finalBatchLink)" class="btn-outline flex items-center">
+                  <button (click)="openDownloadLink(finalDownloadLink || finalBatchLink)" class="btn-outline flex items-center px-6 py-3 transform transition-all duration-200 hover:scale-105">
                     <!-- Download icon -->
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                     Download
                   </button>
                 </div>
               </div>
+              
+              <!-- Stats or additional info -->
+              <div class="mt-6 p-4 bg-white/50 rounded-lg border border-slate-200">
+                <div class="flex items-center justify-between text-sm text-slate-600">
+                  <span>File uploaded successfully</span>
+                  <span class="flex items-center">
+                    <svg class="w-4 h-4 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    Secure & Encrypted
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <button (click)="startNewUpload()" class="w-full btn-secondary py-3">
+      <button (click)="startNewUpload()" class="w-full btn-secondary py-4 text-lg font-medium transform transition-all duration-200 hover:scale-[1.02]">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
         Upload More Files
       </button>
     </div>

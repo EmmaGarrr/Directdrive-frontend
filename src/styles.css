@@ -3,55 +3,66 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Modern Design System Variables */
+/* Enhanced Modern Design System Variables - DirectDrive */
 :root {
   --font-size: 14px;
   --background: #ffffff;
-  --foreground: #0a0a0a;
+  --foreground: oklch(0.145 0 0);
   --card: #ffffff;
-  --card-foreground: #0a0a0a;
-  --popover: #ffffff;
-  --popover-foreground: #0a0a0a;
-  --primary: #18181b;
-  --primary-foreground: #fafafa;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
-  --muted: #f4f4f5;
-  --muted-foreground: #71717a;
-  --accent: #f4f4f5;
-  --accent-foreground: #18181b;
-  --destructive: #ef4444;
-  --destructive-foreground: #fafafa;
-  --border: #e4e4e7;
-  --input: #e4e4e7;
-  --ring: #18181b;
-  --radius: 0.5rem;
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: #030213;
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.95 0.0058 264.53);
+  --secondary-foreground: #030213;
+  --muted: #ececf0;
+  --muted-foreground: #717182;
+  --accent: #e9ebef;
+  --accent-foreground: #030213;
+  --destructive: #d4183d;
+  --destructive-foreground: #ffffff;
+  --border: rgba(0, 0, 0, 0.1);
+  --input: transparent;
+  --input-background: #f3f3f5;
+  --ring: oklch(0.708 0 0);
+  --radius: 0.625rem;
   --success: #22c55e;
   --success-foreground: #ffffff;
   --warning: #f59e0b;
   --warning-foreground: #ffffff;
+  --switch-background: #cbced4;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --gradient-primary: linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 85%, #6366f1) 100%);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #fafafa;
-  --card: #0a0a0a;
-  --card-foreground: #fafafa;
-  --popover: #0a0a0a;
-  --popover-foreground: #fafafa;
-  --primary: #fafafa;
-  --primary-foreground: #18181b;
-  --secondary: #27272a;
-  --secondary-foreground: #fafafa;
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
-  --accent: #27272a;
-  --accent-foreground: #fafafa;
-  --destructive: #7f1d1d;
-  --destructive-foreground: #fafafa;
-  --border: #27272a;
-  --input: #27272a;
-  --ring: #d4d4d8;
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --input-background: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --gradient-primary: linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 85%, #8b5cf6) 100%);
 }
 
 /* Base styles */
@@ -190,13 +201,29 @@ body {
   opacity: 0.5;
 }
 
-/* Modern card styles */
+/* Enhanced Modern Card Styles */
 .card {
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background-color: var(--card);
   color: var(--card-foreground);
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-elevated {
+  box-shadow: var(--shadow-md);
+}
+
+.card-elevated:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+}
+
+.card-glass {
+  background-color: color-mix(in srgb, var(--card) 80%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
 }
 
 .card-header {
@@ -230,32 +257,65 @@ body {
   padding-top: 0;
 }
 
-/* Modern input styles */
+/* Enhanced Modern Input Styles */
 .input {
   display: flex;
-  height: 2.5rem;
+  height: 2.75rem;
   width: 100%;
-  border-radius: 0.375rem;
-  border: 1px solid var(--input);
-  background-color: var(--background);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background-color: var(--input-background, var(--background));
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
-  transition: all 0.2s;
+  font-weight: var(--font-weight-normal);
+  line-height: 1.5;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--foreground);
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--ring);
-  box-shadow: 0 0 0 2px var(--ring);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent);
+  background-color: var(--background);
+}
+
+.input:hover:not(:focus) {
+  border-color: color-mix(in srgb, var(--border) 60%, var(--primary));
 }
 
 .input:disabled {
   cursor: not-allowed;
   opacity: 0.5;
+  background-color: var(--muted);
 }
 
 .input::placeholder {
   color: var(--muted-foreground);
+  font-weight: var(--font-weight-normal);
+}
+
+/* Input with icons */
+.input-with-icon {
+  position: relative;
+}
+
+.input-with-icon .input {
+  padding-left: 2.5rem;
+}
+
+.input-with-icon .input-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted-foreground);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.input-with-icon .input:focus + .input-icon {
+  color: var(--primary);
 }
 
 /* Modern badge styles */
@@ -462,8 +522,96 @@ body {
 /* Progress Bar Enhancement */
 .progress {
   box-shadow: inset 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  background: linear-gradient(90deg, var(--muted), color-mix(in srgb, var(--muted) 90%, white));
 }
 
 .progress-indicator {
   background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 80%, white));
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+/* Modern Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+/* Enhanced Button Styles */
+.btn-primary:hover {
+  background: var(--gradient-primary);
+  box-shadow: 0 8px 25px -8px var(--primary);
+  transform: translateY(-1px);
+}
+
+.btn-outline:hover {
+  box-shadow: 0 4px 15px -3px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+/* Improved Focus States */
+.btn-primary:focus,
+.btn-outline:focus,
+.btn-ghost:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+.input:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+/* Responsive Design Enhancements */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .card-content {
+    padding: 1rem;
+  }
+  
+  .btn-primary,
+  .btn-outline,
+  .btn-secondary {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+  }
+}
+
+/* Modern Backdrop Filter Support */
+@supports (backdrop-filter: blur(12px)) {
+  .card-glass {
+    backdrop-filter: blur(12px);
+  }
+}
+
+@supports not (backdrop-filter: blur(12px)) {
+  .card-glass {
+    background-color: var(--card);
+  }
 }
