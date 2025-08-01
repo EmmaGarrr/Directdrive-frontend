@@ -1,21 +1,6 @@
-/* Profile component styles */
-.profile-container {
-  min-height: 100vh;
-  background-color: #f9fafb;
-}
+/* Enhanced Modern Profile Component - DirectDrive */
 
-.storage-progress {
-  transition: all 0.3s ease-in-out;
-}
-
-.profile-card {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-.gradient-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
+/* Form animations */
 .form-section {
   animation: slideIn 0.3s ease-in-out;
 }
@@ -31,21 +16,120 @@
   }
 }
 
-/* Custom styling for material components */
-::ng-deep .mat-progress-bar-fill::after {
-  background-color: currentColor;
+/* Progress bar custom styling */
+.progress {
+  background-color: var(--muted);
+  border-radius: 9999px;
+  overflow: hidden;
 }
 
+.progress-bar {
+  background: var(--gradient-primary);
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.6s ease;
+}
+
+/* Badge styling */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* Button enhancements */
+.btn-destructive {
+  color: var(--destructive-foreground);
+  border-color: var(--destructive);
+}
+
+.btn-destructive:hover {
+  background-color: var(--destructive);
+  color: var(--destructive-foreground);
+}
+
+/* Custom styling for Angular Material components */
 ::ng-deep .mat-form-field {
   width: 100%;
 }
 
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-outline {
+  color: var(--border);
+}
+
+::ng-deep .mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
+  color: var(--primary);
+}
+
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-label {
+  color: var(--muted-foreground);
+}
+
+::ng-deep .mat-form-field-appearance-outline.mat-focused .mat-form-field-label {
+  color: var(--primary);
+}
+
+::ng-deep .mat-input-element {
+  color: var(--foreground);
+  caret-color: var(--primary);
+}
+
+::ng-deep .mat-input-element::placeholder {
+  color: var(--muted-foreground);
+}
+
+::ng-deep .mat-icon-button {
+  color: var(--muted-foreground);
+}
+
+::ng-deep .mat-icon-button:hover {
+  color: var(--foreground);
+}
+
+/* Snackbar styling */
 ::ng-deep .success-snackbar {
-  background-color: #10b981 !important;
-  color: white !important;
+  background-color: var(--success) !important;
+  color: var(--success-foreground) !important;
 }
 
 ::ng-deep .error-snackbar {
-  background-color: #ef4444 !important;
-  color: white !important;
+  background-color: var(--destructive) !important;
+  color: var(--destructive-foreground) !important;
+}
+
+/* Loading spinner styling */
+::ng-deep .mat-spinner circle {
+  stroke: currentColor;
+}
+
+/* Card content responsive adjustments */
+@media (max-width: 768px) {
+  .card-content {
+    padding: 1rem;
+  }
+  
+  .card-header {
+    padding: 1rem 1rem 0.5rem;
+  }
+}
+
+/* Enhanced hover effects */
+.card:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Icon sizing consistency */
+.w-3 {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.h-3 {
+  width: 0.75rem;
+  height: 0.75rem;
 }
