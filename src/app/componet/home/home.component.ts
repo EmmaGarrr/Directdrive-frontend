@@ -487,7 +487,7 @@ export class HomeComponent implements OnDestroy {
   }
 
   // Reset batch upload to idle state with smooth transition
-  private resetBatchToIdle(): void {
+  resetBatchToIdle(): void {
     setTimeout(() => {
       this.batchState = 'idle';
       this.batchFiles = [];
