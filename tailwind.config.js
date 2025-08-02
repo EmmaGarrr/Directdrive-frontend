@@ -4,6 +4,20 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // BOLT Color Palette
+        'bolt-black': '#020A18',
+        'bolt-medium-black': '#10103C',
+        'bolt-dark-purple': '#4322AA',
+        'bolt-blue': '#135EE3',
+        'bolt-cyan': '#68D8FC',
+        'bolt-purple': '#B688FF',
+        'bolt-white': '#F8F8FE',
+        'bolt-mid-blue': '#005CFF',
+        'bolt-light-blue': '#D1D8FA',
+        'bolt-light-cyan': '#B2ECFF',
+        'bolt-light-purple': '#C5B8FF',
+        
+        // Legacy colors (keep for compatibility)
         astronaut: {
           '50': '#f1f5fd',
           '100': '#e0eaf9',

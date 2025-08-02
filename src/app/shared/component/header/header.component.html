@@ -1,5 +1,7 @@
-<!-- Enhanced Modern Header with Premium Gradient -->
-<header class="border-b bg-white/10 backdrop-blur-md shadow-lg sticky top-0 z-50 premium-header">
+<!-- BOLT-Inspired Header with Geometric Elements -->
+<header class="border-b bg-white/10 backdrop-blur-md shadow-lg fixed top-0 left-0 right-0 z-50 premium-header">
+  <!-- Subtle Geometric Accent -->
+  <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-bolt-cyan via-bolt-blue to-bolt-purple opacity-60"></div>
   <div class="container mx-auto px-4 py-4">
     <div class="flex items-center justify-between">
       <!-- Enhanced Logo Section -->
@@ -19,6 +21,14 @@
           </span>
         </div>
       </div>
+
+      <!-- Professional Navigation -->
+      <nav class="hidden lg:flex items-center space-x-8 mr-8">
+        <a href="#how-it-works" class="text-white/90 hover:text-white transition-colors font-medium text-sm">How it Works</a>
+        <a href="#pricing" class="text-white/90 hover:text-white transition-colors font-medium text-sm">Pricing</a>
+        <a href="#security" class="text-white/90 hover:text-white transition-colors font-medium text-sm">Security</a>
+        <a href="#enterprise" class="text-white/90 hover:text-white transition-colors font-medium text-sm">Enterprise</a>
+      </nav>
 
       <!-- Enhanced Navigation -->
       <div class="flex items-center space-x-4">
@@ -46,16 +56,21 @@
           </button>
         </div>
         
-        <!-- For anonymous users: Enhanced Login/Register -->
-        <div *ngIf="!isLoggedIn" class="flex items-center space-x-3">
-          <a routerLink="/login" class="btn-ghost px-6 py-2 text-white/90 hover:text-white font-medium transition-all duration-200">
+        <!-- For anonymous users: Professional Login/Register -->
+        <div *ngIf="!isLoggedIn" class="flex items-center space-x-4">
+          <!-- Trust Badge -->
+          <div class="hidden lg:flex items-center space-x-2 text-white/80 text-xs bg-white/10 px-3 py-1.5 rounded-full">
+            <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+            <span class="font-medium">99.9% Uptime</span>
+          </div>
+          
+          <a routerLink="/login" class="text-white/90 hover:text-white font-medium transition-all duration-200 px-4 py-2">
             Login
           </a>
-          <a routerLink="/register" class="btn-primary px-6 py-2 font-medium shadow-md transform transition-all duration-200 hover:scale-105">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
-            </svg>
-            Register
+          
+          <!-- Enhanced Start Free Button -->
+          <a routerLink="/register" class="bg-white text-primary px-6 py-2.5 rounded-lg font-bold hover:bg-slate-100 transition-all duration-200 shadow-sm">
+            Start Free
           </a>
         </div>
 

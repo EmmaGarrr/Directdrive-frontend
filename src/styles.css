@@ -87,20 +87,18 @@ html, body {
 body { 
   margin: 0; 
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background: linear-gradient(135deg, 
-    #020A18 0%, 
-    #10103C 25%, 
-    #4322AA 50%, 
-    #135EE3 75%, 
-    #68D8FC 100%);
-  background-size: 400% 400%;
+  background: #020A18;
+  background-image: 
+    linear-gradient(135deg, rgba(67, 34, 170, 0.3) 0%, transparent 50%),
+    linear-gradient(225deg, rgba(19, 94, 227, 0.2) 0%, transparent 50%),
+    linear-gradient(45deg, rgba(104, 216, 252, 0.1) 0%, transparent 30%);
   background-attachment: fixed;
-  animation: globalGradientShift 15s ease infinite;
   color: var(--foreground);
   line-height: 1.6;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 /* BOLT-Inspired Typography System */
@@ -715,29 +713,53 @@ p {
   }
 }
 
-/* Premium Global Gradient Animation */
-@keyframes globalGradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+/* BOLT Static Geometric Background */
+.geometric-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.geometric-background::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 60%;
+  height: 120%;
+  background: linear-gradient(135deg, rgba(67, 34, 170, 0.4) 0%, rgba(19, 94, 227, 0.3) 100%);
+  clip-path: polygon(30% 0%, 100% 0%, 70% 100%, 0% 100%);
+}
+
+.geometric-background::after {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  left: -10%;
+  width: 50%;
+  height: 80%;
+  background: linear-gradient(45deg, rgba(104, 216, 252, 0.2) 0%, rgba(19, 94, 227, 0.1) 100%);
+  clip-path: polygon(0% 0%, 70% 0%, 100% 70%, 30% 100%);
 }
 
 /* BOLT Premium Header Background */
 .premium-header {
-  background: linear-gradient(135deg, 
-    rgba(2, 10, 24, 0.95) 0%, 
-    rgba(16, 16, 60, 0.95) 25%, 
-    rgba(67, 34, 170, 0.95) 50%, 
-    rgba(19, 94, 227, 0.95) 75%, 
-    rgba(104, 216, 252, 0.95) 100%);
-  background-size: 400% 400%;
-  animation: globalGradientShift 15s ease infinite;
+  background: rgba(2, 10, 24, 0.9);
   border-bottom: 1px solid rgba(104, 216, 252, 0.2);
   backdrop-filter: blur(20px);
+}
+
+.premium-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, rgba(67, 34, 170, 0.1) 0%, rgba(19, 94, 227, 0.05) 50%, rgba(104, 216, 252, 0.1) 100%);
+  z-index: -1;
 }

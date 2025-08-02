@@ -1,72 +1,121 @@
-<!-- Modern Hero Section with Premium Global Background -->
-<div class="min-h-screen relative z-10 p-4 md:p-8">
-  <!-- Main Hero Container -->
-  <div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl min-h-[80vh] relative overflow-hidden">
+<!-- BOLT-Inspired Geometric Background -->
+<div class="geometric-background"></div>
+
+<!-- Lightning Bolt SVG Elements -->
+<div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+  <!-- Large Lightning Shape - Top Right -->
+  <svg class="absolute top-0 right-0 w-1/2 h-full opacity-10" viewBox="0 0 400 800" fill="none">
+    <path d="M150 0 L350 200 L250 200 L400 400 L200 300 L300 300 L50 600 L250 450 L150 450 Z" 
+          fill="url(#lightningGradient1)" />
+    <defs>
+      <linearGradient id="lightningGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#68D8FC;stop-opacity:0.3" />
+        <stop offset="50%" style="stop-color:#135EE3;stop-opacity:0.2" />
+        <stop offset="100%" style="stop-color:#4322AA;stop-opacity:0.1" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- Medium Lightning Shape - Bottom Left -->
+  <svg class="absolute bottom-0 left-0 w-1/3 h-2/3 opacity-15" viewBox="0 0 300 400" fill="none">
+    <path d="M50 0 L150 100 L100 100 L200 200 L100 150 L150 150 L0 300 L100 200 L50 200 Z" 
+          fill="url(#lightningGradient2)" />
+    <defs>
+      <linearGradient id="lightningGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#4322AA;stop-opacity:0.3" />
+        <stop offset="100%" style="stop-color:#68D8FC;stop-opacity:0.1" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- Angular Geometric Shapes -->
+  <div class="absolute top-1/4 left-1/4 w-32 h-32 opacity-5">
+    <div class="w-full h-full bg-gradient-to-br from-bolt-cyan to-bolt-blue transform rotate-45"></div>
+  </div>
+  
+  <div class="absolute bottom-1/3 right-1/3 w-24 h-24 opacity-5">
+    <div class="w-full h-full bg-gradient-to-tl from-bolt-purple to-bolt-dark-purple transform rotate-12"></div>
+  </div>
+</div>
+<div class="relative z-10 p-4 md:p-8 py-12">
+  <!-- Professional Hero Container -->
+  <div class="max-w-4xl mx-auto bg-white rounded-3xl border border-slate-200 shadow-xl relative overflow-hidden">
     
-    <!-- Floating Decorative Elements -->
+    <!-- Trust & Security Badges -->
     <div class="absolute inset-0 pointer-events-none">
-      <!-- Drop.ing Badge (Top Left) -->
-      <div class="absolute top-16 left-16 bg-white/80 backdrop-blur-sm border border-white/40 rounded-xl px-4 py-3 shadow-lg floating-slow">
+      <!-- Security Compliance (Top Left) -->
+      <div class="absolute top-6 left-6 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm border border-slate-200">
         <div class="flex items-center space-x-2">
-          <div class="w-8 h-8 bg-coral-400 rounded-lg flex items-center justify-center">
-            <span class="text-white text-sm font-bold">D</span>
+          <div class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+            <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
           </div>
-          <span class="text-coral-700 font-medium">Drop.ing</span>
+          <span class="text-xs font-semibold text-slate-700">SOC2 Compliant</span>
         </div>
       </div>
       
-      <!-- Music Note (Left Side) -->
-      <div class="absolute top-1/3 left-8 bg-gradient-to-br from-coral-400 to-coral-500 rounded-2xl p-4 shadow-lg transform rotate-12 floating-medium">
-        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-        </svg>
-      </div>
-      
-      <!-- Cloud Icon (Top Right) -->
-      <div class="absolute top-20 right-16 bg-white/70 backdrop-blur-sm border border-white/40 rounded-2xl p-4 shadow-lg floating-fast">
-        <svg class="w-8 h-8 text-mint-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9"/>
-        </svg>
-      </div>
-      
-      <!-- Rating Stars (Right Side) -->
-      <div class="absolute top-1/3 right-8 bg-white/90 backdrop-blur-sm border border-white/50 rounded-xl p-3 shadow-lg floating-slow">
-        <div class="flex items-center space-x-1">
-          <div class="w-6 h-6 bg-mint-100 rounded-full flex items-center justify-center">
-            <svg class="w-3 h-3 text-mint-600" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2L9 9l-7 0 5.5 4.5L5 22l7-4 7 4-2.5-8.5L22 9l-7 0z"/>
-            </svg>
-          </div>
-          <div class="flex space-x-1">
-            <span class="text-yellow-400">★</span>
-            <span class="text-yellow-400">★</span>
-            <span class="text-yellow-400">★</span>
-            <span class="text-yellow-400">★</span>
-            <span class="text-yellow-400">★</span>
+      <!-- User Count & Rating (Top Right) -->
+      <div class="absolute top-6 right-6 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm border border-slate-200">
+        <div class="flex items-center space-x-2">
+          <span class="text-yellow-400 text-sm">★★★★★</span>
+          <div class="text-xs text-slate-600">
+            <div class="font-semibold">4.9/5</div>
+            <div class="text-slate-500">2M+ users</div>
           </div>
         </div>
       </div>
     </div>
     
-    <!-- Main Content -->
-    <div class="relative z-10 px-8 py-16 text-center">
-      <!-- Hero Title -->
-      <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 mb-6 leading-tight tracking-tight">
-        Shockingly Simple<br/>
-        <span class="text-primary">File Transfer.</span>
-      </h1>
+    <!-- Professional Hero Section -->
+    <div class="relative z-10 px-8 py-8">
+      <div class="max-w-3xl mx-auto text-center">
+        <!-- Value-Driven Headline -->
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 mb-4 leading-tight tracking-tight">
+          Transfer Files Up to <span class="text-primary">100GB</span><br/>
+          with Military-Grade Encryption
+        </h1>
+        
+        <!-- Social Proof Subtitle -->
+        <p class="text-lg text-slate-600 mb-6 max-w-2xl mx-auto font-medium">
+          Join <span class="font-bold text-slate-800">2M+ professionals</span> who trust DirectDrive for secure file sharing
+        </p>
+        
+        <!-- Trust Badges Row -->
+        <div class="flex items-center justify-center space-x-6 mb-8 text-sm text-slate-600">
+          <div class="flex items-center space-x-2">
+            <div class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+              <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <span class="font-semibold">256-bit Encryption</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+              <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <span class="font-semibold">GDPR Compliant</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="w-4 h-4 bg-purple-500 rounded-full flex items-center justify-center">
+              <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <span class="font-semibold">Zero-Knowledge</span>
+          </div>
+        </div>
+      </div>
       
-      <!-- Subtitle -->
-      <p class="text-xl text-slate-600 mb-12 max-w-2xl mx-auto font-medium">
-        The quickest, safest, effortless-est way to transfer files online.
-      </p>
-      
-      <!-- Upload Section -->
-      <div class="max-w-lg mx-auto mb-16">
+      <!-- Optimized Upload Section -->
+      <div class="max-w-lg mx-auto mb-8">
         
         <!-- Default Upload Area (when no file selected) -->
         <div *ngIf="!selectedFile && batchFiles.length === 0 && currentState !== 'success' && batchState !== 'success' && currentState !== 'error' && batchState !== 'error'"
-             class="bg-mint-50 border-2 border-dashed border-mint-200 rounded-2xl p-8 transition-all duration-300"
+             class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl p-6 transition-all duration-300"
              [ngClass]="{
                'border-primary bg-primary/5 shadow-lg': isDragOver,
                'hover:border-mint-300': !isDragOver
@@ -78,8 +127,8 @@
           <input type="file" #fileInput (change)="onFileSelect($event)" class="hidden" multiple>
           
           <div class="text-center">
-            <div class="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-mint-200 to-mint-300 rounded-full flex items-center justify-center pulse-glow">
-              <span class="material-symbols-outlined text-2xl text-mint-700">cloud_upload</span>
+            <div class="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center hover:scale-105 transition-transform">
+              <span class="material-symbols-outlined text-2xl text-primary">cloud_upload</span>
             </div>
             
             <h3 class="text-lg font-semibold text-slate-900 mb-2">
@@ -260,14 +309,59 @@
 
       </div>
       
-      <!-- CTA Section -->
-      <div class="bg-slate-50 rounded-2xl p-8 max-w-2xl mx-auto">
-        <p class="text-lg text-slate-700 mb-4">
-          Do you want to <span class="font-bold text-primary">50 GB Free*</span> storage?
-        </p>
-        <button class="btn-primary px-8 py-3">
-          Create an Account
-        </button>
+      <!-- Conversion-Optimized CTA Section -->
+      <div class="space-y-6">
+        <!-- Primary CTA -->
+        <div class="text-center">
+          <button class="btn-primary px-8 py-4 text-lg font-bold mb-3 shadow-lg hover:shadow-xl transition-all">
+            Get 50GB Free - No Credit Card Required
+          </button>
+          <p class="text-sm text-slate-500">
+            <span class="inline-flex items-center">
+              <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+              </svg>
+              Files auto-deleted after 30 days for privacy
+            </span>
+          </p>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="bg-slate-50 rounded-2xl p-6 max-w-2xl mx-auto">
+          <h3 class="font-bold text-slate-900 mb-4 text-center">Why professionals choose DirectDrive</h3>
+          <div class="grid grid-cols-3 gap-4 text-sm">
+            <div class="text-center">
+              <div class="text-slate-500 font-medium mb-2">Dropbox</div>
+              <div class="bg-white rounded-lg p-3 border">
+                <div class="font-bold text-slate-900">2GB</div>
+                <div class="text-slate-500">Free storage</div>
+              </div>
+            </div>
+            <div class="text-center">
+              <div class="text-slate-500 font-medium mb-2">Google Drive</div>
+              <div class="bg-white rounded-lg p-3 border">
+                <div class="font-bold text-slate-900">15GB</div>
+                <div class="text-slate-500">Free storage</div>
+              </div>
+            </div>
+            <div class="text-center relative">
+              <div class="text-primary font-bold mb-2">DirectDrive</div>
+              <div class="bg-primary/10 rounded-lg p-3 border-2 border-primary relative">
+                <div class="absolute -top-2 -right-2 bg-primary text-white text-xs px-2 py-1 rounded-full font-bold">BEST</div>
+                <div class="font-bold text-primary">50GB</div>
+                <div class="text-slate-600">Free forever</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-time Activity -->
+        <div class="text-center">
+          <div class="inline-flex items-center bg-green-50 text-green-700 px-4 py-2 rounded-full text-sm font-medium">
+            <div class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+            <span class="font-semibold">1,247 files</span> securely transferred in the last hour
+          </div>
+        </div>
       </div>
     </div>
   </div>
