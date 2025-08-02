@@ -54,19 +54,17 @@
                (click)="fileInput.click()">
             <input type="file" #fileInput (change)="onFileSelect($event)" class="hidden" multiple>
             
-            <div class="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center transition-all duration-300"
-                 [class.bg-primary]="isDragOver"
-                 [class.bg-muted]="!isDragOver"
-                 [class.scale-110]="isDragOver">
+            <div class="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg"
+                 [ngClass]="{
+                   'bg-gradient-to-br from-primary to-primary/80 scale-110 shadow-xl': isDragOver,
+                   'bg-gradient-to-br from-slate-100 to-slate-200': !isDragOver
+                 }">
               <!-- Enhanced Upload Icon -->
-              <svg class="w-10 h-10 transition-all duration-300" 
-                   [class.text-white]="isDragOver" 
-                   [class.text-muted-foreground]="!isDragOver"
-                   [class.animate-bounce]="isDragOver"
-                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-              </svg>
+              <span class="material-symbols-outlined text-4xl transition-all duration-300 font-bold" 
+                    [ngClass]="{
+                      'text-white animate-bounce': isDragOver,
+                      'text-slate-800': !isDragOver
+                    }">cloud_upload</span>
             </div>
             
             <h3 class="mb-3 text-xl font-semibold text-slate-900">
@@ -295,7 +293,7 @@
           </div>
         </div>
       </div>
-      <button (click)="startNewUpload()" class="w-full btn-secondary py-4 text-lg font-medium transform transition-all duration-200 hover:scale-[1.02]">
+      <button (click)="startNewUpload()" class="w-full btn-secondary py-4 text-lg font-medium transform transition-all duration-200 hover:scale-[1.02] mt-6">
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
         </svg>
