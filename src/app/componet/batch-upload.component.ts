@@ -410,8 +410,10 @@ export class BatchUploadComponent implements OnDestroy {
     });
   }
 
-  openDownloadLink(link: string): void {
-    window.open(link, '_blank');
+  openDownloadLink(link: string | null): void {
+    if (link) {
+      window.open(link, '_blank');
+    }
   }
 
   onDragOver(event: DragEvent): void {

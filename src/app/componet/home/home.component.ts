@@ -483,6 +483,31 @@ export class HomeComponent implements OnDestroy {
     return 'Anonymous users can upload files up to 2GB';
   }
 
+  // Utility methods for template
+  getFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  uploadFile(): void {
+    if (this.selectedFile && this.currentState === 'selected') {
+      this.onUploadSingle();
+    }
+  }
+
+  cancelUpload(): void {
+    this.onCancelUpload();
+  }
+
+  resetUpload(): void {
+    this.resetState();
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

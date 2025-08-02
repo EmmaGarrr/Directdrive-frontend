@@ -1,369 +1,444 @@
-<!-- BOLT-Inspired Geometric Background -->
-<div class="geometric-background"></div>
-
-<!-- Lightning Bolt SVG Elements -->
-<div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-  <!-- Large Lightning Shape - Top Right -->
-  <svg class="absolute top-0 right-0 w-1/2 h-full opacity-10" viewBox="0 0 400 800" fill="none">
-    <path d="M150 0 L350 200 L250 200 L400 400 L200 300 L300 300 L50 600 L250 450 L150 450 Z" 
-          fill="url(#lightningGradient1)" />
-    <defs>
-      <linearGradient id="lightningGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:#68D8FC;stop-opacity:0.3" />
-        <stop offset="50%" style="stop-color:#135EE3;stop-opacity:0.2" />
-        <stop offset="100%" style="stop-color:#4322AA;stop-opacity:0.1" />
-      </linearGradient>
-    </defs>
-  </svg>
-
-  <!-- Medium Lightning Shape - Bottom Left -->
-  <svg class="absolute bottom-0 left-0 w-1/3 h-2/3 opacity-15" viewBox="0 0 300 400" fill="none">
-    <path d="M50 0 L150 100 L100 100 L200 200 L100 150 L150 150 L0 300 L100 200 L50 200 Z" 
-          fill="url(#lightningGradient2)" />
-    <defs>
-      <linearGradient id="lightningGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:#4322AA;stop-opacity:0.3" />
-        <stop offset="100%" style="stop-color:#68D8FC;stop-opacity:0.1" />
-      </linearGradient>
-    </defs>
-  </svg>
-
-  <!-- Angular Geometric Shapes -->
-  <div class="absolute top-1/4 left-1/4 w-32 h-32 opacity-5">
-    <div class="w-full h-full bg-gradient-to-br from-bolt-cyan to-bolt-blue transform rotate-45"></div>
-  </div>
-  
-  <div class="absolute bottom-1/3 right-1/3 w-24 h-24 opacity-5">
-    <div class="w-full h-full bg-gradient-to-tl from-bolt-purple to-bolt-dark-purple transform rotate-12"></div>
-  </div>
-</div>
-<div class="relative z-10 p-4 md:p-8 py-12">
-  <!-- Professional Hero Container -->
-  <div class="max-w-4xl mx-auto bg-white rounded-3xl border border-slate-200 shadow-xl relative overflow-hidden">
-    
-    <!-- Trust & Security Badges -->
-    <div class="absolute inset-0 pointer-events-none">
-      <!-- Security Compliance (Top Left) -->
-      <div class="absolute top-6 left-6 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm border border-slate-200">
-        <div class="flex items-center space-x-2">
-          <div class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-            <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-          </div>
-          <span class="text-xs font-semibold text-slate-700">SOC2 Compliant</span>
-        </div>
-      </div>
+<div class="bg-gradient-to-br from-slate-50 to-white" style="margin-top: 80px;">
+  <!-- Premium Hero Section -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-16">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 items-start lg:items-center">
       
-      <!-- User Count & Rating (Top Right) -->
-      <div class="absolute top-6 right-6 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm border border-slate-200">
-        <div class="flex items-center space-x-2">
-          <span class="text-yellow-400 text-sm">★★★★★</span>
-          <div class="text-xs text-slate-600">
-            <div class="font-semibold">4.9/5</div>
-            <div class="text-slate-500">2M+ users</div>
-          </div>
+      <!-- Left Side - 60% Main Content -->
+      <div class="lg:col-span-3 space-y-8">
+        
+        <!-- Live Transfer Counter - Moved to Top -->
+        <div class="inline-flex items-center bg-green-50 text-green-700 px-4 py-2 rounded-full text-sm font-medium">
+          <div class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+          <span class="font-semibold">12,847 users</span> joined this week
         </div>
-      </div>
-    </div>
-    
-    <!-- Professional Hero Section -->
-    <div class="relative z-10 px-8 py-8">
-      <div class="max-w-3xl mx-auto text-center">
-        <!-- Value-Driven Headline -->
-        <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 mb-4 leading-tight tracking-tight">
-          Transfer Files Up to <span class="text-primary">100GB</span><br/>
-          with Military-Grade Encryption
-        </h1>
-        
-        <!-- Social Proof Subtitle -->
-        <p class="text-lg text-slate-600 mb-6 max-w-2xl mx-auto font-medium">
-          Join <span class="font-bold text-slate-800">2M+ professionals</span> who trust DirectDrive for secure file sharing
-        </p>
-        
-        <!-- Trust Badges Row -->
-        <div class="flex items-center justify-center space-x-6 mb-8 text-sm text-slate-600">
-          <div class="flex items-center space-x-2">
-            <div class="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-              <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-            </div>
-            <span class="font-semibold">256-bit Encryption</span>
-          </div>
-          <div class="flex items-center space-x-2">
-            <div class="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
-              <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-            </div>
-            <span class="font-semibold">GDPR Compliant</span>
-          </div>
-          <div class="flex items-center space-x-2">
-            <div class="w-4 h-4 bg-purple-500 rounded-full flex items-center justify-center">
-              <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-            </div>
-            <span class="font-semibold">Zero-Knowledge</span>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Optimized Upload Section -->
-      <div class="max-w-lg mx-auto mb-8">
-        
-        <!-- Default Upload Area (when no file selected) -->
-        <div *ngIf="!selectedFile && batchFiles.length === 0 && currentState !== 'success' && batchState !== 'success' && currentState !== 'error' && batchState !== 'error'"
-             class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl p-6 transition-all duration-300"
-             [ngClass]="{
-               'border-primary bg-primary/5 shadow-lg': isDragOver,
-               'hover:border-mint-300': !isDragOver
-             }"
-             (dragover)="onDragOver($event)" 
-             (dragleave)="onDragLeave($event)" 
-             (drop)="onDrop($event)"
-             (click)="fileInput.click()">
-          <input type="file" #fileInput (change)="onFileSelect($event)" class="hidden" multiple>
+
+        <!-- Premium Headlines -->
+        <div class="space-y-4">
+          <h1 class="hero-headline text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-tight">
+            Transfer Files Up to <span class="text-primary">100GB</span><br/>
+            with Military-Grade Encryption
+          </h1>
           
-          <div class="text-center">
-            <div class="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center hover:scale-105 transition-transform">
-              <span class="material-symbols-outlined text-2xl text-primary">cloud_upload</span>
-            </div>
-            
-            <h3 class="text-lg font-semibold text-slate-900 mb-2">
-              {{ isDragOver ? 'Drop files here' : 'Drag & Drop files here to upload' }}
-            </h3>
-            
-            <button class="btn-primary mt-4">
-              Browse Files
-            </button>
-          </div>
-        </div>
-
-        <!-- File Selected State -->
-        <div *ngIf="selectedFile && (currentState === 'selected' || currentState === 'uploading')"
-             class="bg-white border border-slate-200 rounded-2xl p-6 shadow-lg">
-          <div class="text-center">
-            <div class="w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center"
-                 [ngClass]="{
-                   'bg-mint-200': currentState === 'selected',
-                   'bg-primary': currentState === 'uploading'
-                 }">
-              <span *ngIf="currentState === 'selected'" class="material-symbols-outlined text-xl text-mint-700">description</span>
-              <svg *ngIf="currentState === 'uploading'" class="w-5 h-5 text-white animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 9a9 9 0 0114.65-5.35M20 15a9 9 0 01-14.65 5.35"></path>
-              </svg>
-            </div>
-            
-            <h3 class="text-lg font-semibold text-slate-900 mb-2">{{ selectedFile.name }}</h3>
-            <p class="text-sm text-slate-600 mb-4">{{ (selectedFile.size / (1024*1024)).toFixed(2) }} MB</p>
-            
-            <!-- Progress Bar (only when uploading) -->
-            <div *ngIf="currentState === 'uploading'" class="w-full bg-slate-200 rounded-full h-2 mb-4">
-              <div class="bg-primary h-2 rounded-full transition-all duration-300" [style.width.%]="uploadProgress"></div>
-            </div>
-            <p *ngIf="currentState === 'uploading'" class="text-sm text-slate-600 mb-4">{{ Math.round(uploadProgress) }}% uploaded</p>
-            
-            <!-- Action Buttons -->
-            <div class="flex justify-center space-x-3">
-              <button *ngIf="currentState === 'selected'" (click)="onUploadSingle()" class="btn-primary">
-                Upload File
-              </button>
-              <button *ngIf="currentState === 'uploading' && !isCancelling" (click)="onCancelUpload()" class="btn-secondary">
-                Cancel
-              </button>
-              <button *ngIf="currentState === 'uploading' && isCancelling" disabled class="btn-secondary opacity-50">
-                Cancelling...
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Batch Files Selected State -->
-        <div *ngIf="batchFiles.length > 0 && (batchState === 'selected' || batchState === 'processing')"
-             class="bg-white border border-slate-200 rounded-2xl p-6 shadow-lg">
-          <h3 class="text-lg font-semibold text-slate-900 mb-4 text-center">Selected Files ({{ batchFiles.length }})</h3>
-          <div class="space-y-3 max-h-64 overflow-y-auto mb-6">
-            <div *ngFor="let f of batchFiles" class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3 flex-1 min-w-0">
-                  <div class="w-10 h-10 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
-                    <!-- File state icons -->
-                    <span *ngIf="f.state === 'pending'" class="material-symbols-outlined text-slate-600 text-lg">description</span>
-                    <svg *ngIf="f.state === 'uploading'" class="w-5 h-5 text-primary animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5"></path>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 9a9 9 0 0114.65-5.35M20 15a9 9 0 01-14.65 5.35"></path>
-                    </svg>
-                    <span *ngIf="f.state === 'success'" class="material-symbols-outlined text-emerald-600 text-lg">check_circle</span>
-                    <span *ngIf="f.state === 'error'" class="material-symbols-outlined text-red-600 text-lg">error</span>
-                    <span *ngIf="f.state === 'cancelled'" class="material-symbols-outlined text-yellow-600 text-lg">cancel</span>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="truncate font-medium text-slate-900">{{ f.file.name }}</p>
-                    <p class="text-sm text-slate-600">{{ (f.file.size / (1024*1024)).toFixed(2) }} MB</p>
-                  </div>
-                  <div class="flex items-center space-x-2">
-                    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full"
-                          [ngClass]="{
-                            'bg-slate-100 text-slate-700': f.state === 'pending',
-                            'bg-blue-100 text-blue-700': f.state === 'uploading',
-                            'bg-emerald-100 text-emerald-700': f.state === 'success',
-                            'bg-red-100 text-red-700': f.state === 'error',
-                            'bg-yellow-100 text-yellow-700': f.state === 'cancelled'
-                          }">
-                      {{ f.state | titlecase }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Progress bar for individual files -->
-              <div *ngIf="f.state === 'uploading'" class="mt-3">
-                <div class="w-full bg-slate-200 rounded-full h-2">
-                  <div class="bg-primary h-2 rounded-full transition-all duration-300" [style.width.%]="f.progress"></div>
-                </div>
-                <p class="text-sm text-slate-600 mt-1 text-center">{{ Math.round(f.progress) }}% uploaded</p>
-              </div>
-
-              <!-- Error message -->
-              <div *ngIf="f.state === 'error'" class="mt-3 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700">
-                {{ f.error || 'Upload failed' }}
-              </div>
-
-              <!-- Cancelled message -->
-              <div *ngIf="f.state === 'cancelled'" class="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-700">
-                Upload cancelled by user
-              </div>
-            </div>
-          </div>
-          
-          <!-- Batch Action Buttons -->
-          <div class="text-center space-y-3">
-            <button *ngIf="batchState === 'selected'" (click)="onUploadBatch()" class="w-full btn-primary py-3">
-              Upload {{ batchFiles.length }} Files
-            </button>
-            <button *ngIf="batchState === 'processing' && !isCancelling" (click)="onCancelAllBatch()" class="w-full btn-secondary py-3">
-              Cancel All Uploads
-            </button>
-            <button *ngIf="batchState === 'processing' && isCancelling" disabled class="w-full btn-secondary opacity-50 py-3">
-              Cancelling...
-            </button>
-          </div>
-        </div>
-
-        <!-- Success State -->
-        <div *ngIf="currentState === 'success' || batchState === 'success'"
-             class="bg-emerald-50 border border-emerald-200 rounded-2xl p-6">
-          <div class="text-center">
-            <div class="w-12 h-12 mx-auto mb-4 bg-emerald-500 rounded-full flex items-center justify-center">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-            </div>
-            
-            <h3 class="text-lg font-semibold text-emerald-900 mb-2">Upload Complete!</h3>
-            <p class="text-sm text-emerald-700 mb-4">Your file is ready to be shared</p>
-            
-            <!-- Download Link -->
-            <div class="bg-white rounded-lg p-3 mb-4">
-              <p class="text-xs text-slate-600 mb-2">Share this download link:</p>
-              <p class="text-xs font-mono text-slate-800 break-all">{{ finalDownloadLink || finalBatchLink }}</p>
-            </div>
-            
-            <!-- Action Buttons -->
-            <div class="flex justify-center space-x-3">
-              <button (click)="copyLink((finalDownloadLink || finalBatchLink)!)" class="btn-primary">
-                Copy Link
-              </button>
-              <button (click)="openDownloadLink(finalDownloadLink || finalBatchLink)" class="btn-secondary">
-                Download
-              </button>
-            </div>
-            
-            <button (click)="startNewUpload()" class="btn-secondary w-full mt-4">
-              Upload More Files
-            </button>
-          </div>
-        </div>
-
-        <!-- Error State -->
-        <div *ngIf="currentState === 'error' || batchState === 'error'"
-             class="bg-red-50 border border-red-200 rounded-2xl p-6">
-          <div class="text-center">
-            <div class="w-12 h-12 mx-auto mb-4 bg-red-500 rounded-full flex items-center justify-center">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </div>
-            
-            <h3 class="text-lg font-semibold text-red-900 mb-2">Upload Failed</h3>
-            <p class="text-sm text-red-700 mb-4">{{ errorMessage || 'Something went wrong during upload' }}</p>
-            
-            <button (click)="startNewUpload()" class="btn-primary">
-              Try Again
-            </button>
-          </div>
-        </div>
-
-      </div>
-      
-      <!-- Conversion-Optimized CTA Section -->
-      <div class="space-y-6">
-        <!-- Primary CTA -->
-        <div class="text-center">
-          <button class="btn-primary px-8 py-4 text-lg font-bold mb-3 shadow-lg hover:shadow-xl transition-all">
-            Get 50GB Free - No Credit Card Required
-          </button>
-          <p class="text-sm text-slate-500">
-            <span class="inline-flex items-center">
-              <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-              </svg>
-              Files auto-deleted after 30 days for privacy
-            </span>
+          <p class="hero-subheadline text-xl md:text-2xl font-medium text-slate-600 leading-relaxed">
+            Join <span class="font-bold text-slate-800">2M+ professionals</span> who trust DirectDrive for secure file sharing
           </p>
         </div>
 
-        <!-- Comparison Table -->
-        <div class="bg-slate-50 rounded-2xl p-6 max-w-2xl mx-auto">
-          <h3 class="font-bold text-slate-900 mb-4 text-center">Why professionals choose DirectDrive</h3>
-          <div class="grid grid-cols-3 gap-4 text-sm">
-            <div class="text-center">
-              <div class="text-slate-500 font-medium mb-2">Dropbox</div>
-              <div class="bg-white rounded-lg p-3 border">
-                <div class="font-bold text-slate-900">2GB</div>
-                <div class="text-slate-500">Free storage</div>
-              </div>
+        <!-- Trust Badges in Single Row -->
+        <div class="flex flex-wrap items-center gap-6">
+          <div class="flex items-center space-x-2">
+            <div class="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+              <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+              </svg>
             </div>
-            <div class="text-center">
-              <div class="text-slate-500 font-medium mb-2">Google Drive</div>
-              <div class="bg-white rounded-lg p-3 border">
-                <div class="font-bold text-slate-900">15GB</div>
-                <div class="text-slate-500">Free storage</div>
-              </div>
+            <span class="trust-text">256-bit Encryption</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+              <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+              </svg>
             </div>
-            <div class="text-center relative">
-              <div class="text-primary font-bold mb-2">DirectDrive</div>
-              <div class="bg-primary/10 rounded-lg p-3 border-2 border-primary relative">
-                <div class="absolute -top-2 -right-2 bg-primary text-white text-xs px-2 py-1 rounded-full font-bold">BEST</div>
-                <div class="font-bold text-primary">50GB</div>
-                <div class="text-slate-600">Free forever</div>
-              </div>
+            <span class="trust-text">SOC2 Compliant</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center">
+              <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+              </svg>
             </div>
+            <span class="trust-text">Zero-Knowledge</span>
           </div>
         </div>
 
-        <!-- Real-time Activity -->
-        <div class="text-center">
-          <div class="inline-flex items-center bg-green-50 text-green-700 px-4 py-2 rounded-full text-sm font-medium">
-            <div class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-            <span class="font-semibold">1,247 files</span> securely transferred in the last hour
+        <!-- Primary CTA with Urgency -->
+        <div class="space-y-4">
+          <button class="premium-button bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 text-lg">
+            Claim Your 50GB Now - Free Forever
+          </button>
+          <p class="text-sm text-slate-500 flex items-center">
+            <svg class="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+            </svg>
+            No credit card required • Files auto-deleted after 30 days
+          </p>
+        </div>
+
+        <!-- Company Logos -->
+        <div class="space-y-3">
+          <p class="text-sm text-slate-500 font-medium">Trusted by teams at</p>
+          <div class="flex items-center space-x-8 opacity-60">
+            <!-- Microsoft Logo -->
+            <div class="flex items-center space-x-2">
+              <div class="w-6 h-6 bg-blue-600 rounded-sm flex items-center justify-center">
+                <span class="text-white text-xs font-bold">M</span>
+              </div>
+              <span class="text-sm font-semibold text-slate-600">Microsoft</span>
+            </div>
+            <!-- Adobe Logo -->
+            <div class="flex items-center space-x-2">
+              <div class="w-6 h-6 bg-red-600 rounded-sm flex items-center justify-center">
+                <span class="text-white text-xs font-bold">A</span>
+              </div>
+              <span class="text-sm font-semibold text-slate-600">Adobe</span>
+            </div>
+            <!-- Netflix Logo -->
+            <div class="flex items-center space-x-2">
+              <div class="w-6 h-6 bg-red-500 rounded-sm flex items-center justify-center">
+                <span class="text-white text-xs font-bold">N</span>
+              </div>
+              <span class="text-sm font-semibold text-slate-600">Netflix</span>
+            </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Right Side - 40% Upload Widget -->
+      <div class="lg:col-span-2">
+        <div class="premium-card bg-white rounded-2xl shadow-lg border border-slate-200 p-8 h-full">
+          <!-- Quick Upload Header -->
+          <div class="text-center mb-6">
+            <div class="inline-flex items-center space-x-2 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium mb-4">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"/>
+              </svg>
+              <span>Quick Upload</span>
+            </div>
+            <h3 class="section-headline mb-2">Try it now</h3>
+            <p class="body-large text-slate-500">2GB limit for guests</p>
+          </div>
+
+          <!-- Upload Area -->
+          <div *ngIf="!selectedFile && batchFiles.length === 0 && currentState !== 'success' && batchState !== 'success' && currentState !== 'error' && batchState !== 'error'"
+               class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl p-6 transition-all duration-300 hover:border-primary hover:bg-primary/5"
+               [ngClass]="{
+                 'border-primary bg-primary/5 shadow-lg': isDragOver
+               }"
+               (dragover)="onDragOver($event)" 
+               (dragleave)="onDragLeave($event)" 
+               (drop)="onDrop($event)"
+               (click)="fileInput.click()">
+            <input type="file" #fileInput (change)="onFileSelect($event)" class="hidden" multiple>
+            
+            <div class="text-center">
+              <div class="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center hover:scale-105 transition-transform">
+                <span class="material-symbols-outlined text-2xl text-primary">cloud_upload</span>
+              </div>
+              
+              <h3 class="text-lg font-semibold text-slate-900 mb-2">
+                {{ isDragOver ? 'Drop files here' : 'Drag & Drop files here' }}
+              </h3>
+              
+              <p class="text-sm text-slate-500 mb-4">
+                or <span class="text-primary font-medium cursor-pointer hover:underline">browse files</span>
+              </p>
+              
+              <div class="text-xs text-slate-400">
+                Up to 2GB per file for guests • 100GB with account
+              </div>
+            </div>
+          </div>
+
+          <!-- File Selected State -->
+          <div *ngIf="selectedFile && currentState === 'selected'" class="text-center space-y-4">
+            <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6">
+              <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z"/>
+                  </svg>
+                </div>
+                <div class="flex-1 text-left">
+                  <h4 class="font-semibold text-slate-900">{{ selectedFile.name }}</h4>
+                  <p class="text-sm text-slate-500">{{ getFileSize(selectedFile.size) }} • Ready to upload</p>
+                </div>
+                <div class="text-green-500">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <button (click)="uploadFile()" class="premium-button bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 w-full">
+              Upload File
+            </button>
+          </div>
+
+          <!-- Batch Files Selected State -->
+          <div *ngIf="batchFiles.length > 0 && batchState === 'selected'" class="text-center space-y-4">
+            <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-4">Selected Files ({{ batchFiles.length }})</h3>
+              <div class="space-y-3 max-h-64 overflow-y-auto">
+                <div *ngFor="let f of batchFiles" class="bg-white border border-slate-200 rounded-xl p-4">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <svg class="w-5 h-5 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z"/>
+                      </svg>
+                    </div>
+                    <div class="flex-1 text-left min-w-0">
+                      <p class="font-medium text-slate-900 truncate">{{ f.file.name }}</p>
+                      <p class="text-sm text-slate-500">{{ getFileSize(f.file.size) }}</p>
+                    </div>
+                    <div class="text-green-500">
+                      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button (click)="onUploadBatch()" class="premium-button bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 w-full">
+              Upload {{ batchFiles.length }} Files
+            </button>
+          </div>
+
+          <!-- Batch Upload Progress State -->
+          <div *ngIf="batchState === 'processing'" class="text-center space-y-4">
+            <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-4">Uploading Files...</h3>
+              <div class="space-y-3 max-h-64 overflow-y-auto">
+                <div *ngFor="let f of batchFiles" class="bg-white border border-slate-200 rounded-xl p-4">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                         [class.bg-slate-100]="f.state === 'pending'"
+                         [class.bg-blue-500]="f.state === 'uploading'"
+                         [class.bg-green-500]="f.state === 'success'"
+                         [class.bg-red-500]="f.state === 'error'">
+                      <svg *ngIf="f.state === 'pending'" class="w-5 h-5 text-slate-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z"/>
+                      </svg>
+                      <svg *ngIf="f.state === 'uploading'" class="w-5 h-5 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <svg *ngIf="f.state === 'success'" class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                      </svg>
+                      <svg *ngIf="f.state === 'error'" class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm4.707-7.293a1 1 0 00-1.414-1.414L11 11.586l-1.293-1.293a1 1 0 00-1.414 1.414L10 13.414l2.293-2.293a1 1 0 011.414 0z"/>
+                      </svg>
+                    </div>
+                    <div class="flex-1 text-left min-w-0">
+                      <p class="font-medium text-slate-900 truncate">{{ f.file.name }}</p>
+                      <p class="text-sm text-slate-500">
+                        {{ getFileSize(f.file.size) }}
+                        <span *ngIf="f.state === 'uploading'"> • {{ f.progress }}%</span>
+                        <span *ngIf="f.state === 'success'"> • Complete</span>
+                        <span *ngIf="f.state === 'error'"> • Error</span>
+                      </p>
+                    </div>
+                  </div>
+                  <!-- Progress bar for uploading files -->
+                  <div *ngIf="f.state === 'uploading'" class="mt-3">
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                      <div class="bg-blue-500 h-2 rounded-full transition-all duration-300" [style.width.%]="f.progress"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button (click)="onCancelAllBatch()" class="bg-gray-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors">
+              Cancel All Uploads
+            </button>
+          </div>
+
+          <!-- Upload Progress State -->
+          <div *ngIf="currentState === 'uploading'" class="text-center space-y-4">
+            <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6">
+              <div class="flex items-center space-x-4 mb-4">
+                <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </div>
+                <div class="flex-1 text-left">
+                  <h4 class="font-semibold text-slate-900">{{ selectedFile?.name }}</h4>
+                  <p class="text-sm text-slate-500">Uploading... {{ uploadProgress }}%</p>
+                </div>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-blue-500 h-2 rounded-full transition-all duration-300" [style.width.%]="uploadProgress"></div>
+              </div>
+            </div>
+            <button (click)="cancelUpload()" class="bg-gray-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors">
+              Cancel Upload
+            </button>
+          </div>
+
+          <!-- Upload Success State -->
+          <div *ngIf="currentState === 'success'" class="text-center space-y-4">
+            <div class="bg-green-50 border border-green-200 rounded-2xl p-6">
+              <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                  </svg>
+                </div>
+                <div class="flex-1 text-left">
+                  <h4 class="font-semibold text-slate-900">Upload Complete!</h4>
+                  <p class="text-sm text-slate-500">Your file has been uploaded successfully</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Download Link Display -->
+            <div *ngIf="finalDownloadLink" class="bg-blue-50 border border-blue-200 rounded-2xl p-4 space-y-3">
+              <div class="text-left">
+                <p class="text-sm font-medium text-slate-700 mb-2">Download Link:</p>
+                <div class="bg-white border border-slate-200 rounded-lg p-3 flex items-center space-x-2">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm text-slate-600 truncate">{{ finalDownloadLink }}</p>
+                  </div>
+                  <button (click)="copyLink(finalDownloadLink)" 
+                          class="flex-shrink-0 bg-slate-100 hover:bg-slate-200 text-slate-700 p-2 rounded-md transition-colors"
+                          title="Copy link">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
+                      <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="space-y-2">
+              <button (click)="openDownloadLink(finalDownloadLink)" 
+                      class="premium-button bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 w-full">
+                Open Download Page
+              </button>
+              <button (click)="resetUpload()" class="bg-gray-100 text-gray-700 font-medium py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors w-full">
+                Upload Another File
+              </button>
+            </div>
+          </div>
+
+          <!-- Batch Upload Success State -->
+          <div *ngIf="batchState === 'success'" class="text-center space-y-4">
+            <div class="bg-green-50 border border-green-200 rounded-2xl p-6">
+              <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                  </svg>
+                </div>
+                <div class="flex-1 text-left">
+                  <h4 class="font-semibold text-slate-900">Batch Upload Complete!</h4>
+                  <p class="text-sm text-slate-500">{{ batchFiles.length }} files uploaded successfully</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Download Link Display -->
+            <div *ngIf="finalBatchLink" class="bg-blue-50 border border-blue-200 rounded-2xl p-4 space-y-3">
+              <div class="text-left">
+                <p class="text-sm font-medium text-slate-700 mb-2">Batch Download Link:</p>
+                <div class="bg-white border border-slate-200 rounded-lg p-3 flex items-center space-x-2">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm text-slate-600 truncate">{{ finalBatchLink }}</p>
+                  </div>
+                  <button (click)="copyLink(finalBatchLink)" 
+                          class="flex-shrink-0 bg-slate-100 hover:bg-slate-200 text-slate-700 p-2 rounded-md transition-colors"
+                          title="Copy link">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
+                      <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="space-y-2">
+              <button (click)="openDownloadLink(finalBatchLink)" 
+                      class="premium-button bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 w-full">
+                Open Download Page
+              </button>
+              <button (click)="resetUpload()" class="bg-gray-100 text-gray-700 font-medium py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors w-full">
+                Upload Another Batch
+              </button>
+            </div>
+          </div>
+          
         </div>
       </div>
     </div>
   </div>
-</div>
 
+  <!-- Enhanced Comparison Section -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="premium-card bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
+      <h2 class="section-headline text-3xl font-bold text-slate-900 text-center mb-8">Why professionals choose DirectDrive</h2>
+      
+      <!-- Enhanced Comparison Table -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <!-- Feature Column -->
+        <div class="space-y-4">
+          <div class="font-semibold text-slate-500 text-sm uppercase tracking-wide">Features</div>
+          <div class="space-y-3 text-sm">
+            <div class="py-3 border-b border-slate-100">Free Storage</div>
+            <div class="py-3 border-b border-slate-100">Max File Size</div>
+            <div class="py-3 border-b border-slate-100">Transfer Speed</div>
+            <div class="py-3 border-b border-slate-100">Email Required</div>
+            <div class="py-3 border-b border-slate-100">Encryption</div>
+          </div>
+        </div>
+
+        <!-- Dropbox Column -->
+        <div class="space-y-4">
+          <div class="font-semibold text-slate-600 text-center">Dropbox</div>
+          <div class="space-y-3 text-sm text-center">
+            <div class="py-3 border-b border-slate-100 text-slate-600">2GB</div>
+            <div class="py-3 border-b border-slate-100 text-slate-600">2GB</div>
+            <div class="py-3 border-b border-slate-100 text-slate-600">500MB/s</div>
+            <div class="py-3 border-b border-slate-100 text-red-500">✗ Yes</div>
+            <div class="py-3 border-b border-slate-100 text-slate-600">Basic</div>
+          </div>
+        </div>
+
+        <!-- Google Drive Column -->
+        <div class="space-y-4">
+          <div class="font-semibold text-slate-600 text-center">Google Drive</div>
+          <div class="space-y-3 text-sm text-center">
+            <div class="py-3 border-b border-slate-100 text-slate-600">15GB</div>
+            <div class="py-3 border-b border-slate-100 text-slate-600">15GB</div>
+            <div class="py-3 border-b border-slate-100 text-slate-600">1GB/s</div>
+            <div class="py-3 border-b border-slate-100 text-red-500">✗ Yes</div>
+            <div class="py-3 border-b border-slate-100 text-slate-600">Basic</div>
+          </div>
+        </div>
+
+        <!-- DirectDrive Column -->
+        <div class="space-y-4 relative">
+          <div class="absolute -top-3 -right-3 bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold">BEST</div>
+          <div class="font-bold text-primary text-center">DirectDrive</div>
+          <div class="space-y-3 text-sm text-center">
+            <div class="py-3 border-b border-slate-100 text-primary font-bold">50GB</div>
+            <div class="py-3 border-b border-slate-100 text-primary font-bold">100GB</div>
+            <div class="py-3 border-b border-slate-100 text-primary font-bold">2GB/s</div>
+            <div class="py-3 border-b border-slate-100 text-green-500 font-bold">✓ No</div>
+            <div class="py-3 border-b border-slate-100 text-primary font-bold">E2E</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom CTA -->
+      <div class="text-center">
+        <button class="premium-button bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 text-lg mb-4">
+          Get Started - 50GB Free Forever
+        </button>
+        <p class="text-sm text-slate-500">
+          <span class="inline-flex items-center">
+            <svg class="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+            </svg>
+            1,247 files securely transferred in the last hour
+          </span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
