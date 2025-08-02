@@ -1,14 +1,15 @@
 <!-- Enhanced Modern DirectDrive Upload Interface -->
-<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 w-screen fixed top-0 left-0 z-0"></div>
+<div class="min-h-screen relative z-10">
   <!-- Main Content -->
   <main class="container mx-auto px-4 py-8 max-w-4xl">
     <!-- Enhanced Upload Area -->
-    <div class="mb-8">
+    <div class="mb-16">
       <div class="text-center mb-8 space-y-4">
         <div class="inline-flex items-center space-x-3 mb-4">
-          <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
-            <svg class="w-7 h-7 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+          <div class="w-12 h-12 bg-gradient-to-br from-black to-gray-800 rounded-xl flex items-center justify-center shadow-md transform transition-all duration-200 hover:scale-105">
+            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z M12,12L16,16H13.5V19H10.5V16H8L12,12Z"/>
             </svg>
           </div>
           <h1 class="text-3xl font-bold text-primary">DirectDrive</h1>
@@ -46,7 +47,7 @@
            [class.border-dashed]="!isDragOver"
            [class.shadow-xl]="isDragOver">
         <div class="card-content p-12">
-          <div class="text-center"
+          <div class="text-center mt-8"
                (dragover)="onDragOver($event)" 
                (dragleave)="onDragLeave($event)" 
                (drop)="onDrop($event)"
@@ -94,7 +95,7 @@
     <div *ngIf="selectedFile && (currentState === 'selected' || currentState === 'uploading')" class="mb-8">
       <h3 class="mb-6 text-xl font-semibold text-slate-900">Selected File</h3>
       <div class="card card-elevated">
-        <div class="card-content p-6">
+        <div class="card-content p-6" style="padding-top: 1.5rem !important;">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4 flex-1 min-w-0">
               <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-200"
@@ -303,9 +304,9 @@
     </div>
 
     <!-- Error State -->
-    <div *ngIf="currentState === 'error' || batchState === 'error'" class="mb-8">
+    <div *ngIf="currentState === 'error' || batchState === 'error'" class="mb-8" style="margin-top: 6rem !important; padding-top: 2rem !important;">
       <div class="card" style="border-color: var(--destructive); background-color: color-mix(in srgb, var(--destructive) 5%, var(--card))">
-        <div class="card-content p-6">
+        <div class="card-content p-6" style="padding-top: 1.5rem !important;">
           <div class="flex items-start space-x-3">
             <!-- Error icon -->
             <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background-color: var(--destructive)">
@@ -321,7 +322,7 @@
           </div>
         </div>
       </div>
-      <button (click)="startNewUpload()" class="w-full btn-secondary py-3">
+      <button (click)="startNewUpload()" class="w-full btn-secondary py-3 mt-4">
         Try Again
       </button>
     </div>
