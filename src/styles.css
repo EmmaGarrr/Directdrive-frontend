@@ -1133,3 +1133,116 @@ p {
     gap: 0.5rem;
   }
 }
+
+/* Premium Cancel Button Styles */
+.premium-cancel-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-cancel-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.premium-cancel-button:hover::before {
+  left: 100%;
+}
+
+.premium-cancel-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.premium-cancel-button:disabled:hover {
+  background: linear-gradient(to right, #6b7280, #4b5563) !important;
+  transform: none !important;
+  scale: 1 !important;
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Upload Cancelling States */
+.upload-cancelling {
+  transition: all 0.3s ease;
+}
+
+.upload-cancelling .progress-bar {
+  background: linear-gradient(90deg, #f97316, #ea580c);
+  animation: cancelPulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes cancelPulse {
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Smooth State Transitions */
+.state-transition {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.upload-container {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.upload-container.cancelling {
+  opacity: 0.7;
+  transform: scale(0.98);
+}
+
+/* Enhanced Button Hover Effects */
+.premium-cancel-button:not(:disabled):hover {
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+}
+
+.premium-cancel-button:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+/* Cancel Icon Animation */
+.cancel-icon {
+  transition: transform 0.2s ease;
+}
+
+.premium-cancel-button:hover .cancel-icon {
+  transform: rotate(90deg);
+}
+
+/* Loading Spinner for Cancel Button */
+@keyframes cancelSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cancel-spinner {
+  animation: cancelSpin 1s linear infinite;
+}

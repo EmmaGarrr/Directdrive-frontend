@@ -141,8 +141,11 @@ export class HomeComponent implements OnDestroy {
     });
   }
 
-  // Reset component to idle state
+  // Reset component to idle state with smooth transition
   private resetToIdle(): void {
+    // Smooth transition delay
+    const delay = this.currentState === 'cancelled' ? 200 : 500;
+    
     setTimeout(() => {
       this.currentState = 'idle';
       this.selectedFile = null;
@@ -162,25 +165,42 @@ export class HomeComponent implements OnDestroy {
       if (fileInput) {
         fileInput.value = '';
       }
-    }, 500);
+    }, delay);
   }
 
-  // Cancel single file upload
+  // Cancel single file upload with premium UX
   onCancelUpload(): void {
     if (this.currentState !== 'uploading') return;
 
+    // Immediate visual feedback
     this.isCancelling = true;
     
-    // Use upload service to cancel WebSocket connection (don't unsubscribe yet)
-    const cancelled = this.uploadService.cancelUpload();
-    if (cancelled) {
-      console.log('[HomeComponent] Upload cancelled via service');
-      // The HTTP cancel success will be handled in the subscription's next() callback
-    } else {
-      console.log('[HomeComponent] No active upload to cancel');
-      // If no active upload, reset immediately
-      this.resetToIdle();
-    }
+    // Show user-friendly message immediately
+    this.snackBar.open('Cancelling upload...', 'Close', { duration: 2000 });
+    
+    // Simulate realistic cancellation time for better UX
+    setTimeout(() => {
+      // Use upload service to cancel WebSocket connection
+      const cancelled = this.uploadService.cancelUpload();
+      if (cancelled) {
+        console.log('[HomeComponent] Upload cancelled via service');
+        // Set state to cancelled for smooth transition
+        this.currentState = 'cancelled';
+        
+        // Show success message after slight delay
+        setTimeout(() => {
+          this.snackBar.open('Upload cancelled successfully', 'Close', { duration: 3000 });
+          // Reset to idle after showing cancelled state briefly
+          setTimeout(() => {
+            this.resetToIdle();
+          }, 1000);
+        }, 500);
+      } else {
+        console.log('[HomeComponent] No active upload to cancel');
+        this.snackBar.open('Upload cancelled', 'Close', { duration: 2000 });
+        this.resetToIdle();
+      }
+    }, 300); // Small delay for better perceived performance
   }
 
   // Batch upload methods - Restored original batch upload functionality

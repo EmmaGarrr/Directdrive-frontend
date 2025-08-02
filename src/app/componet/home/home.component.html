@@ -335,26 +335,76 @@
 
           <!-- Upload Progress State -->
           <div *ngIf="currentState === 'uploading'" class="text-center space-y-4">
-            <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6">
+            <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6" 
+                 [class.opacity-60]="isCancelling"
+                 [class.pointer-events-none]="isCancelling">
               <div class="flex items-center space-x-4 mb-4">
-                <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-                  <svg class="w-6 h-6 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+                <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center"
+                     [class.bg-orange-500]="isCancelling">
+                  <svg *ngIf="!isCancelling" class="w-6 h-6 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <svg *ngIf="isCancelling" class="w-6 h-6 text-white animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                 </div>
                 <div class="flex-1 text-left">
                   <h4 class="font-semibold text-slate-900">{{ selectedFile?.name }}</h4>
-                  <p class="text-sm text-slate-500">Uploading... {{ uploadProgress }}%</p>
+                  <p class="text-sm text-slate-500" 
+                     [class.text-orange-600]="isCancelling">
+                    {{ isCancelling ? 'Cancelling upload...' : 'Uploading... ' + uploadProgress + '%' }}
+                  </p>
                 </div>
               </div>
               <div class="w-full bg-gray-200 rounded-full h-2">
-                <div class="bg-blue-500 h-2 rounded-full transition-all duration-300" [style.width.%]="uploadProgress"></div>
+                <div class="h-2 rounded-full transition-all duration-500" 
+                     [class.bg-blue-500]="!isCancelling"
+                     [class.bg-orange-500]="isCancelling"
+                     [style.width.%]="uploadProgress"></div>
               </div>
             </div>
-            <button (click)="cancelUpload()" class="bg-gray-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors">
-              Cancel Upload
+            
+            <!-- Enhanced Cancel Button -->
+            <button (click)="cancelUpload()" 
+                    [disabled]="isCancelling"
+                    [class.opacity-50]="isCancelling"
+                    [class.cursor-not-allowed]="isCancelling"
+                    class="premium-cancel-button bg-gradient-to-r from-gray-500 to-gray-600 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 hover:from-red-500 hover:to-red-600 hover:transform hover:scale-105 disabled:hover:transform-none disabled:hover:scale-100">
+              <div class="flex items-center justify-center space-x-2">
+                <svg *ngIf="isCancelling" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <svg *ngIf="!isCancelling" class="cancel-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                <span>{{ isCancelling ? 'Cancelling...' : 'Cancel Upload' }}</span>
+              </div>
             </button>
+          </div>
+
+          <!-- Upload Cancelled State -->
+          <div *ngIf="currentState === 'cancelled'" class="text-center space-y-4">
+            <div class="bg-orange-50 border border-orange-200 rounded-2xl p-6 animate-fade-in">
+              <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </div>
+                <div class="flex-1 text-left">
+                  <h4 class="font-semibold text-slate-900">Upload Cancelled</h4>
+                  <p class="text-sm text-slate-500">{{ selectedFile?.name }} upload was cancelled</p>
+                </div>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <button (click)="resetUpload()" class="premium-button bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 w-full">
+                Start New Upload
+              </button>
+            </div>
           </div>
 
           <!-- Upload Success State -->
