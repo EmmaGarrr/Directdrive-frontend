@@ -846,6 +846,15 @@ p {
 .enhanced-drop-zone:hover {
   transform: translateY(-1px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border-color: #3B82F6;
+  background: #F0F7FF;
+}
+
+.enhanced-drop-zone.dragging {
+  border-style: solid;
+  background: #E0F2FE;
+  border-color: #0EA5E9;
+  transform: scale(1.02);
 }
 
 .enhanced-drop-zone::before {
@@ -912,6 +921,22 @@ p {
 .premium-card:hover {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
+}
+
+/* Progress bar fill animation */
+@keyframes fillProgress {
+  from { 
+    width: 0%; 
+    opacity: 0.5;
+  }
+  to { 
+    width: 78%; 
+    opacity: 1;
+  }
+}
+
+.progress-fill {
+  animation: fillProgress 2s ease-out;
 }
 
 /* Urgency progress bar animation */
@@ -993,6 +1018,79 @@ p {
   }
 }
 
+/* Secondary CTA Button Styling */
+.secondary-cta-button {
+  border-width: 2px;
+  border-style: solid;
+  position: relative;
+  overflow: hidden;
+}
+
+.secondary-cta-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.secondary-cta-button:hover::before {
+  left: 100%;
+}
+
+.secondary-cta-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* File type icon hover effects */
+.file-type-icon {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.file-type-icon:hover {
+  transform: scale(1.1) rotate(2deg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Comparison table enhancements */
+.comparison-table-row {
+  transition: all 0.2s ease;
+}
+
+.comparison-table-row:hover {
+  background-color: rgba(59, 130, 246, 0.02);
+  transform: translateX(2px);
+}
+
+/* Enhanced testimonial presentation */
+.testimonial {
+  animation: slideInFromLeft 0.6s ease-out;
+  position: relative;
+}
+
+.testimonial::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, #F0F7FF, #E0F2FE, #F0F7FF);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.testimonial:hover::before {
+  opacity: 1;
+}
+
 /* Mobile responsive enhancements */
 @media (max-width: 768px) {
   .enhanced-drop-zone {
@@ -1005,8 +1103,33 @@ p {
     font-size: 0.95rem;
   }
   
+  .secondary-cta-button {
+    width: auto;
+    padding: 8px 16px;
+    font-size: 0.875rem;
+  }
+  
   .trust-badges {
     flex-direction: column;
     gap: 1rem;
+  }
+  
+  .progress-fill {
+    animation: fillProgress 1.5s ease-out;
+  }
+  
+  .comparison-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .testimonial {
+    padding: 1rem;
+    margin: 0.5rem 0;
+  }
+  
+  .file-type-icons {
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 }

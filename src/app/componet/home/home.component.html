@@ -88,7 +88,7 @@
                 <span class="text-sm font-bold text-orange-900">78%</span>
               </div>
               <div class="w-full bg-orange-200 rounded-full h-2">
-                <div class="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full animate-pulse" style="width: 78%"></div>
+                <div class="progress-fill bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full" style="width: 78%"></div>
               </div>
             </div>
             
@@ -105,7 +105,7 @@
         <div class="space-y-3">
           <div class="space-y-1">
             <p class="text-sm text-slate-500 font-medium">Trusted by teams at</p>
-            <p class="text-xs text-slate-400">and 50,000+ businesses worldwide</p>
+            <p class="text-xs text-slate-400">Join 500,000+ professionals worldwide</p>
           </div>
           <div class="flex items-center space-x-8 opacity-60">
             <!-- Microsoft Logo -->
@@ -132,12 +132,17 @@
           </div>
           
           <!-- Testimonial Quote -->
-          <div class="bg-slate-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+          <div class="testimonial bg-slate-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
             <div class="flex items-start space-x-3">
               <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%234F46E5'/%3E%3Ctext x='20' y='26' text-anchor='middle' fill='white' font-family='Arial' font-size='16' font-weight='bold'%3ESM%3C/text%3E%3C/svg%3E" 
                    alt="Sarah M." class="w-8 h-8 rounded-full">
               <div class="flex-1">
-                <p class="text-sm text-slate-700 italic">"Finally, a file sharing service that prioritizes security without sacrificing speed. Our compliance team loves the SOC2 certification."</p>
+                <div class="relative">
+                  <svg class="absolute -top-2 -left-2 w-4 h-4 text-slate-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h4v10h-10z"/>
+                  </svg>
+                  <p class="text-sm text-slate-700 italic leading-relaxed">"Finally, a file sharing service that prioritizes security without sacrificing speed. Our compliance team loves the SOC2 certification."</p>
+                </div>
                 <p class="text-xs text-slate-500 mt-1 font-medium">Sarah Mitchell, IT Director &#64; TechFlow</p>
               </div>
             </div>
@@ -184,28 +189,28 @@
               </h3>
               
               <p class="text-sm text-slate-500 mb-4">
-                or <button class="text-white bg-primary hover:bg-primary/90 px-4 py-2 rounded-lg font-medium transition-colors shadow-sm">browse files</button>
+                or <button class="secondary-cta-button bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-white px-4 py-2 rounded-lg font-medium transition-all duration-300">browse files</button>
               </p>
               
               <!-- File Type Icons -->
-              <div class="flex justify-center items-center space-x-3 mb-4 opacity-60">
+              <div class="file-type-icons flex justify-center items-center space-x-3 mb-4 opacity-60">
                 <div class="flex items-center space-x-1">
-                  <div class="w-6 h-6 bg-red-100 rounded flex items-center justify-center">
+                  <div class="file-type-icon w-6 h-6 bg-red-100 rounded flex items-center justify-center">
                     <span class="text-xs font-bold text-red-600">PDF</span>
                   </div>
                 </div>
                 <div class="flex items-center space-x-1">
-                  <div class="w-6 h-6 bg-purple-100 rounded flex items-center justify-center">
+                  <div class="file-type-icon w-6 h-6 bg-purple-100 rounded flex items-center justify-center">
                     <span class="text-xs font-bold text-purple-600">ZIP</span>
                   </div>
                 </div>
                 <div class="flex items-center space-x-1">
-                  <div class="w-6 h-6 bg-green-100 rounded flex items-center justify-center">
+                  <div class="file-type-icon w-6 h-6 bg-green-100 rounded flex items-center justify-center">
                     <span class="text-xs font-bold text-green-600">MP4</span>
                   </div>
                 </div>
                 <div class="flex items-center space-x-1">
-                  <div class="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
+                  <div class="file-type-icon w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
                     <span class="text-xs font-bold text-blue-600">DOC</span>
                   </div>
                 </div>
@@ -457,7 +462,7 @@
       <h2 class="section-headline text-3xl font-bold text-slate-900 text-center mb-8">Why professionals choose DirectDrive</h2>
       
       <!-- Enhanced Comparison Table -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="comparison-table grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <!-- Feature Column -->
         <div class="space-y-4">
           <div class="font-semibold text-slate-500 text-sm uppercase tracking-wide">Features</div>
