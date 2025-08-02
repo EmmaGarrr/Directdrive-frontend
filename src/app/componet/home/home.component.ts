@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment';
 // Interfaces and Types
 interface IFileState {
   file: File;
-  state: 'pending' | 'uploading' | 'success' | 'error' | 'cancelled';
+  state: 'pending' | 'uploading' | 'cancelling' | 'success' | 'error' | 'cancelled';
   progress: number;
   error?: string;
   websocket?: WebSocket;
@@ -410,52 +410,94 @@ export class HomeComponent implements OnDestroy {
     }
   }
 
-  // Enhanced batch upload cancel methods
+  // Premium batch upload cancel methods with smooth UX
   onCancelSingleBatchFile(fileState: IFileState): void {
     if (fileState.state === 'uploading' && fileState.websocket) {
-      fileState.websocket.close();
-      fileState.state = 'cancelled';
-      fileState.error = 'Upload cancelled by user';
+      // Immediate visual feedback
+      fileState.state = 'cancelling';
       
-      // Remove the subscription for this file
-      const index = this.batchSubscriptions.findIndex(sub => {
-        // Find subscription by checking if it's still active
-        return !sub.closed;
-      });
-      if (index !== -1) {
-        this.batchSubscriptions[index].unsubscribe();
-        this.batchSubscriptions.splice(index, 1);
-      }
+      // Show user-friendly message immediately
+      this.snackBar.open(`Cancelling ${fileState.file.name}...`, 'Close', { duration: 2000 });
       
-      this.snackBar.open(`${fileState.file.name} upload cancelled`, 'Close', { duration: 3000 });
+      setTimeout(() => {
+        // Close WebSocket connection
+        if (fileState.websocket) {
+          fileState.websocket.close();
+        }
+        fileState.state = 'cancelled';
+        fileState.error = 'Upload cancelled by user';
+        
+        // Remove the subscription for this file
+        const index = this.batchSubscriptions.findIndex(sub => {
+          return !sub.closed;
+        });
+        if (index !== -1) {
+          this.batchSubscriptions[index].unsubscribe();
+          this.batchSubscriptions.splice(index, 1);
+        }
+        
+        // Success notification after delay
+        setTimeout(() => {
+          this.snackBar.open(`${fileState.file.name} upload cancelled successfully`, 'Close', { duration: 3000 });
+        }, 500);
+      }, 300);
     }
   }
 
   onCancelAllBatch(): void {
+    if (this.batchState !== 'processing') return;
+
+    // Immediate visual feedback
     this.isCancelling = true;
     
-    // Cancel all uploading files
-    this.batchFiles.forEach(fileState => {
-      if (fileState.state === 'uploading' && fileState.websocket) {
-        fileState.websocket.close();
-        fileState.state = 'cancelled';
-        fileState.error = 'Upload cancelled by user';
-      }
-    });
+    // Show user-friendly message immediately
+    this.snackBar.open('Cancelling all uploads...', 'Close', { duration: 2000 });
     
-    // Unsubscribe from all batch subscriptions
-    this.batchSubscriptions.forEach(sub => sub.unsubscribe());
-    this.batchSubscriptions = [];
-    
-    // Update batch state
-    this.batchState = 'cancelled';
-    
-    this.snackBar.open('All uploads cancelled successfully', 'Close', { duration: 3000 });
-    
-    // Reset cancelling state after a short delay
+    // Simulate realistic cancellation time for better UX
     setTimeout(() => {
+      // Cancel all uploading files
+      this.batchFiles.forEach(fileState => {
+        if (fileState.state === 'uploading' && fileState.websocket) {
+          fileState.websocket.close();
+          fileState.state = 'cancelled';
+          fileState.error = 'Upload cancelled by user';
+        } else if (fileState.state === 'pending') {
+          fileState.state = 'cancelled';
+          fileState.error = 'Upload cancelled by user';
+        }
+      });
+      
+      // Unsubscribe from all batch subscriptions
+      this.batchSubscriptions.forEach(sub => sub.unsubscribe());
+      this.batchSubscriptions = [];
+      
+      // Set state to cancelled for smooth transition
+      this.batchState = 'cancelled';
+      
+      // Show success message after slight delay
+      setTimeout(() => {
+        this.snackBar.open('All uploads cancelled successfully', 'Close', { duration: 3000 });
+        
+        // Reset after showing cancelled state briefly
+        setTimeout(() => {
+          this.resetBatchToIdle();
+        }, 2000);
+      }, 500);
+    }, 300);
+  }
+
+  // Reset batch upload to idle state with smooth transition
+  private resetBatchToIdle(): void {
+    setTimeout(() => {
+      this.batchState = 'idle';
+      this.batchFiles = [];
+      this.finalBatchLink = null;
       this.isCancelling = false;
-    }, 1000);
+      
+      // Clean up any remaining subscriptions
+      this.batchSubscriptions.forEach(sub => sub.unsubscribe());
+      this.batchSubscriptions = [];
+    }, 300);
   }
 
   // Drag and drop handlers
