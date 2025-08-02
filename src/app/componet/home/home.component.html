@@ -6,83 +6,92 @@
     <!-- Enhanced Upload Area -->
     <div class="mb-16">
       <div class="text-center mb-8 space-y-4">
-        <div class="inline-flex items-center space-x-3 mb-4">
-          <div class="w-12 h-12 bg-gradient-to-br from-black to-gray-800 rounded-xl flex items-center justify-center shadow-md transform transition-all duration-200 hover:scale-105">
-            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+        <div class="inline-flex items-center space-x-3 mb-6">
+          <div class="w-10 h-10 bg-gradient-to-br from-astronaut-600 to-astronaut-700 rounded-lg flex items-center justify-center shadow-sm">
+            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
               <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z M12,12L16,16H13.5V19H10.5V16H8L12,12Z"/>
             </svg>
           </div>
-          <h1 class="text-3xl font-bold text-primary">DirectDrive</h1>
+          <h1 class="text-2xl font-semibold text-primary">DirectDrive</h1>
         </div>
-        <h2 class="text-3xl font-bold text-slate-900 mb-3">Upload Your Files</h2>
-        <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+        <h2 class="text-2xl font-semibold text-slate-900 mb-3 tracking-tight">Upload Your Files</h2>
+        <p class="text-base text-slate-600 max-w-xl mx-auto leading-relaxed">
           Drag and drop files or click to select. Get instant, shareable download links for your files.
         </p>
-        <div class="flex items-center justify-center space-x-6 text-sm text-slate-500 mt-6">
+        <div class="flex items-center justify-center space-x-8 text-sm text-slate-500 mt-8">
           <div class="flex items-center space-x-2">
-            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-            <span>No file size limits</span>
+            <div class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
+              <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <span class="font-medium">No file size limits</span>
           </div>
           <div class="flex items-center space-x-2">
-            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-            </svg>
-            <span>Secure & encrypted</span>
+            <div class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center">
+              <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+              </svg>
+            </div>
+            <span class="font-medium">Secure & encrypted</span>
           </div>
           <div class="flex items-center space-x-2">
-            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-            </svg>
-            <span>Lightning fast</span>
+            <div class="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center">
+              <svg class="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </div>
+            <span class="font-medium">Lightning fast</span>
           </div>
         </div>
       </div>
 
       <!-- Enhanced Modern Upload Card -->
-      <div class="card card-elevated upload-card transition-all duration-300" 
-           [class.border-primary]="isDragOver" 
-           [class.bg-primary-5]="isDragOver"
-           [class.border-dashed]="!isDragOver"
-           [class.shadow-xl]="isDragOver">
-        <div class="card-content p-12">
-          <div class="text-center mt-8"
+      <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-300" 
+           [ngClass]="{
+             'border-primary bg-primary/5 shadow-lg': isDragOver,
+             'hover:border-slate-300': !isDragOver
+           }">
+        <div class="p-12">
+          <div class="text-center"
                (dragover)="onDragOver($event)" 
                (dragleave)="onDragLeave($event)" 
                (drop)="onDrop($event)"
                (click)="fileInput.click()">
             <input type="file" #fileInput (change)="onFileSelect($event)" class="hidden" multiple>
             
-            <div class="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center transition-all duration-300 shadow-lg"
+            <div class="w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center transition-all duration-300"
                  [ngClass]="{
-                   'bg-gradient-to-br from-primary to-primary/80 scale-110 shadow-xl': isDragOver,
-                   'bg-gradient-to-br from-slate-100 to-slate-200': !isDragOver
+                   'bg-primary text-white scale-105': isDragOver,
+                   'bg-slate-50 text-slate-400': !isDragOver
                  }">
               <!-- Enhanced Upload Icon -->
-              <span class="material-symbols-outlined text-4xl transition-all duration-300 font-bold" 
+              <span class="material-symbols-outlined text-3xl transition-all duration-300" 
                     [ngClass]="{
-                      'text-white animate-bounce': isDragOver,
-                      'text-slate-800': !isDragOver
+                      'animate-bounce': isDragOver
                     }">cloud_upload</span>
             </div>
             
-            <h3 class="mb-3 text-xl font-semibold text-slate-900">
+            <h3 class="mb-3 text-lg font-medium text-slate-900">
               {{ isDragOver ? 'Drop files here' : 'Drag & drop your files here' }}
             </h3>
-            <p class="text-slate-600 mb-6 text-base">
+            <p class="text-slate-500 mb-8 text-sm">
               or click the button below to select files from your device
             </p>
             
-            <button class="btn-primary px-8 py-3 text-base font-medium cursor-pointer transform transition-all duration-200 hover:scale-105">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button class="btn-primary">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
               </svg>
               Choose Files
             </button>
             
-            <div class="mt-4 text-xs text-slate-500">
-              Supports all file types • No size limits • Secure upload
+            <div class="mt-6 text-xs text-slate-400 flex items-center justify-center space-x-4">
+              <span>Supports all file types</span>
+              <span>•</span>
+              <span>No size limits</span>
+              <span>•</span>
+              <span>Secure upload</span>
             </div>
           </div>
         </div>
@@ -256,7 +265,7 @@
                 <div class="mb-4">
                   <p class="text-sm font-semibold text-slate-700 mb-3">Share this download link:</p>
                   <div class="download-link-wrapper p-4 bg-white rounded-lg border-2 border-slate-200 shadow-sm">
-                    <p class="text-sm font-mono break-all text-slate-800 leading-relaxed">{{ finalDownloadLink || finalBatchLink }}</p>
+                    <p class="text-sm font-mono break-all text-astronaut-800 leading-relaxed">{{ finalDownloadLink || finalBatchLink }}</p>
                   </div>
                 </div>
                 <div class="flex items-center justify-center space-x-4">
