@@ -24,31 +24,54 @@
           </p>
         </div>
 
-        <!-- Trust Badges in Single Row -->
-        <div class="flex flex-wrap items-center gap-6">
-          <div class="flex items-center space-x-2">
-            <div class="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-              <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-              </svg>
+        <!-- Trust Badges in Two Rows for Better Organization -->
+        <div class="space-y-3">
+          <!-- First Row - Security Features -->
+          <div class="flex flex-wrap items-center gap-6">
+            <div class="flex items-center space-x-2">
+              <div class="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                </svg>
+              </div>
+              <span class="trust-text">256-bit Encryption</span>
             </div>
-            <span class="trust-text">256-bit Encryption</span>
+            <div class="flex items-center space-x-2">
+              <div class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                </svg>
+              </div>
+              <span class="trust-text">SOC2 Compliant</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <div class="w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center">
+                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                </svg>
+              </div>
+              <span class="trust-text">Zero-Knowledge</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <div class="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                </svg>
+              </div>
+              <span class="trust-text">99.9% Uptime</span>
+            </div>
           </div>
-          <div class="flex items-center space-x-2">
-            <div class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-              <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-              </svg>
+          
+          <!-- Second Row - Live Stats -->
+          <div class="flex items-center space-x-6 text-sm text-slate-500">
+            <div class="flex items-center space-x-2">
+              <div class="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+              <span class="font-medium">1,247 files transferred in the last hour</span>
             </div>
-            <span class="trust-text">SOC2 Compliant</span>
-          </div>
-          <div class="flex items-center space-x-2">
-            <div class="w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center">
-              <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-              </svg>
+            <div class="flex items-center space-x-2">
+              <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+              <span class="font-medium">Bank-level encryption on every transfer</span>
             </div>
-            <span class="trust-text">Zero-Knowledge</span>
           </div>
         </div>
 
@@ -57,17 +80,33 @@
           <button class="premium-button bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 text-lg">
             Claim Your 50GB Now - Free Forever
           </button>
-          <p class="text-sm text-slate-500 flex items-center">
-            <svg class="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-            </svg>
-            No credit card required • Files auto-deleted after 30 days
-          </p>
+          <!-- Urgency Element -->
+          <div class="space-y-3">
+            <div class="bg-orange-50 border border-orange-200 rounded-lg p-3">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-orange-800">🔥 Free 50GB Accounts Claimed</span>
+                <span class="text-sm font-bold text-orange-900">78%</span>
+              </div>
+              <div class="w-full bg-orange-200 rounded-full h-2">
+                <div class="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full animate-pulse" style="width: 78%"></div>
+              </div>
+            </div>
+            
+            <p class="text-sm text-slate-500 flex items-center">
+              <svg class="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+              </svg>
+              No credit card required • Your privacy protected: Files auto-delete after 30 days
+            </p>
+          </div>
         </div>
 
-        <!-- Company Logos -->
+        <!-- Company Logos with Enhanced Social Proof -->
         <div class="space-y-3">
-          <p class="text-sm text-slate-500 font-medium">Trusted by teams at</p>
+          <div class="space-y-1">
+            <p class="text-sm text-slate-500 font-medium">Trusted by teams at</p>
+            <p class="text-xs text-slate-400">and 50,000+ businesses worldwide</p>
+          </div>
           <div class="flex items-center space-x-8 opacity-60">
             <!-- Microsoft Logo -->
             <div class="flex items-center space-x-2">
@@ -91,6 +130,18 @@
               <span class="text-sm font-semibold text-slate-600">Netflix</span>
             </div>
           </div>
+          
+          <!-- Testimonial Quote -->
+          <div class="bg-slate-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+            <div class="flex items-start space-x-3">
+              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%234F46E5'/%3E%3Ctext x='20' y='26' text-anchor='middle' fill='white' font-family='Arial' font-size='16' font-weight='bold'%3ESM%3C/text%3E%3C/svg%3E" 
+                   alt="Sarah M." class="w-8 h-8 rounded-full">
+              <div class="flex-1">
+                <p class="text-sm text-slate-700 italic">"Finally, a file sharing service that prioritizes security without sacrificing speed. Our compliance team loves the SOC2 certification."</p>
+                <p class="text-xs text-slate-500 mt-1 font-medium">Sarah Mitchell, IT Director @ TechFlow</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -109,11 +160,11 @@
             <p class="body-large text-slate-500">2GB limit for guests</p>
           </div>
 
-          <!-- Upload Area -->
+          <!-- Enhanced Upload Area -->
           <div *ngIf="!selectedFile && batchFiles.length === 0 && currentState !== 'success' && batchState !== 'success' && currentState !== 'error' && batchState !== 'error'"
-               class="bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl p-6 transition-all duration-300 hover:border-primary hover:bg-primary/5"
+               class="enhanced-drop-zone bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl p-6 transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:shadow-lg"
                [ngClass]="{
-                 'border-primary bg-primary/5 shadow-lg': isDragOver
+                 'border-primary bg-primary/5 shadow-lg animate-pulse': isDragOver
                }"
                (dragover)="onDragOver($event)" 
                (dragleave)="onDragLeave($event)" 
@@ -122,20 +173,52 @@
             <input type="file" #fileInput (change)="onFileSelect($event)" class="hidden" multiple>
             
             <div class="text-center">
-              <div class="w-12 h-12 mx-auto mb-4 bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center hover:scale-105 transition-transform">
-                <span class="material-symbols-outlined text-2xl text-primary">cloud_upload</span>
+              <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center hover:scale-105 transition-transform animate-float">
+                <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
               </div>
               
               <h3 class="text-lg font-semibold text-slate-900 mb-2">
-                {{ isDragOver ? 'Drop files here' : 'Drag & Drop files here' }}
+                {{ isDragOver ? '✨ Drop files here' : 'Drag & Drop files here' }}
               </h3>
               
               <p class="text-sm text-slate-500 mb-4">
-                or <span class="text-primary font-medium cursor-pointer hover:underline">browse files</span>
+                or <button class="text-white bg-primary hover:bg-primary/90 px-4 py-2 rounded-lg font-medium transition-colors shadow-sm">browse files</button>
               </p>
               
-              <div class="text-xs text-slate-400">
-                Up to 2GB per file for guests • 100GB with account
+              <!-- File Type Icons -->
+              <div class="flex justify-center items-center space-x-3 mb-4 opacity-60">
+                <div class="flex items-center space-x-1">
+                  <div class="w-6 h-6 bg-red-100 rounded flex items-center justify-center">
+                    <span class="text-xs font-bold text-red-600">PDF</span>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-1">
+                  <div class="w-6 h-6 bg-purple-100 rounded flex items-center justify-center">
+                    <span class="text-xs font-bold text-purple-600">ZIP</span>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-1">
+                  <div class="w-6 h-6 bg-green-100 rounded flex items-center justify-center">
+                    <span class="text-xs font-bold text-green-600">MP4</span>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-1">
+                  <div class="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
+                    <span class="text-xs font-bold text-blue-600">DOC</span>
+                  </div>
+                </div>
+                <div class="text-slate-400 text-sm">+more</div>
+              </div>
+              
+              <div class="space-y-1">
+                <div class="text-xs text-slate-400">
+                  Try it now - no signup required for 2GB
+                </div>
+                <div class="text-xs text-slate-500 font-medium">
+                  Bank-level encryption • Up to 100GB with account
+                </div>
               </div>
             </div>
           </div>
@@ -382,8 +465,10 @@
             <div class="py-3 border-b border-slate-100">Free Storage</div>
             <div class="py-3 border-b border-slate-100">Max File Size</div>
             <div class="py-3 border-b border-slate-100">Transfer Speed</div>
-            <div class="py-3 border-b border-slate-100">Email Required</div>
+            <div class="py-3 border-b border-slate-100">No Signup Required</div>
             <div class="py-3 border-b border-slate-100">Encryption</div>
+            <div class="py-3 border-b border-slate-100">Support</div>
+            <div class="py-3 border-b border-slate-100">File Retention</div>
           </div>
         </div>
 
@@ -394,8 +479,10 @@
             <div class="py-3 border-b border-slate-100 text-slate-600">2GB</div>
             <div class="py-3 border-b border-slate-100 text-slate-600">2GB</div>
             <div class="py-3 border-b border-slate-100 text-slate-600">500MB/s</div>
-            <div class="py-3 border-b border-slate-100 text-red-500">✗ Yes</div>
+            <div class="py-3 border-b border-slate-100 text-red-500">✗ Required</div>
             <div class="py-3 border-b border-slate-100 text-slate-600">Basic</div>
+            <div class="py-3 border-b border-slate-100 text-slate-600">Business hrs</div>
+            <div class="py-3 border-b border-slate-100 text-slate-600">30 days</div>
           </div>
         </div>
 
@@ -406,8 +493,10 @@
             <div class="py-3 border-b border-slate-100 text-slate-600">15GB</div>
             <div class="py-3 border-b border-slate-100 text-slate-600">15GB</div>
             <div class="py-3 border-b border-slate-100 text-slate-600">1GB/s</div>
-            <div class="py-3 border-b border-slate-100 text-red-500">✗ Yes</div>
+            <div class="py-3 border-b border-slate-100 text-red-500">✗ Required</div>
             <div class="py-3 border-b border-slate-100 text-slate-600">Basic</div>
+            <div class="py-3 border-b border-slate-100 text-slate-600">Business hrs</div>
+            <div class="py-3 border-b border-slate-100 text-slate-600">Forever</div>
           </div>
         </div>
 
@@ -419,8 +508,10 @@
             <div class="py-3 border-b border-slate-100 text-primary font-bold">50GB</div>
             <div class="py-3 border-b border-slate-100 text-primary font-bold">100GB</div>
             <div class="py-3 border-b border-slate-100 text-primary font-bold">2GB/s</div>
-            <div class="py-3 border-b border-slate-100 text-green-500 font-bold">✓ No</div>
+            <div class="py-3 border-b border-slate-100 text-green-500 font-bold">✓ Optional</div>
             <div class="py-3 border-b border-slate-100 text-primary font-bold">E2E</div>
+            <div class="py-3 border-b border-slate-100 text-green-500 font-bold">24/7</div>
+            <div class="py-3 border-b border-slate-100 text-primary font-bold">30 days</div>
           </div>
         </div>
       </div>

@@ -820,3 +820,193 @@ p {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px 0 rgba(37, 99, 235, 0.4);
 }
+
+/* Enhanced Visual Refinements for Premium Conversion */
+
+/* Floating animation for upload icon */
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg); 
+  }
+  50% { 
+    transform: translateY(-8px) rotate(1deg); 
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Enhanced drop zone effects */
+.enhanced-drop-zone {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.enhanced-drop-zone:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.enhanced-drop-zone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(135deg, transparent, rgba(37, 99, 235, 0.1), transparent);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.enhanced-drop-zone:hover::before {
+  opacity: 1;
+}
+
+/* Trust badge subtle animations */
+.trust-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #475569;
+  transition: color 0.2s ease;
+}
+
+.trust-badges:hover .trust-text {
+  color: #334155;
+}
+
+/* Enhanced CTA hover effects */
+.cta-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.cta-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.cta-button:hover::before {
+  left: 100%;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.4);
+}
+
+/* Premium card depth effects */
+.premium-card {
+  transition: all 0.3s ease;
+}
+
+.premium-card:hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Urgency progress bar animation */
+.urgency-progress {
+  animation: urgency-pulse 2s ease-in-out infinite;
+}
+
+@keyframes urgency-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* File type icon hover effects */
+.file-type-icon {
+  transition: all 0.2s ease;
+}
+
+.file-type-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Live stats pulse animation */
+.live-stat {
+  animation: stat-pulse 3s ease-in-out infinite;
+}
+
+@keyframes stat-pulse {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Testimonial entrance animation */
+.testimonial {
+  animation: slideInFromLeft 0.6s ease-out;
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Comparison table row hover effects */
+.comparison-row {
+  transition: all 0.2s ease;
+}
+
+.comparison-row:hover {
+  background-color: rgba(37, 99, 235, 0.02);
+  transform: translateX(2px);
+}
+
+/* Enhanced section transitions */
+.section-enter {
+  animation: sectionEnter 0.8s ease-out;
+}
+
+@keyframes sectionEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile responsive enhancements */
+@media (max-width: 768px) {
+  .enhanced-drop-zone {
+    padding: 1.5rem;
+  }
+  
+  .premium-button {
+    width: 100%;
+    padding: 14px 24px;
+    font-size: 0.95rem;
+  }
+  
+  .trust-badges {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
