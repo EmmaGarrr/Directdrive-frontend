@@ -1,13 +1,13 @@
-/* Premium Animated Gradient Background */
+/* BOLT Premium Animated Gradient Background */
 .animated-gradient {
   background: linear-gradient(135deg, 
-    #667eea 0%, 
-    #764ba2 25%, 
-    #f093fb 50%, 
-    #f5576c 75%, 
-    #4facfe 100%);
+    #020A18 0%, 
+    #10103C 25%, 
+    #4322AA 50%, 
+    #135EE3 75%, 
+    #68D8FC 100%);
   background-size: 400% 400%;
-  animation: gradientShift 12s ease infinite;
+  animation: gradientShift 15s ease infinite;
 }
 
 @keyframes gradientShift {
