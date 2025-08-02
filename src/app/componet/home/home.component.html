@@ -95,7 +95,7 @@
     <div *ngIf="selectedFile && (currentState === 'selected' || currentState === 'uploading')" class="mb-8">
       <h3 class="mb-6 text-xl font-semibold text-slate-900">Selected File</h3>
       <div class="card card-elevated">
-        <div class="card-content p-6" style="padding-top: 1.5rem !important;">
+        <div class="card-content p-6">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4 flex-1 min-w-0">
               <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-200"
@@ -306,7 +306,7 @@
     <!-- Error State -->
     <div *ngIf="currentState === 'error' || batchState === 'error'" class="mb-8" style="margin-top: 6rem !important; padding-top: 2rem !important;">
       <div class="card" style="border-color: var(--destructive); background-color: color-mix(in srgb, var(--destructive) 5%, var(--card))">
-        <div class="card-content p-6" style="padding-top: 1.5rem !important;">
+        <div class="card-content p-6">
           <div class="flex items-start space-x-3">
             <!-- Error icon -->
             <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background-color: var(--destructive)">
