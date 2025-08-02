@@ -1,60 +1,86 @@
-<!-- Modern Batch Upload Interface -->
-<div class="min-h-screen bg-background">
-  <main class="container mx-auto px-4 py-8 max-w-4xl">
-    <!-- Upload Area -->
-    <div class="mb-8">
-      <div class="text-center mb-6">
-        <h2 class="text-2xl font-semibold mb-2">
-          <ng-container [ngSwitch]="batchState">
-            <span *ngSwitchCase="'idle'">Batch Upload Files</span>
-            <span *ngSwitchCase="'processing'">Uploading Batch...</span>
-            <span *ngSwitchCase="'success'">Batch Upload Complete!</span>
-            <span *ngSwitchCase="'error'">Batch Upload Failed</span>
-            <span *ngSwitchCase="'cancelled'">Upload Cancelled</span>
-          </ng-container>
-        </h2>
-        <p class="text-muted-foreground" *ngIf="batchState === 'idle'">
-          Select multiple files to upload them as a batch. Get a single download link for all files.
-        </p>
+<!-- Modern Batch Upload Hero Section with Animated Gradient Background -->
+<div class="min-h-screen w-screen fixed top-0 left-0 z-0 animated-gradient"></div>
+<div class="min-h-screen relative z-10 p-4 md:p-8">
+  <!-- Main Hero Container -->
+  <div class="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl min-h-[80vh] relative overflow-hidden">
+    
+    <!-- Floating Decorative Elements -->
+    <div class="absolute inset-0 pointer-events-none">
+      <!-- Drop.ing badge - top left -->
+      <div class="absolute top-8 left-8 bg-coral-50 text-coral-800 px-3 py-1 rounded-full text-sm font-medium shadow-sm">
+        Batch.ing
       </div>
+      
+      <!-- Music note - top right -->
+      <div class="absolute top-12 right-16 w-6 h-6 bg-mint-100 rounded-full flex items-center justify-center shadow-sm">
+        <span class="text-mint-600 text-sm">♪</span>
+      </div>
+      
+      <!-- Cloud icon - middle right -->
+      <div class="absolute top-1/3 right-8 w-8 h-8 bg-coral-100 rounded-lg flex items-center justify-center shadow-sm">
+        <span class="text-coral-600 text-sm">☁</span>
+      </div>
+      
+      <!-- Rating stars - bottom left -->
+      <div class="absolute bottom-16 left-12 flex space-x-1">
+        <span class="text-yellow-400 text-lg">★</span>
+        <span class="text-yellow-400 text-lg">★</span>
+        <span class="text-yellow-400 text-lg">★</span>
+        <span class="text-yellow-400 text-lg">★</span>
+        <span class="text-yellow-400 text-lg">★</span>
+      </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="relative z-10 px-8 py-16 text-center">
+      <!-- Hero Title -->
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight">
+        Secure Batch Upload &<br/>
+        <span class="text-primary">File Management</span>
+      </h1>
+      
+      <!-- Subtitle -->
+      <p class="text-lg text-slate-600 mb-12 max-w-2xl mx-auto">
+        Upload multiple files at once! Get a single download link for all your files
+      </p>
+      
 
-      <!-- Modern Upload Card -->
-      <div *ngIf="batchState === 'idle'" class="card upload-card border-dashed transition-all duration-200">
-        <div class="card-content p-8">
-          <div class="text-center"
-               (dragover)="onDragOver($event)" 
-               (dragleave)="onDragLeave($event)" 
-               (drop)="onDrop($event)"
-               (click)="fileInput.click()">
-            <input type="file" #fileInput (change)="onFilesSelected($event)" class="hidden" multiple>
-            
-            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
-              <!-- Upload Icon -->
-              <svg class="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-              </svg>
+      <!-- Batch Upload Section -->
+      <div class="max-w-lg mx-auto mb-16">
+        <!-- Default Batch Upload Area (when no files selected) -->
+        <div *ngIf="batchState === 'idle' && files.length === 0"
+             class="bg-mint-50 border-2 border-dashed border-mint-200 rounded-2xl p-8 transition-all duration-300"
+             [ngClass]="{
+               'border-primary bg-primary/5 shadow-lg': isDragOver,
+               'hover:border-mint-300': !isDragOver
+             }"
+             (dragover)="onDragOver($event)" 
+             (dragleave)="onDragLeave($event)" 
+             (drop)="onDrop($event)"
+             (click)="fileInput.click()">
+          <input type="file" #fileInput (change)="onFilesSelected($event)" class="hidden" multiple>
+          
+          <div class="text-center">
+            <div class="w-12 h-12 mx-auto mb-4 bg-mint-200 rounded-full flex items-center justify-center">
+              <span class="material-symbols-outlined text-2xl text-mint-700">cloud_upload</span>
             </div>
             
-            <h3 class="mb-2 font-medium">Drag & drop your files here</h3>
-            <p class="text-muted-foreground mb-4">
-              or click the button below to select multiple files
-            </p>
+            <h3 class="text-lg font-semibold text-slate-900 mb-2">
+              {{ isDragOver ? 'Drop files here' : 'Drag & Drop multiple files here' }}
+            </h3>
             
-            <button class="btn-primary cursor-pointer">
-              Choose Files
+            <button class="btn-primary mt-4">
+              Browse Files
             </button>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Batch Files List -->
-    <div *ngIf="files.length > 0 && (batchState === 'idle' || batchState === 'processing')" class="mb-8">
-      <h3 class="mb-4 font-medium">Selected Files</h3>
-      <div class="space-y-4 max-h-96 overflow-y-auto">
-        <div *ngFor="let f of files" class="card">
-          <div class="card-content p-4">
+        <!-- Batch Files Selected State -->
+        <div *ngIf="files.length > 0 && (batchState === 'idle' || batchState === 'processing')"
+             class="bg-white border border-slate-200 rounded-2xl p-6 shadow-lg">
+          <h3 class="text-lg font-semibold text-slate-900 mb-4">Selected Files ({{ files.length }})</h3>
+          <div class="space-y-3 max-h-64 overflow-y-auto">
+            <div *ngFor="let f of files" class="bg-slate-50 border border-slate-200 rounded-xl p-4">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-3 flex-1 min-w-0">
                 <div class="w-10 h-10 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
@@ -113,28 +139,24 @@
             <div *ngIf="f.state === 'cancelled'" class="mt-3 p-2 bg-warning-10 border border-warning-20 rounded text-sm" style="color: var(--warning)">
               {{ f.error || 'Upload cancelled by user' }}
             </div>
+            </div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="mt-6 space-y-2">
+            <button *ngIf="batchState === 'idle'" (click)="onUploadBatch()" class="w-full btn-primary py-3">
+              Upload {{ files.length }} File(s)
+            </button>
+            <button *ngIf="canCancelUpload" (click)="onCancelUpload()" class="w-full btn-destructive py-3">
+              <span *ngIf="!isCancelling">Cancel Upload</span>
+              <span *ngIf="isCancelling">Cancelling...</span>
+            </button>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Action Buttons -->
-    <div *ngIf="files.length > 0" class="mb-8">
-      <div class="space-y-2">
-        <button *ngIf="batchState === 'idle'" (click)="onUploadBatch()" class="w-full btn-primary py-3">
-          Upload {{ files.length }} File(s)
-        </button>
-        <button *ngIf="canCancelUpload" (click)="onCancelUpload()" class="w-full btn-destructive py-3">
-          <span *ngIf="!isCancelling">Cancel Upload</span>
-          <span *ngIf="isCancelling">Cancelling...</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Success State -->
-    <div *ngIf="batchState === 'success'" class="mb-8">
-      <div class="card" style="border-color: var(--success); background-color: color-mix(in srgb, var(--success) 5%, var(--card))">
-        <div class="card-content p-6">
+        <!-- Success State -->
+        <div *ngIf="batchState === 'success'"
+             class="bg-emerald-50 border border-emerald-200 rounded-2xl p-6">
           <div class="flex items-start space-x-3">
             <!-- Success icon -->
             <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background-color: var(--success)">
@@ -173,17 +195,14 @@
               </div>
             </div>
           </div>
+          <button (click)="reset()" class="w-full btn-secondary py-3 mt-6">
+            Upload Another Batch
+          </button>
         </div>
-      </div>
-      <button (click)="reset()" class="w-full btn-secondary py-3">
-        Upload Another Batch
-      </button>
-    </div>
 
-    <!-- Error State -->
-    <div *ngIf="batchState === 'error' && isUploadFinished" class="mb-8">
-      <div class="card" style="border-color: var(--destructive); background-color: color-mix(in srgb, var(--destructive) 5%, var(--card))">
-        <div class="card-content p-6">
+        <!-- Error State -->
+        <div *ngIf="batchState === 'error' && isUploadFinished"
+             class="bg-red-50 border border-red-200 rounded-2xl p-6">
           <div class="flex items-start space-x-3">
             <!-- Error icon -->
             <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background-color: var(--destructive)">
@@ -196,17 +215,14 @@
               <p class="text-sm text-muted-foreground">Some or all files failed to upload. Please check the status above.</p>
             </div>
           </div>
+          <button (click)="reset()" class="w-full btn-secondary py-3 mt-4">
+            Try Again
+          </button>
         </div>
-      </div>
-      <button (click)="reset()" class="w-full btn-secondary py-3">
-        Try Again
-      </button>
-    </div>
 
-    <!-- Cancelled State -->
-    <div *ngIf="batchState === 'cancelled'" class="mb-8">
-      <div class="card" style="border-color: var(--warning); background-color: color-mix(in srgb, var(--warning) 5%, var(--card))">
-        <div class="card-content p-6">
+        <!-- Cancelled State -->
+        <div *ngIf="batchState === 'cancelled'"
+             class="bg-yellow-50 border border-yellow-200 rounded-2xl p-6">
           <div class="flex items-start space-x-3">
             <!-- Warning icon -->
             <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background-color: var(--warning)">
@@ -219,11 +235,22 @@
               <p class="text-sm text-muted-foreground">The upload was cancelled by the user. Files that were uploading have been stopped.</p>
             </div>
           </div>
+          <button (click)="reset()" class="w-full btn-secondary py-3 mt-4">
+            Start New Upload
+          </button>
         </div>
+
       </div>
-      <button (click)="reset()" class="w-full btn-secondary py-3">
-        Start New Upload
-      </button>
+      
+      <!-- CTA Section -->
+      <div class="bg-slate-50 rounded-2xl p-8 max-w-2xl mx-auto">
+        <p class="text-lg text-slate-700 mb-4">
+          Need more storage? Get <span class="font-bold text-primary">100 GB Free*</span> with batch uploads!
+        </p>
+        <button class="btn-primary px-8 py-3">
+          Upgrade Account
+        </button>
+      </div>
     </div>
-  </main>
+  </div>
 </div>

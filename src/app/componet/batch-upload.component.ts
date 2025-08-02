@@ -32,6 +32,7 @@ export class BatchUploadComponent implements OnDestroy {
   public isCancelling: boolean = false;
   private wsUrl = environment.wsUrl;
   private apiUrl = environment.apiUrl;
+  public isDragOver = false;
 
   // Math reference for template
   public Math = Math;
@@ -413,10 +414,19 @@ export class BatchUploadComponent implements OnDestroy {
     window.open(link, '_blank');
   }
 
-  onDragOver(event: DragEvent) { event.preventDefault(); }
-  onDragLeave(event: DragEvent) { event.preventDefault(); }
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragOver = true;
+  }
+  
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragOver = false;
+  }
+  
   onDrop(event: DragEvent) {
       event.preventDefault();
+      this.isDragOver = false;
       if (this.batchState === 'idle' && event.dataTransfer?.files.length) {
           this.reset();
           this.files = Array.from(event.dataTransfer.files).map(file => ({
