@@ -58,9 +58,10 @@ export class AdminAuthService {
           session.adminRole = admin.role;
           this.adminSessionSubject.next(session);
         },
-                        error: () => {
-                  // Keep the default session if profile load fails
-                }
+        error: () => {
+          // Keep the default session if profile load fails
+          console.log('Profile load failed, keeping default session');
+        }
       });
     }
   }
@@ -75,11 +76,24 @@ export class AdminAuthService {
           // Store admin token
           localStorage.setItem('admin_access_token', response.access_token);
           
+          // Map the role string to UserRole enum
+          let adminRole: UserRole;
+          switch (response.admin_role) {
+            case 'superadmin':
+              adminRole = UserRole.SUPERADMIN;
+              break;
+            case 'admin':
+              adminRole = UserRole.ADMIN;
+              break;
+            default:
+              adminRole = UserRole.REGULAR;
+          }
+          
           // Create admin session
           const session: AdminSession = {
             token: response.access_token,
             adminEmail: '', // Will be populated when profile is loaded
-            adminRole: response.admin_role as UserRole,
+            adminRole: adminRole,
             expiresAt: new Date(Date.now() + (response.expires_in * 1000))
           };
           
@@ -87,7 +101,17 @@ export class AdminAuthService {
           this.isAdminAuthenticatedSubject.next(true);
           
           // Load admin profile after successful login
-          this.loadAdminProfile().subscribe();
+          this.loadAdminProfile().subscribe({
+            next: (admin) => {
+              // Update session with actual admin data
+              session.adminEmail = admin.email;
+              session.adminRole = admin.role;
+              this.adminSessionSubject.next(session);
+            },
+            error: (error) => {
+              console.log('Profile load failed after login:', error);
+            }
+          });
         }),
         catchError(this.handleError)
       );
