@@ -64,6 +64,25 @@ export class UserManagementComponent implements OnInit {
   editingUser: User | null = null;
   showEditModal = false;
   
+  // User files modal
+  showUserFiles = false;
+  userFiles: any[] = [];
+  loadingUserFiles = false;
+  userFilesPagination = {
+    total: 0,
+    page: 1,
+    limit: 20,
+    total_pages: 0
+  };
+  userFilesTotalSize = 0;
+  
+  // Storage insights modal
+  showStorageInsights = false;
+  selectedFileForInsights: any = null;
+  storageInsights: any = null;
+  loadingStorageInsights = false;
+  storageInsightsError = '';
+  
   constructor(
     private adminAuthService: AdminAuthService,
     private http: HttpClient
@@ -386,6 +405,156 @@ export class UserManagementComponent implements OnInit {
   closeEditModal(): void {
     this.showEditModal = false;
     this.editingUser = null;
+  }
+
+  // User Files Modal Methods
+  async viewUserFiles(user: User): Promise<void> {
+    this.selectedUser = user;
+    this.showUserFiles = true;
+    this.userFiles = [];
+    this.userFilesPagination = {
+      total: 0,
+      page: 1,
+      limit: 20,
+      total_pages: 0
+    };
+    await this.loadUserFiles(1);
+  }
+
+  closeUserFiles(): void {
+    this.showUserFiles = false;
+    this.selectedUser = null;
+    this.userFiles = [];
+    this.loadingUserFiles = false;
+  }
+
+  async loadUserFiles(page: number): Promise<void> {
+    if (!this.selectedUser) return;
+
+    this.loadingUserFiles = true;
+    const headers = this.getAuthHeaders();
+
+    try {
+      const response = await this.http.get<any>(
+        `${environment.apiUrl}/api/v1/admin/users/${this.selectedUser.email}/files?page=${page}&limit=20`,
+        { headers }
+      ).toPromise();
+
+      if (response) {
+        this.userFiles = response.files;
+        this.userFilesPagination = {
+          total: response.total,
+          page: response.page,
+          limit: response.limit,
+          total_pages: response.total_pages
+        };
+
+        // Calculate total size
+        this.userFilesTotalSize = this.userFiles.reduce((total, file) => {
+          return total + (file.size_bytes || 0);
+        }, 0);
+      }
+    } catch (error) {
+      console.error('Error loading user files:', error);
+      this.userFiles = [];
+    } finally {
+      this.loadingUserFiles = false;
+    }
+  }
+
+  getFileIcon(fileType: string): string {
+    const iconMap: { [key: string]: string } = {
+      'image': 'fas fa-file-image',
+      'video': 'fas fa-file-video',
+      'audio': 'fas fa-file-audio',
+      'document': 'fas fa-file-pdf',
+      'archive': 'fas fa-file-archive',
+      'other': 'fas fa-file-alt'
+    };
+    return iconMap[fileType] || 'fas fa-file-alt';
+  }
+
+  getFilesPaginationPages(): number[] {
+    const pages: number[] = [];
+    const totalPages = this.userFilesPagination.total_pages;
+    const currentPage = this.userFilesPagination.page;
+    
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, currentPage + 2);
+    
+    if (endPage - startPage < 4) {
+      if (startPage === 1) {
+        endPage = Math.min(totalPages, startPage + 4);
+      } else {
+        startPage = Math.max(1, endPage - 4);
+      }
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    
+    return pages;
+  }
+
+  // File Action Methods
+  viewFile(file: any): void {
+    // Open the file in a new tab using the download URL
+    const downloadUrl = `${environment.apiUrl}/api/v1/download/stream/${file._id}`;
+    window.open(downloadUrl, '_blank');
+  }
+
+  async checkFileStorage(file: any): Promise<void> {
+    this.selectedFileForInsights = file;
+    this.showStorageInsights = true;
+    this.storageInsights = null;
+    this.storageInsightsError = '';
+    this.loadingStorageInsights = true;
+
+    try {
+      const headers = this.getAuthHeaders();
+      const response = await this.http.get<any>(
+        `${environment.apiUrl}/api/v1/admin/files/${file._id}/storage-insights`,
+        { headers }
+      ).toPromise();
+
+      if (response) {
+        this.storageInsights = response;
+      }
+    } catch (error: any) {
+      console.error('Error checking storage insights:', error);
+      this.storageInsightsError = error?.error?.detail || 'Failed to load storage insights';
+    } finally {
+      this.loadingStorageInsights = false;
+    }
+  }
+
+  closeStorageInsights(): void {
+    this.showStorageInsights = false;
+    this.selectedFileForInsights = null;
+    this.storageInsights = null;
+    this.storageInsightsError = '';
+    this.loadingStorageInsights = false;
+  }
+
+  getStorageStatusClass(storageInfo: any): string {
+    if (storageInfo.exists && storageInfo.accessible) {
+      return 'status-success';
+    } else if (storageInfo.exists && !storageInfo.accessible) {
+      return 'status-warning';
+    } else {
+      return 'status-error';
+    }
+  }
+
+  getStorageStatusIcon(storageInfo: any): string {
+    if (storageInfo.exists && storageInfo.accessible) {
+      return 'fas fa-check-circle';
+    } else if (storageInfo.exists && !storageInfo.accessible) {
+      return 'fas fa-exclamation-triangle';
+    } else {
+      return 'fas fa-times-circle';
+    }
   }
 
   getPaginationPages(): number[] {
