@@ -137,7 +137,7 @@
 .notification-dropdown {
   position: absolute;
   top: 100%;
-  right: 2rem;
+  right: 0;
   width: 350px;
   background: white;
   border-radius: 8px;
@@ -145,6 +145,7 @@
   z-index: 1001;
   max-height: 400px;
   overflow: hidden;
+  margin-top: 0.5rem;
 }
 
 .notification-header {

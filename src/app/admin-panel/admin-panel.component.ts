@@ -1,5 +1,5 @@
 // File: src/app/admin-panel/admin-panel.component.ts
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { AdminSocketService } from '../services/admin-socket.service';
 import { AdminAuthService } from '../services/admin-auth.service';
@@ -316,6 +316,22 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   // Notification Management
   public toggleNotifications(): void {
     this.showNotifications = !this.showNotifications;
+  }
+
+  @HostListener('document:click', ['$event'])
+  public onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    const notificationBell = document.querySelector('.notification-bell');
+    const notificationDropdown = document.querySelector('.notification-dropdown');
+    
+    // Close notifications if clicking outside of both the bell and dropdown
+    if (this.showNotifications && 
+        notificationBell && 
+        notificationDropdown && 
+        !notificationBell.contains(target) && 
+        !notificationDropdown.contains(target)) {
+      this.showNotifications = false;
+    }
   }
 
   public clearNotifications(): void {
