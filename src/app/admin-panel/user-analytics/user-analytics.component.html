@@ -1,0 +1,313 @@
+<!-- User Analytics Dashboard -->
+<div class="analytics-dashboard">
+  
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1><i class="fas fa-chart-bar"></i> User Analytics</h1>
+      <p>Comprehensive insights into user behavior and system usage</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="refreshAllData()" [disabled]="loadingActiveUsers">
+        <i class="fas fa-sync-alt" [class.fa-spin]="loadingActiveUsers"></i>
+        Refresh Data
+      </button>
+    </div>
+  </div>
+
+  <!-- Quick Stats Overview -->
+  <div class="stats-overview">
+    <h2>Quick Overview</h2>
+    <div class="stats-grid">
+      
+      <!-- Active Users Card -->
+      <div class="stat-card" [class.loading]="loadingActiveUsers">
+        <div class="stat-header">
+          <h3>Active Users</h3>
+          <i class="fas fa-users-online stat-icon"></i>
+        </div>
+        <div class="stat-content" *ngIf="!loadingActiveUsers && activeUsersStats">
+          <div class="stat-main">
+            <span class="stat-number">{{ activeUsersStats.total_active }}</span>
+            <span class="stat-label">Total Active</span>
+          </div>
+          <div class="stat-breakdown">
+            <div class="breakdown-item">
+              <span class="label">Daily:</span>
+              <span class="value">{{ activeUsersStats.daily_active }}</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="label">Weekly:</span>
+              <span class="value">{{ activeUsersStats.weekly_active }}</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="label">Monthly:</span>
+              <span class="value">{{ activeUsersStats.monthly_active }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="loading-spinner" *ngIf="loadingActiveUsers">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+        <div class="error-message" *ngIf="errors['activeUsers']">
+          {{ errors['activeUsers'] }}
+        </div>
+      </div>
+
+      <!-- Registration Trends Card -->
+      <div class="stat-card" [class.loading]="loadingRegistrationTrends">
+        <div class="stat-header">
+          <h3>Registration Trends</h3>
+          <i class="fas fa-user-plus stat-icon"></i>
+        </div>
+        <div class="stat-content" *ngIf="!loadingRegistrationTrends && registrationTrends">
+          <div class="stat-main">
+            <span class="stat-number">{{ registrationTrends.total_registrations }}</span>
+            <span class="stat-label">Total Registrations</span>
+          </div>
+          <div class="stat-breakdown">
+            <div class="breakdown-item">
+              <span class="label">Period:</span>
+              <span class="value">{{ registrationTrends.period | titlecase }}</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="label">Growth Rate:</span>
+              <span class="value" [ngClass]="getGrowthClass(registrationTrends.growth_rate)">
+                {{ registrationTrends.growth_rate }}%
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="loading-spinner" *ngIf="loadingRegistrationTrends">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+        <div class="error-message" *ngIf="errors['registrationTrends']">
+          {{ errors['registrationTrends'] }}
+        </div>
+      </div>
+
+      <!-- Storage Usage Card -->
+      <div class="stat-card" [class.loading]="loadingStorage">
+        <div class="stat-header">
+          <h3>Storage Usage</h3>
+          <i class="fas fa-database stat-icon"></i>
+        </div>
+        <div class="stat-content" *ngIf="!loadingStorage && storageAnalytics">
+          <div class="stat-main">
+            <span class="stat-number">{{ formatBytes(storageAnalytics.total_storage) }}</span>
+            <span class="stat-label">Total Storage</span>
+          </div>
+          <div class="stat-breakdown">
+            <div class="breakdown-item">
+              <span class="label">Average per User:</span>
+              <span class="value">{{ formatBytes(storageAnalytics.average_per_user) }}</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="label">Top Users:</span>
+              <span class="value">{{ storageAnalytics.top_users.length }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="loading-spinner" *ngIf="loadingStorage">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+        <div class="error-message" *ngIf="errors['storage']">
+          {{ errors['storage'] }}
+        </div>
+      </div>
+
+      <!-- Retention Metrics Card -->
+      <div class="stat-card" [class.loading]="loadingRetention">
+        <div class="stat-header">
+          <h3>User Retention</h3>
+          <i class="fas fa-heart stat-icon"></i>
+        </div>
+        <div class="stat-content" *ngIf="!loadingRetention && retentionMetrics">
+          <div class="stat-main">
+            <span class="stat-number" [ngClass]="getRetentionClass(retentionMetrics.retention_rate_30d)">
+              {{ retentionMetrics.retention_rate_30d }}%
+            </span>
+            <span class="stat-label">30-Day Retention</span>
+          </div>
+          <div class="stat-breakdown">
+            <div class="breakdown-item">
+              <span class="label">7-Day:</span>
+              <span class="value" [ngClass]="getRetentionClass(retentionMetrics.retention_rate_7d)">
+                {{ retentionMetrics.retention_rate_7d }}%
+              </span>
+            </div>
+            <div class="breakdown-item">
+              <span class="label">Churn Rate:</span>
+              <span class="value" [ngClass]="getChurnClass(retentionMetrics.churn_rate)">
+                {{ retentionMetrics.churn_rate }}%
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="loading-spinner" *ngIf="loadingRetention">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+        <div class="error-message" *ngIf="errors['retention']">
+          {{ errors['retention'] }}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Detailed Analytics Section -->
+  <div class="detailed-analytics">
+    
+    <!-- Registration Trends Chart -->
+    <div class="analytics-section">
+      <div class="section-header">
+        <h3><i class="fas fa-chart-line"></i> Registration Trends</h3>
+        <div class="section-controls">
+          <select (change)="onPeriodChange($event, 'registration')">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly" selected>Monthly</option>
+          </select>
+        </div>
+      </div>
+      <div class="chart-container" *ngIf="!loadingRegistrationTrends && registrationTrends">
+        <div class="trend-chart">
+          <div class="trend-item" *ngFor="let trend of registrationTrends.data">
+            <div class="trend-bar" [style.height.px]="(trend.count / registrationTrends.total_registrations) * 100 + 20">
+              <span class="trend-value">{{ trend.count }}</span>
+            </div>
+            <div class="trend-label">{{ trend.date }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="loading-spinner" *ngIf="loadingRegistrationTrends">
+        <i class="fas fa-spinner fa-spin"></i>
+      </div>
+    </div>
+
+    <!-- Geographic Distribution -->
+    <div class="analytics-section">
+      <div class="section-header">
+        <h3><i class="fas fa-globe"></i> Geographic Distribution</h3>
+      </div>
+      <div class="geo-container" *ngIf="!loadingGeographic && geographicData">
+        <div class="country-list">
+          <div class="country-item" *ngFor="let country of geographicData.countries">
+            <div class="country-info">
+              <span class="country-name">{{ country.country }}</span>
+              <span class="country-count">{{ country.count }} users</span>
+            </div>
+            <div class="country-bar">
+              <div class="country-fill" [style.width.%]="country.percentage"></div>
+              <span class="country-percentage">{{ country.percentage }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="loading-spinner" *ngIf="loadingGeographic">
+        <i class="fas fa-spinner fa-spin"></i>
+      </div>
+    </div>
+
+    <!-- Storage Distribution -->
+    <div class="analytics-section">
+      <div class="section-header">
+        <h3><i class="fas fa-hdd"></i> Storage Distribution</h3>
+      </div>
+      <div class="storage-container" *ngIf="!loadingStorage && storageAnalytics">
+        
+        <!-- Storage Ranges -->
+        <div class="storage-ranges">
+          <div class="range-item" *ngFor="let range of storageAnalytics.storage_distribution">
+            <div class="range-label">{{ range.range }}</div>
+            <div class="range-bar">
+              <div class="range-fill" [style.width.%]="(range.count / storageAnalytics.top_users.length) * 100"></div>
+              <span class="range-count">{{ range.count }} users</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Users by Storage -->
+        <div class="top-users">
+          <h4>Top Users by Storage</h4>
+          <div class="user-list">
+            <div class="user-item" *ngFor="let user of storageAnalytics.top_users.slice(0, 5)">
+              <div class="user-email">{{ user.email }}</div>
+              <div class="user-stats">
+                <span class="files-count">{{ user.files_count }} files</span>
+                <span class="storage-used">{{ formatBytes(user.storage_used) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="loading-spinner" *ngIf="loadingStorage">
+        <i class="fas fa-spinner fa-spin"></i>
+      </div>
+    </div>
+
+    <!-- Activity Patterns -->
+    <div class="analytics-section">
+      <div class="section-header">
+        <h3><i class="fas fa-clock"></i> Activity Patterns</h3>
+        <div class="section-controls">
+          <select (change)="onPeriodChange($event, 'activity')">
+            <option value="7" selected>Last 7 days</option>
+            <option value="14">Last 14 days</option>
+            <option value="30">Last 30 days</option>
+          </select>
+        </div>
+      </div>
+      <div class="activity-container" *ngIf="!loadingActivity && activityPatterns">
+        <div class="activity-charts">
+          
+          <!-- Upload Patterns -->
+          <div class="pattern-chart">
+            <h4>Upload Activity by Hour</h4>
+            <div class="hourly-chart">
+              <div class="hour-item" *ngFor="let hour of activityPatterns.upload_patterns">
+                <div class="hour-bar upload-bar" [style.height.px]="hour.uploads * 2">
+                  <span class="hour-value">{{ hour.uploads }}</span>
+                </div>
+                <div class="hour-label">{{ hour.hour }}:00</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Download Patterns -->
+          <div class="pattern-chart">
+            <h4>Download Activity by Hour</h4>
+            <div class="hourly-chart">
+              <div class="hour-item" *ngFor="let hour of activityPatterns.download_patterns">
+                <div class="hour-bar download-bar" [style.height.px]="hour.downloads * 2">
+                  <span class="hour-value">{{ hour.downloads }}</span>
+                </div>
+                <div class="hour-label">{{ hour.hour }}:00</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Most Active Users -->
+        <div class="active-users-list">
+          <h4>Most Active Users</h4>
+          <div class="active-user-item" *ngFor="let user of activityPatterns.most_active_users.slice(0, 5)">
+            <div class="user-info">
+              <span class="user-email">{{ user.email }}</span>
+              <span class="last-login" *ngIf="user.last_login">
+                Last login: {{ user.last_login | date:'short' }}
+              </span>
+              <span class="no-login" *ngIf="!user.last_login">Never logged in</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="loading-spinner" *ngIf="loadingActivity">
+        <i class="fas fa-spinner fa-spin"></i>
+      </div>
+    </div>
+
+  </div>
+
+</div>

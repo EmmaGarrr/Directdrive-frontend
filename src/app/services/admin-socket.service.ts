@@ -1,7 +1,7 @@
 // File: src/app/services/admin-socket.service.ts
 import { Injectable } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { Subject } from 'rxjs';
+import { Subject, BehaviorSubject } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -10,6 +10,7 @@ import { environment } from '../../environments/environment';
 export class AdminSocketService {
   private socket$: WebSocketSubject<any> | null = null;
   public messages$ = new Subject<any>();
+  public connectionStatus$ = new BehaviorSubject<boolean>(false);
 
   constructor() { }
 
@@ -21,9 +22,18 @@ export class AdminSocketService {
       this.socket$ = webSocket(wsUrl);
 
       this.socket$.subscribe(
-        (msg) => this.messages$.next(msg),
-        (err) => console.error('Admin WebSocket error:', err),
-        () => console.warn('Admin WebSocket connection closed')
+        (msg) => {
+          this.messages$.next(msg);
+          this.connectionStatus$.next(true);
+        },
+        (err) => {
+          console.error('Admin WebSocket error:', err);
+          this.connectionStatus$.next(false);
+        },
+        () => {
+          console.warn('Admin WebSocket connection closed');
+          this.connectionStatus$.next(false);
+        }
       );
     }
   }
@@ -32,6 +42,7 @@ export class AdminSocketService {
     if (this.socket$) {
       this.socket$.complete();
       this.socket$ = null;
+      this.connectionStatus$.next(false);
     }
   }
 }

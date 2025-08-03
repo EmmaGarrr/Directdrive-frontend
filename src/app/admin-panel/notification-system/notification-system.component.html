@@ -1,0 +1,453 @@
+<!-- Notification System Header -->
+<div class="page-header">
+  <h1>Notification System</h1>
+  <p>Manage system announcements, email broadcasts, and user notifications</p>
+</div>
+
+<!-- Loading Spinner -->
+<div *ngIf="loading" class="loading-container">
+  <mat-spinner></mat-spinner>
+  <p>Loading notification system...</p>
+</div>
+
+<!-- Tab Navigation -->
+<mat-tab-group [selectedIndex]="getTabIndex()" (selectedIndexChange)="onTabIndexChange($event)">
+  
+  <!-- DASHBOARD TAB -->
+  <mat-tab label="Dashboard">
+    <div class="tab-content" *ngIf="notificationStats">
+      <!-- Summary Statistics -->
+      <div class="stats-grid">
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <h3>{{ notificationStats.summary.total_notifications || 0 }}</h3>
+            <p>Total Notifications</p>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <h3>{{ notificationStats.summary.recent_notifications || 0 }}</h3>
+            <p>Recent (30 days)</p>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <h3>{{ notificationStats.summary.active_templates || 0 }}</h3>
+            <p>Active Templates</p>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <h3>{{ notificationStats.summary.scheduled_notifications || 0 }}</h3>
+            <p>Scheduled</p>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Delivery Statistics -->
+      <mat-card class="delivery-stats">
+        <mat-card-header>
+          <mat-card-title>Delivery Performance</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="delivery-overview">
+            <div class="delivery-stat">
+              <h3>{{ notificationStats.delivery_summary.total_recipients || 0 }}</h3>
+              <p>Total Recipients</p>
+            </div>
+            <div class="delivery-stat">
+              <h3>{{ notificationStats.delivery_summary.successful_deliveries || 0 }}</h3>
+              <p>Successful Deliveries</p>
+            </div>
+            <div class="delivery-stat">
+              <h3>{{ notificationStats.delivery_summary.failed_deliveries || 0 }}</h3>
+              <p>Failed Deliveries</p>
+            </div>
+            <div class="delivery-stat">
+              <h3>{{ (notificationStats.delivery_summary.success_rate || 0) | number:'1.1-1' }}%</h3>
+              <p>Success Rate</p>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Status & Type Breakdown -->
+      <div class="breakdown-grid">
+        <mat-card class="breakdown-card">
+          <mat-card-header>
+            <mat-card-title>Status Breakdown</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="breakdown-list">
+              <div *ngFor="let item of notificationStats.status_breakdown | keyvalue" class="breakdown-item">
+                <span class="breakdown-label" [class]="'status-' + item.key">{{ item.key | titlecase }}</span>
+                <span class="breakdown-value">{{ item.value }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="breakdown-card">
+          <mat-card-header>
+            <mat-card-title>Type Breakdown</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="breakdown-list">
+              <div *ngFor="let item of notificationStats.type_breakdown | keyvalue" class="breakdown-item">
+                <span class="breakdown-label" [class]="'type-' + item.key">{{ item.key | titlecase }}</span>
+                <span class="breakdown-value">{{ item.value }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Recent Activity Chart -->
+      <mat-card class="activity-chart">
+        <mat-card-header>
+          <mat-card-title>Recent Activity (Last 7 Days)</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container">
+            <div *ngFor="let day of notificationStats.recent_activity" class="activity-bar">
+              <div class="bar-container">
+                <div class="bar" [style.height.%]="day.count > 0 ? (day.count / 10) * 100 : 5"></div>
+              </div>
+              <span class="bar-label">{{ day.date | date:'short' }}</span>
+              <span class="bar-value">{{ day.count }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </mat-tab>
+
+  <!-- NOTIFICATIONS LIST TAB -->
+  <mat-tab label="Notifications">
+    <div class="tab-content">
+      <!-- Filters -->
+      <mat-card class="filters-card">
+        <mat-card-content>
+          <form class="filter-form">
+            <mat-form-field>
+              <mat-label>Status Filter</mat-label>
+              <mat-select [(ngModel)]="notificationFilters.status_filter" name="statusFilter" (ngModelChange)="onNotificationFilterChange()">
+                <mat-option value="">All Statuses</mat-option>
+                <mat-option value="draft">Draft</mat-option>
+                <mat-option value="scheduled">Scheduled</mat-option>
+                <mat-option value="sent">Sent</mat-option>
+                <mat-option value="failed">Failed</mat-option>
+                <mat-option value="cancelled">Cancelled</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Type Filter</mat-label>
+              <mat-select [(ngModel)]="notificationFilters.type_filter" name="typeFilter" (ngModelChange)="onNotificationFilterChange()">
+                <mat-option value="">All Types</mat-option>
+                <mat-option value="system">System</mat-option>
+                <mat-option value="email">Email</mat-option>
+                <mat-option value="in_app">In-App</mat-option>
+                <mat-option value="scheduled">Scheduled</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Priority Filter</mat-label>
+              <mat-select [(ngModel)]="notificationFilters.priority_filter" name="priorityFilter" (ngModelChange)="onNotificationFilterChange()">
+                <mat-option value="">All Priorities</mat-option>
+                <mat-option value="low">Low</mat-option>
+                <mat-option value="medium">Medium</mat-option>
+                <mat-option value="high">High</mat-option>
+                <mat-option value="urgent">Urgent</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </form>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Notifications List -->
+      <mat-card class="notifications-list">
+        <mat-card-header>
+          <mat-card-title>All Notifications</mat-card-title>
+          <div class="action-buttons">
+            <button mat-raised-button color="primary" (click)="activeTab = 'create'">
+              <mat-icon>add</mat-icon>
+              Create Notification
+            </button>
+          </div>
+        </mat-card-header>
+        <mat-card-content>
+          <div *ngIf="notifications.length === 0" class="no-data">
+            <mat-icon>notifications</mat-icon>
+            <p>No notifications found</p>
+          </div>
+
+          <div *ngFor="let notification of notifications" class="notification-item">
+            <div class="notification-info">
+              <div class="notification-header">
+                <h3>{{ notification.title }}</h3>
+                <div class="notification-badges">
+                  <span class="status-badge" [class]="getStatusBadgeClass(notification.status)">
+                    {{ notification.status | titlecase }}
+                  </span>
+                  <span class="priority-badge" [class]="getPriorityBadgeClass(notification.priority)">
+                    {{ notification.priority | titlecase }}
+                  </span>
+                  <span class="type-badge" [class]="getTypeBadgeClass(notification.notification_type)">
+                    {{ notification.notification_type | titlecase }}
+                  </span>
+                </div>
+              </div>
+              <p class="notification-message">{{ notification.message }}</p>
+              <div class="notification-meta">
+                <span>Created: {{ formatDate(notification.created_at) }}</span>
+                <span>by {{ notification.created_by }}</span>
+                <span *ngIf="notification.sent_at">| Sent: {{ formatDate(notification.sent_at) }}</span>
+                <span *ngIf="notification.schedule_time">| Scheduled: {{ formatDate(notification.schedule_time) }}</span>
+              </div>
+              <div class="delivery-info" *ngIf="notification.status === 'sent'">
+                <span>Recipients: {{ notification.delivery_stats.total_recipients }}</span>
+                <span>Success: {{ notification.delivery_stats.successful_deliveries }}</span>
+                <span>Failed: {{ notification.delivery_stats.failed_deliveries }}</span>
+                <span>Rate: {{ getDeliverySuccessRate(notification) }}%</span>
+              </div>
+            </div>
+            <div class="notification-actions">
+              <button mat-icon-button *ngIf="notification.status === 'draft' || notification.status === 'scheduled'" 
+                      (click)="sendNotificationNow(notification._id)" 
+                      matTooltip="Send Now">
+                <mat-icon>send</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" 
+                      (click)="deleteNotification(notification._id, notification.title)" 
+                      matTooltip="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div class="pagination" *ngIf="notificationTotal > notificationLimit">
+            <button mat-button (click)="prevNotificationPage()" [disabled]="notificationPage <= 1">Previous</button>
+            <span>Page {{ notificationPage }} of {{ Math.ceil(notificationTotal / notificationLimit) }}</span>
+            <button mat-button (click)="nextNotificationPage()" [disabled]="notificationPage * notificationLimit >= notificationTotal">Next</button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </mat-tab>
+
+  <!-- TEMPLATES TAB -->
+  <mat-tab label="Templates">
+    <div class="tab-content">
+      <!-- Create Template Button -->
+      <div class="action-buttons">
+        <button mat-raised-button color="primary" (click)="showCreateTemplate = !showCreateTemplate">
+          <mat-icon>add</mat-icon>
+          Create Template
+        </button>
+      </div>
+
+      <!-- Create Template Form -->
+      <mat-card *ngIf="showCreateTemplate" class="form-card">
+        <mat-card-header>
+          <mat-card-title>Create New Template</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form class="template-form">
+            <div class="form-row">
+              <mat-form-field>
+                <mat-label>Template ID</mat-label>
+                <input matInput [(ngModel)]="newTemplate.template_id" name="templateId" placeholder="unique-template-id">
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Template Name</mat-label>
+                <input matInput [(ngModel)]="newTemplate.name" name="templateName" placeholder="Template display name">
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field>
+                <mat-label>Type</mat-label>
+                <mat-select [(ngModel)]="newTemplate.notification_type" name="templateType">
+                  <mat-option value="system">System</mat-option>
+                  <mat-option value="email">Email</mat-option>
+                  <mat-option value="in_app">In-App</mat-option>
+                  <mat-option value="scheduled">Scheduled</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Priority</mat-label>
+                <mat-select [(ngModel)]="newTemplate.priority" name="templatePriority">
+                  <mat-option value="low">Low</mat-option>
+                  <mat-option value="medium">Medium</mat-option>
+                  <mat-option value="high">High</mat-option>
+                  <mat-option value="urgent">Urgent</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <mat-form-field>
+              <mat-label>Email Subject (for email notifications)</mat-label>
+              <input matInput [(ngModel)]="newTemplate.subject" name="templateSubject" placeholder="Subject line">
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Content</mat-label>
+              <textarea matInput [(ngModel)]="newTemplate.content" name="templateContent" rows="6" placeholder="Template content"></textarea>
+            </mat-form-field>
+
+            <mat-checkbox [(ngModel)]="newTemplate.is_active" name="templateActive">Active</mat-checkbox>
+          </form>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button (click)="showCreateTemplate = false">Cancel</button>
+          <button mat-raised-button color="primary" (click)="createTemplate()">Create Template</button>
+        </mat-card-actions>
+      </mat-card>
+
+      <!-- Templates List -->
+      <mat-card class="templates-list">
+        <mat-card-header>
+          <mat-card-title>Available Templates</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div *ngIf="templates.length === 0" class="no-data">
+            <mat-icon>text_snippet</mat-icon>
+            <p>No templates found</p>
+          </div>
+
+          <div *ngFor="let template of templates" class="template-item">
+            <div class="template-info">
+              <div class="template-header">
+                <h3>{{ template.name }}</h3>
+                <div class="template-badges">
+                  <span class="type-badge" [class]="getTypeBadgeClass(template.notification_type)">
+                    {{ template.notification_type | titlecase }}
+                  </span>
+                  <span class="priority-badge" [class]="getPriorityBadgeClass(template.priority)">
+                    {{ template.priority | titlecase }}
+                  </span>
+                </div>
+              </div>
+              <p class="template-id"><strong>ID:</strong> {{ template.template_id }}</p>
+              <p class="template-subject" *ngIf="template.subject"><strong>Subject:</strong> {{ template.subject }}</p>
+              <p class="template-content">{{ template.content }}</p>
+              <div class="template-meta">
+                <span>Created: {{ formatDate(template.created_at) }}</span>
+                <span>by {{ template.created_by }}</span>
+                <span>| Used: {{ template.usage_count }} times</span>
+              </div>
+            </div>
+            <div class="template-actions">
+              <button mat-raised-button (click)="useTemplate(template)">
+                <mat-icon>content_copy</mat-icon>
+                Use Template
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </mat-tab>
+
+  <!-- CREATE NOTIFICATION TAB -->
+  <mat-tab label="Create Notification">
+    <div class="tab-content">
+      <mat-card class="create-form">
+        <mat-card-header>
+          <mat-card-title>Create New Notification</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form class="notification-form">
+            <div class="form-row">
+              <mat-form-field>
+                <mat-label>Title</mat-label>
+                <input matInput [(ngModel)]="newNotification.title" name="notificationTitle" placeholder="Notification title">
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Type</mat-label>
+                <mat-select [(ngModel)]="newNotification.notification_type" name="notificationType">
+                  <mat-option value="system">System</mat-option>
+                  <mat-option value="email">Email</mat-option>
+                  <mat-option value="in_app">In-App</mat-option>
+                  <mat-option value="scheduled">Scheduled</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Priority</mat-label>
+                <mat-select [(ngModel)]="newNotification.priority" name="notificationPriority">
+                  <mat-option value="low">Low</mat-option>
+                  <mat-option value="medium">Medium</mat-option>
+                  <mat-option value="high">High</mat-option>
+                  <mat-option value="urgent">Urgent</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <mat-form-field>
+              <mat-label>Message</mat-label>
+              <textarea matInput [(ngModel)]="newNotification.message" name="notificationMessage" rows="4" placeholder="Notification message"></textarea>
+            </mat-form-field>
+
+            <mat-form-field *ngIf="newNotification.notification_type === 'email'">
+              <mat-label>Email Subject</mat-label>
+              <input matInput [(ngModel)]="newNotification.email_subject" name="emailSubject" placeholder="Email subject line">
+            </mat-form-field>
+
+            <div class="form-row">
+              <mat-form-field>
+                <mat-label>Target Audience</mat-label>
+                <mat-select [(ngModel)]="newNotification.target_type" name="targetType">
+                  <mat-option value="all_users">All Users</mat-option>
+                  <mat-option value="active_users">Active Users</mat-option>
+                  <mat-option value="inactive_users">Inactive Users</mat-option>
+                  <mat-option value="specific_users">Specific Users</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field *ngIf="newNotification.target_type === 'specific_users'">
+                <mat-label>Target Users (comma-separated emails)</mat-label>
+                <input matInput [(ngModel)]="newNotification.target_users" name="targetUsers" placeholder="user1@example.com, user2@example.com">
+              </mat-form-field>
+            </div>
+
+            <mat-form-field>
+              <mat-label>Schedule Time (optional)</mat-label>
+              <input matInput type="datetime-local" [(ngModel)]="newNotification.schedule_time" name="scheduleTime">
+            </mat-form-field>
+
+            <!-- User Group Preview -->
+            <div class="user-group-section" *ngIf="newNotification.target_type !== 'specific_users'">
+              <h4>Target User Preview</h4>
+              <button mat-button type="button" (click)="previewUserGroup()">
+                <mat-icon>preview</mat-icon>
+                Preview Target Users
+              </button>
+              
+              <div *ngIf="showUserGroupPreview && userGroupPreview" class="user-preview">
+                <p><strong>Matching Users:</strong> {{ userGroupPreview.total_matching_users }}</p>
+                <div class="sample-users">
+                  <h5>Sample Users:</h5>
+                  <div *ngFor="let user of userGroupPreview.sample_users" class="sample-user">
+                    <span>{{ user.email }}</span>
+                    <span class="user-status" [class.active]="user.is_active">{{ user.is_active ? 'Active' : 'Inactive' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button (click)="resetNewNotification()">Reset</button>
+          <button mat-raised-button color="primary" (click)="createNotification()">Create Notification</button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </mat-tab>
+</mat-tab-group>

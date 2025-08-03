@@ -239,7 +239,7 @@
                 </div>
                 <div class="flex-1 text-left">
                   <h4 class="font-semibold text-slate-900">{{ selectedFile.name }}</h4>
-                  <p class="text-sm text-slate-500">{{ getFileSize(selectedFile.size) }} • Ready to upload</p>
+                  <p class="text-sm text-slate-500">{{ getFileSize(selectedFile.size || 0) }} • Ready to upload</p>
                 </div>
                 <div class="text-green-500">
                   <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -513,7 +513,7 @@
                   <div class="flex-1 min-w-0">
                     <p class="text-sm text-slate-600 truncate">{{ finalDownloadLink }}</p>
                   </div>
-                  <button (click)="copyLink(finalDownloadLink)" 
+                  <button (click)="copyLink(finalDownloadLink || '')" 
                           class="flex-shrink-0 bg-slate-100 hover:bg-slate-200 text-slate-700 p-2 rounded-md transition-colors"
                           title="Copy link">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -560,7 +560,7 @@
                   <div class="flex-1 min-w-0">
                     <p class="text-sm text-slate-600 truncate">{{ finalBatchLink }}</p>
                   </div>
-                  <button (click)="copyLink(finalBatchLink)" 
+                  <button (click)="copyLink(finalBatchLink || '')" 
                           class="flex-shrink-0 bg-slate-100 hover:bg-slate-200 text-slate-700 p-2 rounded-md transition-colors"
                           title="Copy link">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

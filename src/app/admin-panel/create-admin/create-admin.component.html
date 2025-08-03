@@ -1,0 +1,158 @@
+<div class="create-admin-container">
+  <div class="create-admin-content">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-gray-900">Create Admin User</h2>
+
+      </div>
+      <p class="mt-1 text-sm text-gray-600">
+        Create new admin user accounts (Superadmin only)
+      </p>
+    </div>
+
+    <div class="px-6 py-6">
+      <!-- Super Admin Check -->
+      <div *ngIf="!isSuperAdmin" class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">Access Denied</h3>
+            <div class="mt-2 text-sm text-red-700">
+              <p>Only superadmin users can create new admin accounts.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create Admin Form -->
+      <form *ngIf="isSuperAdmin" [formGroup]="createAdminForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Email Field -->
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">
+            Email Address
+          </label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            [class.border-red-300]="f['email'].invalid && f['email'].touched"
+            [class.border-gray-300]="!(f['email'].invalid && f['email'].touched)"
+            placeholder="admin@example.com"
+          />
+          <div *ngIf="f['email'].invalid && f['email'].touched" class="mt-1 text-sm text-red-600">
+            <div *ngIf="f['email'].errors?.['required']">Email is required</div>
+            <div *ngIf="f['email'].errors?.['email']">Please enter a valid email</div>
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            [class.border-red-300]="f['password'].invalid && f['password'].touched"
+            [class.border-gray-300]="!(f['password'].invalid && f['password'].touched)"
+            placeholder="Minimum 8 characters"
+          />
+          <div *ngIf="f['password'].invalid && f['password'].touched" class="mt-1 text-sm text-red-600">
+            <div *ngIf="f['password'].errors?.['required']">Password is required</div>
+            <div *ngIf="f['password'].errors?.['minlength']">Password must be at least 8 characters</div>
+          </div>
+        </div>
+
+        <!-- Confirm Password Field -->
+        <div>
+          <label for="confirmPassword" class="block text-sm font-medium text-gray-700">
+            Confirm Password
+          </label>
+          <input
+            id="confirmPassword"
+            type="password"
+            formControlName="confirmPassword"
+            class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            [class.border-red-300]="(f['confirmPassword'].invalid || createAdminForm.errors?.['passwordMismatch']) && f['confirmPassword'].touched"
+            [class.border-gray-300]="!((f['confirmPassword'].invalid || createAdminForm.errors?.['passwordMismatch']) && f['confirmPassword'].touched)"
+            placeholder="Confirm password"
+          />
+          <div *ngIf="(f['confirmPassword'].invalid || createAdminForm.errors?.['passwordMismatch']) && f['confirmPassword'].touched" class="mt-1 text-sm text-red-600">
+            <div *ngIf="f['confirmPassword'].errors?.['required']">Please confirm password</div>
+            <div *ngIf="createAdminForm.errors?.['passwordMismatch']">Passwords do not match</div>
+          </div>
+        </div>
+
+        <!-- Role Field -->
+        <div>
+          <label for="role" class="block text-sm font-medium text-gray-700">
+            Admin Role
+          </label>
+          <select
+            id="role"
+            formControlName="role"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option [value]="userRoles.ADMIN">{{ getRoleDisplayName(userRoles.ADMIN) }}</option>
+            <option [value]="userRoles.SUPERADMIN">{{ getRoleDisplayName(userRoles.SUPERADMIN) }}</option>
+          </select>
+        </div>
+
+        <!-- Success Message -->
+        <div *ngIf="success" class="bg-green-50 border border-green-200 rounded-md p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-green-800">{{ success }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="error" class="bg-red-50 border border-red-200 rounded-md p-4">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-red-800">{{ error }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-end space-x-3">
+
+          <button
+            type="submit"
+            [disabled]="loading || createAdminForm.invalid"
+            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            [class.bg-indigo-600]="!loading && createAdminForm.valid"
+            [class.hover:bg-indigo-700]="!loading && createAdminForm.valid"
+            [class.bg-gray-400]="loading || createAdminForm.invalid"
+            [class.cursor-not-allowed]="loading || createAdminForm.invalid"
+          >
+            <span *ngIf="loading" class="inline-flex items-center">
+              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Creating...
+            </span>
+            <span *ngIf="!loading">Create Admin User</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

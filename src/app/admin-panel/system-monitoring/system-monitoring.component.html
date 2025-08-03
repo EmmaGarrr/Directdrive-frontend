@@ -1,0 +1,299 @@
+<div class="p-6 bg-gray-50 min-h-screen">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-gray-900">System Monitoring</h1>
+      <div class="flex items-center space-x-4">
+        <div class="flex items-center">
+          <label class="flex items-center">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="autoRefresh" 
+              (change)="toggleAutoRefresh()"
+              class="form-checkbox h-4 w-4 text-blue-600">
+            <span class="ml-2 text-sm text-gray-700">Auto-refresh ({{ refreshInterval }}s)</span>
+          </label>
+        </div>
+        <button 
+          (click)="refreshAll()" 
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors">
+          <i class="fas fa-sync-alt mr-2"></i>Refresh All
+        </button>
+      </div>
+    </div>
+
+    <!-- System Alerts -->
+    <div *ngIf="systemAlerts && systemAlerts.alerts.length > 0" class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">
+        <i class="fas fa-exclamation-triangle mr-2 text-red-500"></i>System Alerts
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div *ngFor="let alert of systemAlerts.alerts" 
+             class="p-4 rounded-lg border"
+             [class]="alert.type === 'critical' ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'">
+          <div class="flex items-start">
+            <i [class]="getAlertIcon(alert.type)" class="text-lg mt-1 mr-3"></i>
+            <div>
+              <h4 class="font-medium" 
+                  [class]="alert.type === 'critical' ? 'text-red-800' : 'text-yellow-800'">
+                {{ alert.category | titlecase }}
+              </h4>
+              <p class="text-sm" 
+                 [class]="alert.type === 'critical' ? 'text-red-700' : 'text-yellow-700'">
+                {{ alert.message }}
+              </p>
+              <p class="text-xs mt-1" 
+                 [class]="alert.type === 'critical' ? 'text-red-600' : 'text-yellow-600'">
+                {{ formatDate(alert.timestamp) }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Health Overview -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">
+        <i class="fas fa-heartbeat mr-2"></i>System Health Overview
+      </h2>
+      
+      <div *ngIf="loading.health" class="text-center py-4">
+        <i class="fas fa-spinner fa-spin text-2xl text-gray-500"></i>
+        <p class="text-gray-500 mt-2">Loading system health...</p>
+      </div>
+
+      <div *ngIf="error.health" class="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
+        <p class="text-red-700">{{ error.health }}</p>
+      </div>
+
+      <div *ngIf="systemHealth && !loading.health" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- CPU Usage -->
+        <div class="bg-blue-50 rounded-lg p-4">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-medium text-blue-600">CPU Usage</h3>
+            <i class="fas fa-microchip text-blue-600"></i>
+          </div>
+          <p class="text-2xl font-bold" 
+             [class]="getStatusClass(systemHealth.system.cpu.usage_percent, 70, 90)">
+            {{ systemHealth.system.cpu.usage_percent }}%
+          </p>
+          <p class="text-xs text-blue-700">{{ systemHealth.system.cpu.count }} cores</p>
+        </div>
+
+        <!-- Memory Usage -->
+        <div class="bg-green-50 rounded-lg p-4">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-medium text-green-600">Memory Usage</h3>
+            <i class="fas fa-memory text-green-600"></i>
+          </div>
+          <p class="text-2xl font-bold" 
+             [class]="getStatusClass(systemHealth.system.memory.percent, 80, 90)">
+            {{ systemHealth.system.memory.percent }}%
+          </p>
+          <p class="text-xs text-green-700">
+            {{ formatBytes(systemHealth.system.memory.used) }} / {{ formatBytes(systemHealth.system.memory.total) }}
+          </p>
+        </div>
+
+        <!-- Disk Usage -->
+        <div class="bg-yellow-50 rounded-lg p-4">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-medium text-yellow-600">Disk Usage</h3>
+            <i class="fas fa-hdd text-yellow-600"></i>
+          </div>
+          <p class="text-2xl font-bold" 
+             [class]="getStatusClass(systemHealth.system.disk.percent, 85, 95)">
+            {{ systemHealth.system.disk.percent.toFixed(1) }}%
+          </p>
+          <p class="text-xs text-yellow-700">
+            {{ formatBytes(systemHealth.system.disk.used) }} / {{ formatBytes(systemHealth.system.disk.total) }}
+          </p>
+        </div>
+
+        <!-- System Uptime -->
+        <div class="bg-purple-50 rounded-lg p-4">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-medium text-purple-600">System Uptime</h3>
+            <i class="fas fa-clock text-purple-600"></i>
+          </div>
+          <p class="text-lg font-bold text-purple-900">
+            {{ formatUptime(systemHealth.system.uptime) }}
+          </p>
+          <p class="text-xs text-purple-700">Since boot</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Database Performance -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">
+        <i class="fas fa-database mr-2"></i>Database Performance
+      </h2>
+      
+      <div *ngIf="loading.database" class="text-center py-4">
+        <i class="fas fa-spinner fa-spin text-2xl text-gray-500"></i>
+        <p class="text-gray-500 mt-2">Loading database metrics...</p>
+      </div>
+
+      <div *ngIf="error.database" class="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
+        <p class="text-red-700">{{ error.database }}</p>
+      </div>
+
+      <div *ngIf="databasePerformance && !loading.database">
+        <!-- Database Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+          <div class="bg-indigo-50 rounded-lg p-4">
+            <h4 class="text-sm font-medium text-indigo-600">Collections</h4>
+            <p class="text-xl font-bold text-indigo-900">
+              {{ databasePerformance.database_stats.collections }}
+            </p>
+          </div>
+          
+          <div class="bg-indigo-50 rounded-lg p-4">
+            <h4 class="text-sm font-medium text-indigo-600">Total Objects</h4>
+            <p class="text-xl font-bold text-indigo-900">
+              {{ databasePerformance.database_stats.objects }}
+            </p>
+          </div>
+          
+          <div class="bg-indigo-50 rounded-lg p-4">
+            <h4 class="text-sm font-medium text-indigo-600">Database Size</h4>
+            <p class="text-xl font-bold text-indigo-900">
+              {{ formatBytes(databasePerformance.database_stats.db_size) }}
+            </p>
+          </div>
+          
+          <div class="bg-indigo-50 rounded-lg p-4">
+            <h4 class="text-sm font-medium text-indigo-600">Index Size</h4>
+            <p class="text-xl font-bold text-indigo-900">
+              {{ formatBytes(databasePerformance.database_stats.index_size) }}
+            </p>
+          </div>
+          
+          <div class="bg-indigo-50 rounded-lg p-4">
+            <h4 class="text-sm font-medium text-indigo-600">Avg Object Size</h4>
+            <p class="text-xl font-bold text-indigo-900">
+              {{ formatBytes(databasePerformance.database_stats.avg_obj_size) }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Query Performance -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-gray-50 rounded-lg p-4">
+            <h4 class="font-medium text-gray-800 mb-3">Query Performance</h4>
+            <div class="space-y-2">
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-600">Files Query Time:</span>
+                <span class="text-sm font-medium" 
+                      [class]="databasePerformance.query_performance.files_query_time_ms > 1000 ? 'text-red-600' : 'text-green-600'">
+                  {{ databasePerformance.query_performance.files_query_time_ms.toFixed(2) }}ms
+                </span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-600">Users Query Time:</span>
+                <span class="text-sm font-medium"
+                      [class]="databasePerformance.query_performance.users_query_time_ms > 1000 ? 'text-red-600' : 'text-green-600'">
+                  {{ databasePerformance.query_performance.users_query_time_ms.toFixed(2) }}ms
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 rounded-lg p-4">
+            <h4 class="font-medium text-gray-800 mb-3">Current Operations</h4>
+            <div class="space-y-2">
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-600">Active Operations:</span>
+                <span class="text-sm font-medium text-gray-900">
+                  {{ databasePerformance.current_operations.count }}
+                </span>
+              </div>
+              <div *ngIf="databasePerformance.current_operations.count > 5" class="text-xs text-yellow-600">
+                High number of active operations detected
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Application Metrics -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">
+        <i class="fas fa-chart-line mr-2"></i>Application Metrics
+      </h2>
+      
+      <div *ngIf="loading.api" class="text-center py-4">
+        <i class="fas fa-spinner fa-spin text-2xl text-gray-500"></i>
+        <p class="text-gray-500 mt-2">Loading API metrics...</p>
+      </div>
+
+      <div *ngIf="error.api" class="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
+        <p class="text-red-700">{{ error.api }}</p>
+      </div>
+
+      <div *ngIf="apiMetrics && !loading.api">
+        <!-- Application Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-cyan-50 rounded-lg p-4">
+            <h4 class="text-sm font-medium text-cyan-600">Total Files</h4>
+            <p class="text-xl font-bold text-cyan-900">
+              {{ systemHealth?.database?.total_files || 0 }}
+            </p>
+          </div>
+          
+          <div class="bg-cyan-50 rounded-lg p-4">
+            <h4 class="text-sm font-medium text-cyan-600">Total Users</h4>
+            <p class="text-xl font-bold text-cyan-900">
+              {{ systemHealth?.database?.total_users || 0 }}
+            </p>
+          </div>
+          
+          <div class="bg-cyan-50 rounded-lg p-4">
+            <h4 class="text-sm font-medium text-cyan-600">API Requests (24h)</h4>
+            <p class="text-xl font-bold text-cyan-900">
+              {{ apiMetrics.api_usage.total_requests }}
+            </p>
+          </div>
+          
+          <div class="bg-cyan-50 rounded-lg p-4">
+            <h4 class="text-sm font-medium text-cyan-600">API Errors (24h)</h4>
+            <p class="text-xl font-bold text-cyan-900">
+              {{ apiMetrics.error_analysis.total_errors }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Top Endpoints -->
+        <div *ngIf="apiMetrics.api_usage.endpoint_stats.length > 0" class="bg-gray-50 rounded-lg p-4">
+          <h4 class="font-medium text-gray-800 mb-3">Top API Endpoints (Last 24h)</h4>
+          <div class="space-y-2">
+            <div *ngFor="let endpoint of apiMetrics.api_usage.endpoint_stats.slice(0, 10)" 
+                 class="flex justify-between items-center">
+              <span class="text-sm text-gray-600 truncate">{{ endpoint._id || 'Unknown' }}</span>
+              <span class="text-sm font-medium text-gray-900">{{ endpoint.count }} requests</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin Activity -->
+        <div *ngIf="apiMetrics.admin_activity.length > 0" class="bg-gray-50 rounded-lg p-4 mt-4">
+          <h4 class="font-medium text-gray-800 mb-3">Top Admin Users (Last 24h)</h4>
+          <div class="space-y-2">
+            <div *ngFor="let admin of apiMetrics.admin_activity.slice(0, 5)" 
+                 class="flex justify-between items-center">
+              <span class="text-sm text-gray-600">{{ admin._id }}</span>
+              <div class="text-right">
+                <span class="text-sm font-medium text-gray-900">{{ admin.total_actions }} actions</span>
+                <span class="text-xs text-gray-500 block">{{ admin.unique_endpoints_count }} endpoints</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

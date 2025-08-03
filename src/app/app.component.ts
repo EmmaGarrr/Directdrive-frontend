@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { environment } from '../environments/environment';
 
 @Component({
@@ -8,6 +9,12 @@ import { environment } from '../environments/environment';
 })
 export class AppComponent implements OnInit {
   title = 'frontend-test';
+
+  constructor(private router: Router) {}
+
+  isAdminRoute(): boolean {
+    return this.router.url.includes('/admin');
+  }
 
   ngOnInit() {
     // Initialize stagewise toolbar only in development mode

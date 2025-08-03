@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -12,7 +14,7 @@ import { ProfileComponent } from './componet/profile/profile.component';
 import { DashboardComponent } from './componet/dashboard/dashboard.component';
 import { HeaderComponent } from './shared/component/header/header.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -24,10 +26,34 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { BatchUploadComponent } from './componet/batch-upload.component';
 import { BatchDownloadComponent } from './componet/batch-download.component';
 import { AdminPanelComponent } from './admin-panel/admin-panel.component';
+import { UserManagementComponent } from './admin-panel/user-management/user-management.component';
+import { UserAnalyticsComponent } from './admin-panel/user-analytics/user-analytics.component';
+import { FileBrowserComponent } from './admin-panel/file-browser/file-browser.component';
+import { BackupManagementComponent } from './admin-panel/backup-management/backup-management.component';
+import { SystemMonitoringComponent } from './admin-panel/system-monitoring/system-monitoring.component';
+// import { SecuritySettingsComponent } from './admin-panel/security-settings/security-settings.component'; // TODO: Create this component
+import { NotificationSystemComponent } from './admin-panel/notification-system/notification-system.component';
+import { ReportsExportComponent } from './admin-panel/reports-export/reports-export.component';
+import { ActivityLogsComponent } from './admin-panel/activity-logs/activity-logs.component';
+import { CreateAdminComponent } from './admin-panel/create-admin/create-admin.component';
 import { ForgotPasswordComponent } from './componet/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './componet/reset-password/reset-password.component';
 import { FilePreviewComponent } from './componet/file-preview/file-preview.component';
@@ -47,6 +73,16 @@ import { SafePipe } from './shared/pipes/safe.pipe';
     BatchUploadComponent,
     BatchDownloadComponent,
     AdminPanelComponent,
+    UserManagementComponent,
+    UserAnalyticsComponent,
+    FileBrowserComponent,
+    BackupManagementComponent,
+    SystemMonitoringComponent,
+    // SecuritySettingsComponent, // TODO: Create this component
+    NotificationSystemComponent,
+    ReportsExportComponent,
+    ActivityLogsComponent,
+    CreateAdminComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
     FilePreviewComponent,
@@ -54,9 +90,12 @@ import { SafePipe } from './shared/pipes/safe.pipe';
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     AppRoutingModule,
+    RouterModule,
     HttpClientModule,
     ReactiveFormsModule,
+    FormsModule,
     BrowserAnimationsModule,
     MatProgressBarModule,
     MatSnackBarModule,
@@ -67,7 +106,24 @@ import { SafePipe } from './shared/pipes/safe.pipe';
     MatProgressSpinnerModule,
     MatCardModule,
     MatDialogModule,
-    MatMenuModule
+    MatMenuModule,
+    MatTabsModule,
+    MatSelectModule,
+    MatSlideToggleModule,
+    MatCheckboxModule,
+    MatChipsModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatListModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatExpansionModule,
+    MatBadgeModule,
+    MatTooltipModule,
+    MatChipsModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   providers: [
     provideAnimationsAsync(),

@@ -1,0 +1,227 @@
+<div class="activity-logs-container">
+  <div class="activity-logs-content">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Admin Activity Logs</h2>
+          <p class="mt-1 text-sm text-gray-600">
+            Monitor all administrative actions and system access
+          </p>
+        </div>
+        <div class="flex space-x-3">
+          <button
+            (click)="exportLogs()"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            Export CSV
+          </button>
+          <button
+            (click)="refreshLogs()"
+            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            Refresh
+          </button>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Action Filter -->
+        <div>
+          <label for="action-filter" class="block text-sm font-medium text-gray-700">Action</label>
+          <select
+            id="action-filter"
+            [(ngModel)]="selectedAction"
+            (change)="onFilterChange()"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+          >
+            <option value="">All Actions</option>
+            <option *ngFor="let action of availableActions" [value]="action">
+              {{ formatAction(action) }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Admin Filter -->
+        <div>
+          <label for="admin-filter" class="block text-sm font-medium text-gray-700">Admin</label>
+          <select
+            id="admin-filter"
+            [(ngModel)]="selectedAdmin"
+            (change)="onFilterChange()"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+          >
+            <option value="">All Admins</option>
+            <option *ngFor="let admin of availableAdmins" [value]="admin">
+              {{ admin }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Date From -->
+        <div>
+          <label for="date-from" class="block text-sm font-medium text-gray-700">From Date</label>
+          <input
+            type="date"
+            id="date-from"
+            [(ngModel)]="dateFrom"
+            (change)="onFilterChange()"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+          />
+        </div>
+
+        <!-- Date To -->
+        <div>
+          <label for="date-to" class="block text-sm font-medium text-gray-700">To Date</label>
+          <input
+            type="date"
+            id="date-to"
+            [(ngModel)]="dateTo"
+            (change)="onFilterChange()"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+          />
+        </div>
+      </div>
+
+      <div class="mt-4 flex justify-between items-center">
+        <button
+          (click)="clearFilters()"
+          class="text-sm text-indigo-600 hover:text-indigo-500"
+        >
+          Clear Filters
+        </button>
+        <p class="text-sm text-gray-500">
+          Showing {{ getFilteredLogs().length }} of {{ total }} logs
+        </p>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="px-6 py-8 text-center">
+      <div class="inline-flex items-center">
+        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mr-3"></div>
+        <span class="text-gray-600">Loading activity logs...</span>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="px-6 py-8">
+      <div class="bg-red-50 border border-red-200 rounded-md p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-red-800">{{ error }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Logs Table -->
+    <div *ngIf="!loading && !error" class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Timestamp
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Admin
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Action
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              IP Address
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Details
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let log of getFilteredLogs()" class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ formatTimestamp(log.timestamp) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ log.admin_email }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span
+                class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                [class]="getActionBadgeClass(log.action)"
+              >
+                {{ formatAction(log.action) }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{ log.ip_address || 'N/A' }}
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+              {{ log.details || 'No details' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div *ngIf="getFilteredLogs().length === 0" class="text-center py-8">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No activity logs found</h3>
+        <p class="mt-1 text-sm text-gray-500">No logs match your current filter criteria.</p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!loading && !error && totalPages > 1" class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+      <div class="flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+          Showing page {{ currentPage }} of {{ totalPages }} ({{ total }} total logs)
+        </div>
+        <div class="flex space-x-2">
+          <button
+            (click)="onPageChange(currentPage - 1)"
+            [disabled]="currentPage === 1"
+            class="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          <button
+            *ngFor="let page of paginationPages"
+            (click)="onPageChange(page)"
+            [class.bg-indigo-600]="currentPage === page"
+            [class.text-white]="currentPage === page"
+            [class.bg-white]="currentPage !== page"
+            [class.text-gray-700]="currentPage !== page"
+            class="px-3 py-1 text-sm font-medium border border-gray-300 rounded-md hover:bg-gray-50"
+          >
+            {{ page }}
+          </button>
+          <button
+            (click)="onPageChange(currentPage + 1)"
+            [disabled]="currentPage === totalPages"
+            class="px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

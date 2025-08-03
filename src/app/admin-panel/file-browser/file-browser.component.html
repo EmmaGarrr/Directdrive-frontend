@@ -1,0 +1,441 @@
+<div class="file-browser-container">
+  <!-- Header with stats and controls -->
+  <div class="file-browser-header">
+    <div class="header-stats">
+      <h2>File Browser</h2>
+      <div class="stats-grid" *ngIf="storageStats">
+        <div class="stat-card">
+          <i class="fas fa-file"></i>
+          <div>
+            <span class="stat-value">{{ storageStats.total_files | number }}</span>
+            <span class="stat-label">Total Files</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-hdd"></i>
+          <div>
+            <span class="stat-value">{{ storageStats.total_storage_formatted }}</span>
+            <span class="stat-label">Total Storage</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <i class="fab fa-google-drive"></i>
+          <div>
+            <span class="stat-value">{{ storageStats.gdrive_files | number }}</span>
+            <span class="stat-label">Google Drive</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-server"></i>
+          <div>
+            <span class="stat-value">{{ storageStats.hetzner_files | number }}</span>
+            <span class="stat-label">Hetzner</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="header-controls">
+      <button class="btn btn-secondary" (click)="showFilters = !showFilters">
+        <i class="fas fa-filter"></i> Filters
+      </button>
+      
+      <div class="system-tools">
+        <button class="btn btn-warning" (click)="viewOrphanedFiles()" title="View & Clean Orphaned Files">
+          <i class="fas fa-broom"></i> Cleanup
+        </button>
+      </div>
+      
+      <div class="view-mode-toggle">
+        <button 
+          class="btn btn-sm" 
+          [class.btn-primary]="viewMode === 'list'"
+          [class.btn-secondary]="viewMode !== 'list'"
+          (click)="viewMode = 'list'">
+          <i class="fas fa-list"></i>
+        </button>
+        <button 
+          class="btn btn-sm" 
+          [class.btn-primary]="viewMode === 'grid'"
+          [class.btn-secondary]="viewMode !== 'grid'"
+          (click)="viewMode = 'grid'">
+          <i class="fas fa-th"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search and filters -->
+  <div class="search-section">
+    <div class="search-bar">
+      <div class="search-input-group">
+        <i class="fas fa-search"></i>
+        <input 
+          type="text" 
+          placeholder="Search files..." 
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="onSearch()"
+          class="form-control">
+        <button class="btn btn-primary" (click)="onSearch()">Search</button>
+      </div>
+    </div>
+    
+    <div class="filters-panel" [ngClass]="{'show': showFilters}">
+      <div class="filters-grid">
+        <div class="filter-group">
+          <label>File Type</label>
+          <select [(ngModel)]="fileTypeFilter" (change)="onFilterChange()" class="form-control">
+            <option value="">All Types</option>
+            <option value="image">Images</option>
+            <option value="video">Videos</option>
+            <option value="audio">Audio</option>
+            <option value="document">Documents</option>
+            <option value="archive">Archives</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>Owner</label>
+          <input 
+            type="text" 
+            placeholder="Owner email..." 
+            [(ngModel)]="ownerFilter"
+            (input)="onFilterChange()"
+            class="form-control">
+        </div>
+        
+        <div class="filter-group">
+          <label>Storage Location</label>
+          <select [(ngModel)]="storageLocationFilter" (change)="onFilterChange()" class="form-control">
+            <option value="">All Locations</option>
+            <option value="gdrive">Google Drive</option>
+            <option value="hetzner">Hetzner</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>Status</label>
+          <select [(ngModel)]="statusFilter" (change)="onFilterChange()" class="form-control">
+            <option value="">All Status</option>
+            <option value="completed">Completed</option>
+            <option value="pending">Pending</option>
+            <option value="uploading">Uploading</option>
+            <option value="failed">Failed</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>Min Size (bytes)</label>
+          <input 
+            type="number" 
+            placeholder="Min size..." 
+            [(ngModel)]="sizeMinFilter"
+            (input)="onFilterChange()"
+            class="form-control">
+        </div>
+        
+        <div class="filter-group">
+          <label>Max Size (bytes)</label>
+          <input 
+            type="number" 
+            placeholder="Max size..." 
+            [(ngModel)]="sizeMaxFilter"
+            (input)="onFilterChange()"
+            class="form-control">
+        </div>
+      </div>
+      
+      <div class="filter-actions">
+        <button class="btn btn-secondary" (click)="clearFilters()">Clear Filters</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- File type analytics -->
+  <div class="analytics-section" *ngIf="fileTypeAnalytics">
+    <h3>File Type Distribution</h3>
+    <div class="file-type-chart">
+      <div 
+        class="file-type-item" 
+        *ngFor="let type of fileTypeAnalytics.file_types"
+        [style.width.%]="type.percentage">
+        <span class="type-label">{{ type._id | titlecase }}</span>
+        <span class="type-count">{{ type.count }} files ({{ type.percentage | number:'1.1-1' }}%)</span>
+        <span class="type-size">{{ type.size_formatted }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk actions bar -->
+  <div class="bulk-actions-bar" *ngIf="showBulkActions">
+    <div class="bulk-info">
+      <span>{{ selectedFiles.length }} file(s) selected</span>
+    </div>
+    <div class="bulk-controls">
+      <select [(ngModel)]="bulkActionType" class="form-control">
+        <option value="">Choose action...</option>
+        <option value="delete">Delete</option>
+        <option value="quarantine">Quarantine</option>
+        <option value="backup">Force Backup</option>
+      </select>
+      <input 
+        type="text" 
+        placeholder="Reason (optional)" 
+        [(ngModel)]="bulkActionReason"
+        class="form-control reason-input">
+      <button 
+        class="btn btn-warning" 
+        (click)="executeBulkAction()"
+        [disabled]="!bulkActionType">
+        Execute
+      </button>
+      <button 
+        class="btn btn-secondary" 
+        (click)="selectedFiles = []; showBulkActions = false">
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading indicator -->
+  <div class="loading-overlay" *ngIf="loading">
+    <div class="spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <span>Loading files...</span>
+    </div>
+  </div>
+
+  <!-- Error message -->
+  <div class="error-message" *ngIf="error">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-sm btn-primary" (click)="loadFiles()">Retry</button>
+  </div>
+
+  <!-- Files table/grid -->
+  <div class="files-container" *ngIf="!loading && !error">
+    <!-- List view -->
+    <div class="files-table" *ngIf="viewMode === 'list'">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>
+              <input 
+                type="checkbox" 
+                [checked]="selectedFiles.length === files.length && files.length > 0"
+                (change)="selectAllFiles()">
+            </th>
+            <th (click)="onSortChange('filename')" class="sortable">
+              Filename
+              <i class="fas fa-sort" *ngIf="sortBy !== 'filename'"></i>
+              <i class="fas fa-sort-up" *ngIf="sortBy === 'filename' && sortOrder === 'asc'"></i>
+              <i class="fas fa-sort-down" *ngIf="sortBy === 'filename' && sortOrder === 'desc'"></i>
+            </th>
+            <th (click)="onSortChange('size_bytes')" class="sortable">
+              Size
+              <i class="fas fa-sort" *ngIf="sortBy !== 'size_bytes'"></i>
+              <i class="fas fa-sort-up" *ngIf="sortBy === 'size_bytes' && sortOrder === 'asc'"></i>
+              <i class="fas fa-sort-down" *ngIf="sortBy === 'size_bytes' && sortOrder === 'desc'"></i>
+            </th>
+            <th>Type</th>
+            <th>Owner</th>
+            <th (click)="onSortChange('upload_date')" class="sortable">
+              Upload Date
+              <i class="fas fa-sort" *ngIf="sortBy !== 'upload_date'"></i>
+              <i class="fas fa-sort-up" *ngIf="sortBy === 'upload_date' && sortOrder === 'asc'"></i>
+              <i class="fas fa-sort-down" *ngIf="sortBy === 'upload_date' && sortOrder === 'desc'"></i>
+            </th>
+            <th>Status</th>
+            <th>Storage</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let file of files" [class.selected]="selectedFiles.includes(file._id)">
+            <td>
+              <input 
+                type="checkbox" 
+                [checked]="selectedFiles.includes(file._id)"
+                (change)="toggleFileSelection(file._id)">
+            </td>
+            <td class="filename-cell">
+              <i [class]="getFileIcon(file.file_type)"></i>
+              <span class="filename" [title]="file.filename">{{ file.filename }}</span>
+            </td>
+            <td>{{ file.size_formatted }}</td>
+            <td>
+              <span class="file-type-badge" [class]="'type-' + file.file_type">
+                {{ file.file_type | titlecase }}
+              </span>
+            </td>
+            <td>{{ file.owner_email }}</td>
+            <td>{{ formatDate(file.upload_date) }}</td>
+            <td>
+              <span class="status-badge" [class]="'status-' + file.status">
+                {{ file.status | titlecase }}
+              </span>
+            </td>
+            <td>
+              <span class="storage-badge" [class]="'storage-' + file.storage_location">
+                {{ file.storage_location | titlecase }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <div class="action-group">
+                <button 
+                  class="btn btn-sm btn-primary" 
+                  (click)="downloadFile(file)"
+                  title="Download">
+                  <i class="fas fa-download"></i>
+                </button>
+                <button 
+                  class="btn btn-sm btn-info" 
+                  (click)="previewFile(file)"
+                  *ngIf="file.preview_available"
+                  title="Preview">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              
+              <div class="action-group">
+                <button 
+                  class="btn btn-sm btn-secondary" 
+                  (click)="checkFileIntegrity(file)"
+                  title="Check Integrity">
+                  <i class="fas fa-shield-alt"></i>
+                </button>
+                <button 
+                  class="btn btn-sm btn-warning" 
+                  (click)="moveFile(file)"
+                  title="Move File">
+                  <i class="fas fa-arrows-alt"></i>
+                </button>
+                <button 
+                  class="btn btn-sm btn-success" 
+                  (click)="forceBackup(file)"
+                  title="Force Backup">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                </button>
+              </div>
+              
+              <div class="action-group">
+                <button 
+                  class="btn btn-sm btn-warning" 
+                  (click)="quarantineFile(file)"
+                  title="Quarantine">
+                  <i class="fas fa-ban"></i>
+                </button>
+                <button 
+                  class="btn btn-sm btn-info" 
+                  (click)="recoverFile(file)"
+                  title="Recover from Backup">
+                  <i class="fas fa-undo"></i>
+                </button>
+                <button 
+                  class="btn btn-sm btn-danger" 
+                  (click)="deleteFile(file)"
+                  title="Delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Grid view -->
+    <div class="files-grid" *ngIf="viewMode === 'grid'">
+      <div 
+        class="file-card" 
+        *ngFor="let file of files"
+        [class.selected]="selectedFiles.includes(file._id)">
+        <div class="file-card-header">
+          <input 
+            type="checkbox" 
+            [checked]="selectedFiles.includes(file._id)"
+            (change)="toggleFileSelection(file._id)">
+          <div class="file-actions">
+            <button class="btn btn-sm btn-primary" (click)="downloadFile(file)">
+              <i class="fas fa-download"></i>
+            </button>
+            <button 
+              class="btn btn-sm btn-info" 
+              (click)="previewFile(file)"
+              *ngIf="file.preview_available">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" (click)="deleteFile(file)">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="file-icon">
+          <i [class]="getFileIcon(file.file_type)"></i>
+        </div>
+        
+        <div class="file-info">
+          <div class="filename" [title]="file.filename">{{ file.filename }}</div>
+          <div class="file-meta">
+            <span class="file-size">{{ file.size_formatted }}</span>
+            <span class="file-type">{{ file.file_type | titlecase }}</span>
+          </div>
+          <div class="file-details">
+            <span class="owner">{{ file.owner_email }}</span>
+            <span class="upload-date">{{ formatDate(file.upload_date) }}</span>
+          </div>
+          <div class="file-badges">
+            <span class="status-badge" [class]="'status-' + file.status">
+              {{ file.status | titlecase }}
+            </span>
+            <span class="storage-badge" [class]="'storage-' + file.storage_location">
+              {{ file.storage_location | titlecase }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="files.length === 0">
+      <i class="fas fa-folder-open"></i>
+      <h3>No files found</h3>
+      <p>Try adjusting your search or filter criteria.</p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-container" *ngIf="totalPages > 1">
+    <div class="pagination-info">
+      Showing {{ ((currentPage - 1) * pageSize) + 1 }} - {{ Math.min(currentPage * pageSize, totalFiles) }} of {{ totalFiles }} files
+    </div>
+    <div class="pagination-controls">
+      <button 
+        class="btn btn-secondary" 
+        (click)="onPageChange(currentPage - 1)"
+        [disabled]="currentPage === 1">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      
+      <span class="page-numbers">
+        <button 
+          *ngFor="let page of [].constructor(Math.min(totalPages, 10)); let i = index"
+          class="btn page-btn"
+          [class.btn-primary]="(i + 1) === currentPage"
+          [class.btn-secondary]="(i + 1) !== currentPage"
+          (click)="onPageChange(i + 1)">
+          {{ i + 1 }}
+        </button>
+      </span>
+      
+      <button 
+        class="btn btn-secondary" 
+        (click)="onPageChange(currentPage + 1)"
+        [disabled]="currentPage === totalPages">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
