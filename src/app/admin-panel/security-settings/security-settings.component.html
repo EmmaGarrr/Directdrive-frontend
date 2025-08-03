@@ -1,0 +1,457 @@
+<!-- Security Settings Component -->
+<div class="security-settings">
+  <!-- Header -->
+  <div class="management-header">
+    <h2><i class="fas fa-shield-alt"></i> Security Settings</h2>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="loadSecurityConfig()" [disabled]="loading">
+        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Error Display -->
+  <div class="error-message" *ngIf="error">
+    <i class="fas fa-exclamation-triangle"></i>
+    {{ error }}
+    <button class="btn-close" (click)="error = ''">×</button>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-navigation">
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'general'"
+      (click)="setActiveTab('general')">
+      <i class="fas fa-cog"></i> General Security
+    </button>
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'access-rules'"
+      (click)="setActiveTab('access-rules')">
+      <i class="fas fa-shield"></i> Access Rules
+    </button>
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'password-policy'"
+      (click)="setActiveTab('password-policy')">
+      <i class="fas fa-key"></i> Password Policy
+    </button>
+    <button 
+      class="tab-button" 
+      [class.active]="activeTab === 'sessions'"
+      (click)="setActiveTab('sessions')">
+      <i class="fas fa-users"></i> Active Sessions
+    </button>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    
+    <!-- General Security Tab -->
+    <div class="tab-panel" *ngIf="activeTab === 'general' && securityConfig">
+      <div class="settings-section">
+        <h3>Authentication Settings</h3>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="session-timeout">Session Timeout (minutes)</label>
+            <input 
+              type="number" 
+              id="session-timeout"
+              [(ngModel)]="securityConfig.session_timeout_minutes"
+              class="form-control"
+              min="5" 
+              max="10080"
+              placeholder="60">
+            <small class="form-help">How long before inactive sessions expire (5 minutes to 1 week)</small>
+          </div>
+
+          <div class="form-group">
+            <label for="max-attempts">Maximum Login Attempts</label>
+            <input 
+              type="number" 
+              id="max-attempts"
+              [(ngModel)]="securityConfig.max_login_attempts"
+              class="form-control"
+              min="1" 
+              max="100"
+              placeholder="5">
+            <small class="form-help">Number of failed attempts before account lockout</small>
+          </div>
+
+          <div class="form-group">
+            <label for="lockout-duration">Lockout Duration (minutes)</label>
+            <input 
+              type="number" 
+              id="lockout-duration"
+              [(ngModel)]="securityConfig.lockout_duration_minutes"
+              class="form-control"
+              min="1" 
+              max="1440"
+              placeholder="30">
+            <small class="form-help">How long accounts remain locked after max attempts</small>
+          </div>
+        </div>
+
+        <div class="checkbox-group">
+          <div class="checkbox-item">
+            <input 
+              type="checkbox" 
+              id="strong-passwords"
+              [(ngModel)]="securityConfig.require_strong_passwords">
+            <label for="strong-passwords">Require Strong Passwords</label>
+            <small>Enforce complex password requirements for all users</small>
+          </div>
+
+          <div class="checkbox-item">
+            <input 
+              type="checkbox" 
+              id="two-factor"
+              [(ngModel)]="securityConfig.enable_two_factor_auth">
+            <label for="two-factor">Enable Two-Factor Authentication</label>
+            <small>Require 2FA for admin accounts</small>
+          </div>
+
+          <div class="checkbox-item">
+            <input 
+              type="checkbox" 
+              id="rate-limiting"
+              [(ngModel)]="securityConfig.enable_api_rate_limiting">
+            <label for="rate-limiting">Enable API Rate Limiting</label>
+            <small>Limit API requests to prevent abuse</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>CORS Origins</h3>
+        <div class="cors-origins">
+          <div *ngFor="let origin of securityConfig.allowed_cors_origins; let i = index" class="origin-item">
+            <input 
+              type="text" 
+              [(ngModel)]="securityConfig.allowed_cors_origins[i]"
+              class="form-control"
+              placeholder="https://example.com">
+            <button class="btn btn-danger btn-sm" (click)="securityConfig.allowed_cors_origins.splice(i, 1)">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+          <button class="btn btn-secondary btn-sm" (click)="securityConfig.allowed_cors_origins.push('')">
+            <i class="fas fa-plus"></i> Add Origin
+          </button>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button 
+          class="btn btn-secondary" 
+          (click)="resetSecurityConfig()" 
+          [disabled]="!hasSecurityChanges() || loading">
+          Reset Changes
+        </button>
+        <button 
+          class="btn btn-primary" 
+          (click)="saveSecurityConfig()" 
+          [disabled]="!hasSecurityChanges() || loading">
+          <i class="fas fa-save"></i> Save Security Settings
+        </button>
+      </div>
+    </div>
+
+    <!-- Access Rules Tab -->
+    <div class="tab-panel" *ngIf="activeTab === 'access-rules'">
+      <div class="section-header">
+        <h3>IP Access Rules</h3>
+        <button class="btn btn-primary" (click)="openAddRuleModal()">
+          <i class="fas fa-plus"></i> Add Rule
+        </button>
+      </div>
+
+      <div class="rules-table" *ngIf="accessRules.length > 0">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Rule Name</th>
+              <th>IP Pattern</th>
+              <th>Action</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let rule of accessRules">
+              <td>{{ rule.rule_name }}</td>
+              <td><code>{{ rule.ip_pattern }}</code></td>
+              <td>
+                <span class="badge" [class]="getActionBadgeClass(rule.action)">
+                  {{ rule.action }}
+                </span>
+              </td>
+              <td>{{ rule.priority }}</td>
+              <td>
+                <span class="status-badge" [class]="rule.is_active ? 'active' : 'inactive'">
+                  {{ rule.is_active ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>{{ formatDate(rule.created_at) }}</td>
+              <td>
+                <button class="btn btn-sm btn-info" (click)="editAccessRule(rule)">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="deleteAccessRule(rule.rule_name)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="empty-state" *ngIf="accessRules.length === 0">
+        <i class="fas fa-shield"></i>
+        <h3>No Access Rules</h3>
+        <p>Create access rules to control IP-based access to your system.</p>
+        <button class="btn btn-primary" (click)="openAddRuleModal()">
+          <i class="fas fa-plus"></i> Add First Rule
+        </button>
+      </div>
+    </div>
+
+    <!-- Password Policy Tab -->
+    <div class="tab-panel" *ngIf="activeTab === 'password-policy' && passwordPolicy">
+      <div class="settings-section">
+        <h3>Password Requirements</h3>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="min-length">Minimum Length</label>
+            <input 
+              type="number" 
+              id="min-length"
+              [(ngModel)]="passwordPolicy.min_length"
+              class="form-control"
+              min="4" 
+              max="128"
+              placeholder="8">
+          </div>
+
+          <div class="form-group">
+            <label for="history-count">Password History</label>
+            <input 
+              type="number" 
+              id="history-count"
+              [(ngModel)]="passwordPolicy.password_history_count"
+              class="form-control"
+              min="0" 
+              max="24"
+              placeholder="5">
+            <small class="form-help">Number of previous passwords to remember</small>
+          </div>
+
+          <div class="form-group">
+            <label for="expiry-days">Password Expiry (days)</label>
+            <input 
+              type="number" 
+              id="expiry-days"
+              [(ngModel)]="passwordPolicy.password_expiry_days"
+              class="form-control"
+              min="0" 
+              max="365"
+              placeholder="90">
+            <small class="form-help">0 = never expires</small>
+          </div>
+        </div>
+
+        <div class="checkbox-group">
+          <div class="checkbox-item">
+            <input 
+              type="checkbox" 
+              id="require-uppercase"
+              [(ngModel)]="passwordPolicy.require_uppercase">
+            <label for="require-uppercase">Require Uppercase Letters</label>
+          </div>
+
+          <div class="checkbox-item">
+            <input 
+              type="checkbox" 
+              id="require-lowercase"
+              [(ngModel)]="passwordPolicy.require_lowercase">
+            <label for="require-lowercase">Require Lowercase Letters</label>
+          </div>
+
+          <div class="checkbox-item">
+            <input 
+              type="checkbox" 
+              id="require-numbers"
+              [(ngModel)]="passwordPolicy.require_numbers">
+            <label for="require-numbers">Require Numbers</label>
+          </div>
+
+          <div class="checkbox-item">
+            <input 
+              type="checkbox" 
+              id="require-special"
+              [(ngModel)]="passwordPolicy.require_special_chars">
+            <label for="require-special">Require Special Characters</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button 
+          class="btn btn-secondary" 
+          (click)="resetPasswordPolicy()" 
+          [disabled]="!hasPasswordPolicyChanges() || loading">
+          Reset Changes
+        </button>
+        <button 
+          class="btn btn-primary" 
+          (click)="savePasswordPolicy()" 
+          [disabled]="!hasPasswordPolicyChanges() || loading">
+          <i class="fas fa-save"></i> Save Password Policy
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Sessions Tab -->
+    <div class="tab-panel" *ngIf="activeTab === 'sessions' && sessionManagement">
+      <div class="section-header">
+        <h3>Active Admin Sessions ({{ sessionManagement.total_active }})</h3>
+        <button class="btn btn-secondary" (click)="loadSessionManagement()">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </div>
+
+      <div class="sessions-table" *ngIf="sessionManagement.active_sessions.length > 0">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Admin Email</th>
+              <th>IP Address</th>
+              <th>Login Time</th>
+              <th>Last Activity</th>
+              <th>User Agent</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let session of sessionManagement.active_sessions">
+              <td>{{ session.admin_email }}</td>
+              <td><code>{{ session.ip_address }}</code></td>
+              <td>{{ formatDate(session.login_time) }}</td>
+              <td>{{ formatDate(session.last_activity) }}</td>
+              <td class="user-agent">{{ session.user_agent }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="empty-state" *ngIf="sessionManagement.active_sessions.length === 0">
+        <i class="fas fa-users"></i>
+        <h3>No Active Sessions</h3>
+        <p>No admin sessions are currently active.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Access Rule Modal -->
+<div class="modal-overlay" *ngIf="showAddRuleModal" (click)="closeRuleModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>
+        <i class="fas fa-shield"></i> 
+        {{ editingRule ? 'Edit Access Rule' : 'Add Access Rule' }}
+      </h3>
+      <button class="btn-close" (click)="closeRuleModal()">×</button>
+    </div>
+    
+    <div class="modal-body">
+      <form (ngSubmit)="saveAccessRule()">
+        <div class="form-group">
+          <label for="rule-name">Rule Name *</label>
+          <input 
+            type="text" 
+            id="rule-name"
+            [(ngModel)]="newRule.rule_name" 
+            name="rule_name"
+            class="form-control" 
+            placeholder="Allow Office Network"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="ip-pattern">IP Pattern *</label>
+          <input 
+            type="text" 
+            id="ip-pattern"
+            [(ngModel)]="newRule.ip_pattern" 
+            name="ip_pattern"
+            class="form-control" 
+            placeholder="192.168.1.0/24 or 203.0.113.5"
+            required>
+          <small class="form-help">
+            Use CIDR notation (192.168.1.0/24) or specific IP (203.0.113.5)
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="action">Action *</label>
+          <select 
+            id="action"
+            [(ngModel)]="newRule.action" 
+            name="action"
+            class="form-control"
+            required>
+            <option value="allow">Allow</option>
+            <option value="deny">Deny</option>
+            <option value="rate_limit">Rate Limit</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="priority">Priority</label>
+          <input 
+            type="number" 
+            id="priority"
+            [(ngModel)]="newRule.priority" 
+            name="priority"
+            class="form-control" 
+            min="1" 
+            max="100"
+            placeholder="1">
+          <small class="form-help">Lower numbers have higher priority</small>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea 
+            id="description"
+            [(ngModel)]="newRule.description" 
+            name="description"
+            class="form-control" 
+            rows="3"
+            placeholder="Optional description of this rule"></textarea>
+        </div>
+
+        <div class="checkbox-item">
+          <input 
+            type="checkbox" 
+            id="is-active"
+            [(ngModel)]="newRule.is_active"
+            name="is_active">
+          <label for="is-active">Rule is Active</label>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeRuleModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <i class="fas fa-save"></i> {{ editingRule ? 'Update' : 'Create' }} Rule
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

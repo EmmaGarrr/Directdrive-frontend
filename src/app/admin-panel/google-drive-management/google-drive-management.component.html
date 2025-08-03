@@ -1,0 +1,307 @@
+<!-- Google Drive Management Component -->
+<div class="google-drive-management">
+  <!-- Header -->
+  <div class="management-header">
+    <h2><i class="fab fa-google-drive"></i> Google Drive Management</h2>
+    <div class="header-actions">
+      <button class="btn btn-success" (click)="showAddAccountModal = true" [disabled]="loading">
+        <i class="fas fa-plus"></i> Add Account
+      </button>
+      <button class="btn btn-secondary" (click)="loadAccounts()" [disabled]="loading">
+        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Error Display -->
+  <div class="error-message" *ngIf="error">
+    <i class="fas fa-exclamation-triangle"></i>
+    {{ error }}
+    <button class="btn-close" (click)="error = ''">×</button>
+  </div>
+
+  <!-- Statistics Overview -->
+  <div class="stats-overview">
+    <div class="stat-card">
+      <div class="stat-icon total">
+        <i class="fab fa-google-drive"></i>
+      </div>
+      <div class="stat-content">
+        <h3>{{ totalAccounts }}</h3>
+        <p>Total Accounts</p>
+        <span class="stat-detail">{{ activeAccounts }} active</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon storage">
+        <i class="fas fa-database"></i>
+      </div>
+      <div class="stat-content">
+        <h3>{{ formatBytes(totalStorageUsed) }}</h3>
+        <p>Storage Used</p>
+        <span class="stat-detail">of {{ formatBytes(totalStorageQuota) }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon performance">
+        <i class="fas fa-tachometer-alt"></i>
+      </div>
+      <div class="stat-content">
+        <h3>{{ (averagePerformance || 0).toFixed(1) }}%</h3>
+        <p>Avg Performance</p>
+        <span class="stat-detail" [class]="getPerformanceClass(averagePerformance || 0)">
+          {{ getPerformanceClass(averagePerformance || 0).replace('performance-', '') }}
+        </span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon quota">
+        <i class="fas fa-chart-pie"></i>
+      </div>
+      <div class="stat-content">
+        <h3>{{ getStoragePercentage(totalStorageUsed, totalStorageQuota) }}%</h3>
+        <p>Quota Usage</p>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="getStoragePercentage(totalStorageUsed, totalStorageQuota)"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div class="loading-spinner" *ngIf="loading">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Loading accounts...</p>
+  </div>
+
+  <!-- Accounts Grid -->
+  <div class="accounts-grid" *ngIf="!loading">
+    <div *ngFor="let account of accounts" class="account-card" [class.inactive]="!account.is_active">
+      <!-- Account Header -->
+      <div class="account-header">
+        <div class="account-info">
+          <h3>{{ account.email }}</h3>
+          <span class="account-id">ID: {{ account.account_id }}</span>
+        </div>
+        <div class="account-status">
+          <span class="status-badge" [class]="account.is_active ? 'active' : 'inactive'">
+            {{ account.is_active ? 'Active' : 'Inactive' }}
+          </span>
+          <span class="health-badge" [class]="getHealthStatusClass(account.health_status)">
+            {{ getHealthStatusText(account.health_status) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Account Stats -->
+      <div class="account-stats">
+        <div class="stat-row">
+          <div class="stat-item">
+            <i class="fas fa-file"></i>
+            <span class="stat-label">Files</span>
+            <span class="stat-value">{{ account.files_count | number }}</span>
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-hdd"></i>
+            <span class="stat-label">Storage</span>
+            <span class="stat-value">{{ formatBytes(account.storage_used) }}</span>
+          </div>
+        </div>
+        
+        <div class="storage-progress">
+          <div class="progress-info">
+            <span>Storage Usage</span>
+            <span>{{ getStoragePercentage(account.storage_used, account.storage_quota) }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" 
+                 [style.width.%]="getStoragePercentage(account.storage_used, account.storage_quota)"
+                 [class]="getStoragePercentage(account.storage_used, account.storage_quota) > 80 ? 'warning' : ''">
+            </div>
+          </div>
+        </div>
+
+        <div class="performance-info">
+          <span class="performance-label">Performance Score</span>
+          <span class="performance-score" [class]="getPerformanceClass(account.performance_score || 0)">
+            {{ (account.performance_score || 0).toFixed(1) }}%
+          </span>
+        </div>
+      </div>
+
+      <!-- Account Actions -->
+      <div class="account-actions">
+        <button class="btn btn-sm btn-info" (click)="viewAccountDetails(account.account_id)" [disabled]="loading">
+          <i class="fas fa-eye"></i> Details
+        </button>
+        <button class="btn btn-sm" 
+                [class]="account.is_active ? 'btn-warning' : 'btn-success'"
+                (click)="toggleAccount(account.account_id)" 
+                [disabled]="loading">
+          <i class="fas" [class]="account.is_active ? 'fa-pause' : 'fa-play'"></i>
+          {{ account.is_active ? 'Deactivate' : 'Activate' }}
+        </button>
+        <button class="btn btn-sm btn-danger" (click)="removeAccount(account.account_id)" [disabled]="loading">
+          <i class="fas fa-trash"></i> Remove
+        </button>
+      </div>
+
+      <!-- Last Activity -->
+      <div class="last-activity">
+        <i class="fas fa-clock"></i>
+        <span>Last activity: {{ formatDate(account.last_activity) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading && accounts.length === 0">
+    <i class="fab fa-google-drive"></i>
+    <h3>No Google Drive Accounts</h3>
+    <p>Add your first Google Drive service account to get started.</p>
+    <button class="btn btn-primary" (click)="showAddAccountModal = true">
+      <i class="fas fa-plus"></i> Add Account
+    </button>
+  </div>
+</div>
+
+<!-- Add Account Modal -->
+<div class="modal-overlay" *ngIf="showAddAccountModal" (click)="closeAddAccountModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-plus"></i> Add Google Drive Account</h3>
+      <button class="btn-close" (click)="closeAddAccountModal()">×</button>
+    </div>
+    
+    <div class="modal-body">
+      <form (ngSubmit)="addAccount()">
+        <div class="form-group">
+          <label for="account-email">Account Email *</label>
+          <input 
+            type="email" 
+            id="account-email"
+            [(ngModel)]="addAccountForm.account_email" 
+            name="account_email"
+            class="form-control" 
+            placeholder="service-account@project.iam.gserviceaccount.com"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="account-alias">Account Alias *</label>
+          <input 
+            type="text" 
+            id="account-alias"
+            [(ngModel)]="addAccountForm.account_alias" 
+            name="account_alias"
+            class="form-control" 
+            placeholder="Primary Storage Account"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="service-key">Service Account Key (JSON) *</label>
+          <textarea 
+            id="service-key"
+            [(ngModel)]="addAccountForm.service_account_key" 
+            name="service_account_key"
+            class="form-control" 
+            rows="10"
+            placeholder='{"type": "service_account", "project_id": "...", ...}'
+            required></textarea>
+          <small class="form-help">
+            Paste the complete JSON service account key file content here.
+          </small>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeAddAccountModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <i class="fas fa-plus"></i> Add Account
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Account Details Modal -->
+<div class="modal-overlay" *ngIf="showAccountDetailsModal" (click)="closeAccountDetailsModal()">
+  <div class="modal-content large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-info-circle"></i> Account Details</h3>
+      <button class="btn-close" (click)="closeAccountDetailsModal()">×</button>
+    </div>
+    
+    <div class="modal-body" *ngIf="selectedAccount">
+      <div class="account-details">
+        <div class="detail-section">
+          <h4>Basic Information</h4>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Email:</label>
+              <span>{{ selectedAccount.email }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Account ID:</label>
+              <span>{{ selectedAccount.account_id }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Status:</label>
+              <span class="status-badge" [class]="selectedAccount.is_active ? 'active' : 'inactive'">
+                {{ selectedAccount.is_active ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+            <div class="detail-item">
+              <label>Health:</label>
+              <span class="health-badge" [class]="getHealthStatusClass(selectedAccount.health_status || '')">
+                {{ getHealthStatusText(selectedAccount.health_status || '') }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h4>Storage Information</h4>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Files Count:</label>
+              <span>{{ selectedAccount.files_count | number }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Storage Used:</label>
+              <span>{{ formatBytes(selectedAccount.storage_used || 0) }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Storage Quota:</label>
+              <span>{{ formatBytes(selectedAccount.storage_quota || 0) }}</span>
+            </div>
+            <div class="detail-item">
+              <label>Usage Percentage:</label>
+              <span>{{ getStoragePercentage(selectedAccount.storage_used || 0, selectedAccount.storage_quota || 0) }}%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h4>Performance</h4>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Performance Score:</label>
+              <span class="performance-score" [class]="getPerformanceClass(selectedAccount.performance_score || 0)">
+                {{ (selectedAccount.performance_score || 0).toFixed(1) }}%
+              </span>
+            </div>
+            <div class="detail-item">
+              <label>Last Activity:</label>
+              <span>{{ formatDate(selectedAccount.last_activity || '') }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

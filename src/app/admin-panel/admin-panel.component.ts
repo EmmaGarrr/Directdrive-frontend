@@ -6,6 +6,7 @@ import { AdminAuthService } from '../services/admin-auth.service';
 import { AdminUserInDB, UserRole } from '../models/admin.model';
 import { filter } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 interface SystemStats {
   totalUsers: number;
@@ -14,6 +15,48 @@ interface SystemStats {
   totalStorage: number;
   storageUsagePercent: number;
   systemHealth: 'good' | 'warning' | 'critical';
+}
+
+interface SystemHealthResponse {
+  timestamp: string;
+  system: {
+    cpu: {
+      usage_percent: number;
+      count: number;
+      frequency: number;
+    };
+    memory: {
+      total: number;
+      available: number;
+      used: number;
+      percent: number;
+      swap_total: number;
+      swap_used: number;
+      swap_percent: number;
+    };
+    disk: {
+      total: number;
+      used: number;
+      free: number;
+      percent: number;
+    };
+    network: {
+      bytes_sent: number;
+      bytes_recv: number;
+      packets_sent: number;
+      packets_recv: number;
+    };
+    uptime: number;
+    boot_time: number;
+  };
+  database: {
+    total_collections: number;
+    total_files: number;
+    total_users: number;
+    total_admins: number;
+    active_sessions: number;
+    size_bytes: number;
+  };
 }
 
 interface Notification {
@@ -76,7 +119,8 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   constructor(
     private adminSocketService: AdminSocketService,
     public adminAuthService: AdminAuthService,
-    private router: Router
+    private router: Router,
+    private http: HttpClient
   ) { }
 
   ngOnInit(): void {
@@ -136,29 +180,49 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   private setupWebSocket(): void {
-    // WebSocket connection disabled to prevent API spam
-    // this.adminSocketService.connect(this.adminToken);
-    // this.adminSocketService.messages$.subscribe(
-    //   (data: any) => {
-    //     if (data && data.message) {
-    //       this.events.unshift(data.message);
-    //       // Keep only last 100 events
-    //       if (this.events.length > 100) {
-    //         this.events = this.events.slice(0, 100);
-    //       }
-    //     }
-    //   }
-    // );
+    // Only enable WebSocket if we have a valid admin token
+    const adminToken = this.adminAuthService.getAdminToken();
+    if (adminToken) {
+      try {
+        this.adminSocketService.connect(adminToken);
+        
+        this.adminSocketService.messages$.subscribe(
+          (data: any) => {
+            if (data && data.message) {
+              this.events.unshift(data.message);
+              // Keep only last 100 events
+              if (this.events.length > 100) {
+                this.events = this.events.slice(0, 100);
+              }
+            }
+          },
+          (error) => {
+            console.warn('WebSocket message error:', error);
+            // Fall back to mock events on error
+            this.addInitialEvents();
+          }
+        );
 
-    // Monitor connection status
-    // this.adminSocketService.connectionStatus$.subscribe(
-    //   (status: boolean) => {
-    //     this.isConnected = status;
-    //   }
-    // );
-    
-    // Add some initial events for demonstration
-    this.addInitialEvents();
+        // Monitor connection status
+        this.adminSocketService.connectionStatus$.subscribe(
+          (status: boolean) => {
+            this.isConnected = status;
+            if (!status) {
+              // If connection fails, add some initial events for demo
+              this.addInitialEvents();
+            }
+          }
+        );
+      } catch (error) {
+        console.warn('WebSocket connection failed, using mock events:', error);
+        this.isConnected = true; // Set to true for mock mode
+        this.addInitialEvents();
+      }
+    } else {
+      // No admin token, use mock events
+      this.isConnected = true;
+      this.addInitialEvents();
+    }
   }
   
   private addInitialEvents(): void {
@@ -203,14 +267,22 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   public refreshEvents(): void {
-    // WebSocket reconnection disabled to prevent API spam
-    // this.adminSocketService.disconnect();
-    // setTimeout(() => {
-    //   this.adminSocketService.connect(this.adminToken);
-    // }, 100);
-    
-    // Just add some mock events instead
-    this.addInitialEvents();
+    const adminToken = this.adminAuthService.getAdminToken();
+    if (adminToken && this.adminSocketService.isConnected()) {
+      // Reconnect WebSocket if we have a token and service is available
+      try {
+        this.adminSocketService.disconnect();
+        setTimeout(() => {
+          this.adminSocketService.connect(adminToken);
+        }, 1000); // Small delay to ensure clean reconnection
+      } catch (error) {
+        console.warn('WebSocket reconnection failed:', error);
+        this.addInitialEvents();
+      }
+    } else {
+      // Fall back to mock events
+      this.addInitialEvents();
+    }
   }
 
   public clearEvents(): void {
@@ -293,20 +365,66 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   }
 
   // Stats Management
-  private loadSystemStats(): void {
-    // Use consistent mock data for development
-    // In production, this should call actual API endpoints
-    this.systemStats = {
-      totalUsers: 1073,
-      userGrowth: 6,
-      totalFiles: 32200,
-      totalStorage: 1140000000, // 1.14 GB in bytes
-      storageUsagePercent: 50,
-      systemHealth: 'good'
-    };
+  private async loadSystemStats(): Promise<void> {
+    try {
+      const headers = this.getAdminHeaders();
+      const response = await this.http.get<SystemHealthResponse>(
+        `${environment.apiUrl}/api/v1/admin/monitoring/system-health`,
+        { headers }
+      ).toPromise();
+
+      if (response) {
+        // Map backend data to dashboard stats
+        this.systemStats = {
+          totalUsers: response.database.total_users,
+          userGrowth: 0, // TODO: Calculate growth from user analytics
+          totalFiles: response.database.total_files,
+          totalStorage: response.database.size_bytes,
+          storageUsagePercent: Math.round(response.system.disk.percent),
+          systemHealth: this.calculateSystemHealth(response)
+        };
+        
+        this.isConnected = true;
+      }
+    } catch (error) {
+      console.error('Failed to load system stats:', error);
+      // Fallback to basic stats on error
+      this.systemStats = {
+        totalUsers: 0,
+        userGrowth: 0,
+        totalFiles: 0,
+        totalStorage: 0,
+        storageUsagePercent: 0,
+        systemHealth: 'critical'
+      };
+      this.isConnected = false;
+    }
+  }
+
+  private getAdminHeaders(): HttpHeaders {
+    const token = this.adminAuthService.getAdminToken();
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+  }
+
+  private calculateSystemHealth(data: SystemHealthResponse): 'good' | 'warning' | 'critical' {
+    const memoryUsage = data.system.memory.percent;
+    const diskUsage = data.system.disk.percent;
+    const cpuUsage = data.system.cpu.usage_percent;
+
+    // Critical thresholds
+    if (memoryUsage > 90 || diskUsage > 90 || cpuUsage > 90) {
+      return 'critical';
+    }
     
-    // Connection status set to true since backend is working
-    this.isConnected = true;
+    // Warning thresholds
+    if (memoryUsage > 75 || diskUsage > 75 || cpuUsage > 75) {
+      return 'warning';
+    }
+
+    return 'good';
   }
   
   // Health check methods removed to prevent API spam
@@ -335,8 +453,8 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   //   }, 300000); // 5 minutes
   // }
 
-  public refreshStats(): void {
-    this.loadSystemStats();
+  public async refreshStats(): Promise<void> {
+    await this.loadSystemStats();
     this.addNotification('info', 'Stats Refreshed', 'System statistics have been updated');
   }
 

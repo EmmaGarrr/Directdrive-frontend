@@ -45,4 +45,8 @@ export class AdminSocketService {
       this.connectionStatus$.next(false);
     }
   }
+
+  public isConnected(): boolean {
+    return this.socket$ !== null && !this.socket$.closed;
+  }
 }
