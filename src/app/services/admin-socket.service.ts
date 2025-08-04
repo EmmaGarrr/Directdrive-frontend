@@ -16,22 +16,25 @@ export class AdminSocketService {
 
   public connect(token: string): void {
     if (!this.socket$ || this.socket$.closed) {
-      // Use wss:// for your secure domain
-      // const wsUrl = `wss://api.mfcnextgen.com/ws_admin?token=${token}`;
-      const wsUrl = `${environment.wsUrl}/../ws_admin?token=${token}`; 
+      // Construct proper admin WebSocket URL
+      const baseWsUrl = environment.apiUrl.replace('http://', 'ws://').replace('https://', 'wss://');
+      const wsUrl = `${baseWsUrl}/ws_admin?token=${token}`;
+      console.log('Connecting to admin WebSocket:', wsUrl);
       this.socket$ = webSocket(wsUrl);
 
       this.socket$.subscribe(
         (msg) => {
+          console.log('Admin WebSocket message received:', msg);
           this.messages$.next(msg);
           this.connectionStatus$.next(true);
         },
         (err) => {
           console.error('Admin WebSocket error:', err);
           this.connectionStatus$.next(false);
+          // Don't auto-retry to prevent loops, let the component handle it
         },
         () => {
-          console.warn('Admin WebSocket connection closed');
+          console.log('Admin WebSocket connection closed');
           this.connectionStatus$.next(false);
         }
       );

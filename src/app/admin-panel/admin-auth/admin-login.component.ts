@@ -26,10 +26,14 @@ export class AdminLoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Redirect logic removed to prevent routing loop
-    // if (this.adminAuthService.isAdminAuthenticated()) {
-    //   this.router.navigate(['/admin-panel']);
-    // }
+    // Force clear any stale admin sessions when landing on login page
+    this.adminAuthService.forceClearSession();
+    
+    // Check if we came here due to authentication issues
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state && navigation.extras.state['authError']) {
+      this.error = 'Your session has expired. Please log in again.';
+    }
   }
 
   get f() {

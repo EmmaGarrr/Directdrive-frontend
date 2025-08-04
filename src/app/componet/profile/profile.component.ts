@@ -132,13 +132,19 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  getStoragePercentage(): number {
-    if (!this.user || this.user.storage_limit_bytes === 0) return 0;
-    return (this.user.storage_used_bytes / this.user.storage_limit_bytes) * 100;
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 B';
+    
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    
+    if (i >= sizes.length) return `${(bytes / Math.pow(1024, sizes.length - 1)).toFixed(2)} ${sizes[sizes.length - 1]}`;
+    
+    return `${(bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 2)} ${sizes[i]}`;
   }
 
   getStorageColor(): string {
-    const percentage = this.getStoragePercentage();
+    const percentage = this.user?.storage_percentage || 0;
     if (percentage >= 90) return 'warn';
     if (percentage >= 70) return 'accent';
     return 'primary';

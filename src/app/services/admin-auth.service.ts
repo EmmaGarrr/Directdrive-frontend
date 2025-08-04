@@ -38,31 +38,58 @@ export class AdminAuthService {
   private initializeAdminAuth(): void {
     const token = this.getAdminToken();
     if (token) {
-      // Since verifyAdminToken is disabled, create session from stored data
-      // For now, assume superadmin role if token exists
-      const session: AdminSession = {
-        token: token,
-        adminEmail: 'admin@directdrive.com', // Default email
-        adminRole: UserRole.SUPERADMIN, // Assume superadmin role
-        expiresAt: new Date(Date.now() + (24 * 60 * 60 * 1000)) // 24 hours
-      };
+      // Validate token format first
+      if (!this.isValidTokenFormat(token)) {
+        console.log('Invalid token format detected - clearing stale session');
+        this.clearAdminSession();
+        return;
+      }
       
-      this.adminSessionSubject.next(session);
-      this.isAdminAuthenticatedSubject.next(true);
-      
-      // Try to load full profile (will fail silently if API is down)
-      this.loadAdminProfile().subscribe({
-        next: (admin) => {
-          // Update session with actual admin data
-          session.adminEmail = admin.email;
-          session.adminRole = admin.role;
+      // Try to verify the token immediately
+      this.verifyAdminToken().subscribe({
+        next: (verification) => {
+          // Token is valid, create session with verified data
+          const session: AdminSession = {
+            token: token,
+            adminEmail: verification.admin_email,
+            adminRole: verification.admin_role === 'superadmin' ? UserRole.SUPERADMIN : UserRole.ADMIN,
+            expiresAt: new Date(Date.now() + (24 * 60 * 60 * 1000)) // 24 hours
+          };
+          
           this.adminSessionSubject.next(session);
+          this.isAdminAuthenticatedSubject.next(true);
+          
+          // Load full profile
+          this.loadAdminProfile().subscribe({
+            next: (admin) => {
+              // Update session with complete admin data
+              session.adminEmail = admin.email;
+              session.adminRole = admin.role;
+              this.adminSessionSubject.next(session);
+            },
+            error: (error) => {
+              console.log('Profile load failed after token verification:', error);
+            }
+          });
         },
-        error: () => {
-          // Keep the default session if profile load fails
-          console.log('Profile load failed, keeping default session');
+        error: (error) => {
+          // Token verification failed - clear invalid session
+          console.log('Token verification failed - clearing invalid session:', error.message);
+          this.clearAdminSession();
         }
       });
+    }
+  }
+
+  /**
+   * Check if token has valid JWT format
+   */
+  private isValidTokenFormat(token: string): boolean {
+    try {
+      const parts = token.split('.');
+      return parts.length === 3 && parts.every(part => part.length > 0);
+    } catch {
+      return false;
     }
   }
 
@@ -110,6 +137,8 @@ export class AdminAuthService {
             },
             error: (error) => {
               console.log('Profile load failed after login:', error);
+              // If profile load fails after login, there might be a backend issue
+              // but don't clear the session since login was successful
             }
           });
         }),
@@ -184,6 +213,17 @@ export class AdminAuthService {
    */
   adminLogout(): void {
     this.clearAdminSession();
+  }
+
+  /**
+   * Force clear all admin session data (useful for fixing stale token issues)
+   */
+  forceClearSession(): void {
+    console.log('Force clearing admin session...');
+    this.clearAdminSession();
+    // Also clear any other related storage
+    localStorage.removeItem('access_token'); // Regular user token
+    console.log('All admin session data cleared');
   }
 
   /**
@@ -281,6 +321,8 @@ export class AdminAuthService {
       // Server-side error
       if (error.status === 401) {
         errorMessage = 'Unauthorized: Invalid admin credentials';
+        // Clear stale admin session on 401 errors
+        this.clearAdminSession();
       } else if (error.status === 403) {
         errorMessage = 'Forbidden: Insufficient admin permissions';
       } else if (error.error && error.error.detail) {

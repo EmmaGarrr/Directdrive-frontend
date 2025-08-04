@@ -49,13 +49,13 @@
             <div>
               <div class="flex justify-between text-sm mb-2">
                 <span class="text-slate-600">Used Storage</span>
-                <span class="font-medium text-slate-900">{{ ((user?.storage_used_bytes || 5940000000) / (1024*1024*1024)).toFixed(2) }} GB / {{ ((user?.storage_limit_bytes || 10737418240) / (1024*1024*1024)).toFixed(0) }} GB</span>
+                <span class="font-medium text-slate-900">{{ user?.storage_used_gb || 0 }} GB / {{ user?.storage_limit_gb || 10 }} GB</span>
               </div>
               <div class="w-full bg-slate-200 rounded-full h-2">
-                <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full" [style.width.%]="getStoragePercentage()"></div>
+                <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full" [style.width.%]="user?.storage_percentage || 0"></div>
               </div>
               <p class="text-xs text-slate-500 mt-2">
-                {{ (((user?.storage_limit_bytes || 10737418240) - (user?.storage_used_bytes || 5940000000)) / (1024*1024*1024)).toFixed(2) }} GB remaining
+                {{ user?.remaining_storage_gb || user?.storage_limit_gb || 10 }} GB remaining
               </p>
             </div>
             
@@ -64,19 +64,19 @@
               <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
                   <span class="text-slate-600">Documents</span>
-                  <span class="text-slate-900">2.1 GB</span>
+                  <span class="text-slate-900">{{ formatFileSize(user?.file_type_breakdown?.documents || 0) }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-slate-600">Images</span>
-                  <span class="text-slate-900">1.8 GB</span>
+                  <span class="text-slate-900">{{ formatFileSize(user?.file_type_breakdown?.images || 0) }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-slate-600">Videos</span>
-                  <span class="text-slate-900">1.5 GB</span>
+                  <span class="text-slate-900">{{ formatFileSize(user?.file_type_breakdown?.videos || 0) }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-slate-600">Other</span>
-                  <span class="text-slate-900">0.34 GB</span>
+                  <span class="text-slate-900">{{ formatFileSize(user?.file_type_breakdown?.other || 0) }}</span>
                 </div>
               </div>
             </div>
@@ -97,11 +97,11 @@
           <div class="space-y-4">
             <div>
               <label class="text-sm text-slate-500 font-medium">Email Address</label>
-              <p class="text-slate-900">{{ user?.email || 'jylowuke@forexzig.com' }}</p>
+              <p class="text-slate-900">{{ user?.email || 'Loading...' }}</p>
             </div>
             <div>
               <label class="text-sm text-slate-500 font-medium">Account Type</label>
-              <p class="text-slate-900">Premium ({{ ((user?.storage_limit_bytes || 10737418240) / (1024*1024*1024)).toFixed(0) }}GB Storage)</p>
+              <p class="text-slate-900">Premium ({{ user?.storage_limit_gb || 10 }}GB Storage)</p>
             </div>
             <div>
               <label class="text-sm text-slate-500 font-medium">Member Since</label>
@@ -128,7 +128,7 @@
             <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
             </svg>
-            <span class="text-sm text-green-900">{{ ((user?.storage_limit_bytes || 10737418240) / (1024*1024*1024)).toFixed(0) }}GB storage limit (vs 5GB free tier)</span>
+            <span class="text-sm text-green-900">{{ user?.storage_limit_gb || 10 }}GB storage limit (vs 5GB free tier)</span>
           </div>
           
           <div class="flex items-center space-x-3 p-3 bg-green-50 rounded-lg border border-green-200">
