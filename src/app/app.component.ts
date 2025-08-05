@@ -17,11 +17,6 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Initialize stagewise toolbar only in development mode
-    if (environment.production === false) {
-      import('@stagewise/toolbar').then(({ initToolbar }) => {
-        initToolbar();
-      });
-    }
+    // Component initialization
   }
 }

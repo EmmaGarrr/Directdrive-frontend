@@ -45,6 +45,12 @@ export class AdminAuthService {
         return;
       }
       
+      // Check if we already have a valid session
+      const currentSession = this.adminSessionSubject.value;
+      if (currentSession && currentSession.token === token) {
+        return; // Already initialized
+      }
+      
       // Try to verify the token immediately
       this.verifyAdminToken().subscribe({
         next: (verification) => {
@@ -256,13 +262,13 @@ export class AdminAuthService {
       return false;
     }
 
-    // If we have a token but no session, try to initialize
+    // If we have a token but no session, return true to allow initialization
+    // The session will be created during the async verification process
     if (token && !session) {
-      // Don't auto-initialize to prevent loops, just return false
-      return false;
+      return true;
     }
 
-    return true;
+    return this.isAdminAuthenticatedSubject.value;
   }
 
   /**
@@ -290,7 +296,7 @@ export class AdminAuthService {
   /**
    * Clear admin session and logout
    */
-  private clearAdminSession(): void {
+  clearAdminSession(): void {
     localStorage.removeItem('admin_access_token');
     this.currentAdminSubject.next(null);
     this.isAdminAuthenticatedSubject.next(false);

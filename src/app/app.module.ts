@@ -47,6 +47,8 @@ import { AdminPanelComponent } from './admin-panel/admin-panel.component';
 import { UserManagementComponent } from './admin-panel/user-management/user-management.component';
 import { UserAnalyticsComponent } from './admin-panel/user-analytics/user-analytics.component';
 import { FileBrowserComponent } from './admin-panel/file-browser/file-browser.component';
+import { DriveFileManagementComponent } from './admin-panel/drive-file-management/drive-file-management.component';
+import { HetznerFileManagementComponent } from './admin-panel/hetzner-file-management/hetzner-file-management.component';
 import { BackupManagementComponent } from './admin-panel/backup-management/backup-management.component';
 import { SystemMonitoringComponent } from './admin-panel/system-monitoring/system-monitoring.component';
 // import { SecuritySettingsComponent } from './admin-panel/security-settings/security-settings.component'; // TODO: Create this component
@@ -78,6 +80,8 @@ import { SafePipe } from './shared/pipes/safe.pipe';
     UserManagementComponent,
     UserAnalyticsComponent,
     FileBrowserComponent,
+    DriveFileManagementComponent,
+    HetznerFileManagementComponent,
     BackupManagementComponent,
     SystemMonitoringComponent,
     // SecuritySettingsComponent, // TODO: Create this component
