@@ -1,41 +1,30 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { AdminAuthService } from './admin-auth.service';
 
 export interface FileInfo {
-  id: string;
-  name: string;
-  size: number;
-  type: string;
-  owner: string;
-  uploadDate: Date;
-  googleDriveStatus: {
-    status: 'not_uploaded' | 'uploading' | 'uploaded' | 'error';
-    error?: string;
-    url?: string;
-    lastSync?: Date;
-  };
-  hetznerStatus: {
-    status: 'not_uploaded' | 'uploading' | 'uploaded' | 'error';
-    error?: string;
-    url?: string;
-    lastSync?: Date;
-  };
+  file_id: string;
+  filename: string;
+  path: string;
+  size_bytes: number;
+  last_modified: string;
+  content_type: string;
+  is_directory: boolean;
 }
 
 export interface StorageStats {
-  totalFiles: number;
-  totalSize: number;
-  googleDrive: {
-    totalFiles: number;
-    totalSize: number;
-    usedPercentage: number;
+  total_files: number;
+  total_size_bytes: number;
+  by_storage_type: {
+    [key: string]: {
+      count: number;
+      size_bytes: number;
+    };
   };
-  hetzner: {
-    totalFiles: number;
-    totalSize: number;
-    usedPercentage: number;
+  by_status: {
+    [key: string]: number;
   };
 }
 
@@ -45,7 +34,10 @@ export interface StorageStats {
 export class StorageManagementService {
   private apiUrl = `${environment.apiUrl}/api/v1/admin/storage`;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private adminAuthService: AdminAuthService
+  ) {}
 
   /**
    * Get files from storage with pagination and filtering
@@ -55,19 +47,26 @@ export class StorageManagementService {
     page: number = 1,
     pageSize: number = 20,
     searchTerm: string = ''
-  ): Observable<{ files: FileInfo[]; total: number }> {
+  ): Observable<{ files: FileInfo[]; total: number; page: number; limit: number; total_pages: number }> {
     let params = new HttpParams()
       .set('page', page.toString())
-      .set('pageSize', pageSize.toString())
-      .set('search', searchTerm);
+      .set('limit', pageSize.toString());
 
-    if (storageType !== 'all') {
-      params = params.set('storage', storageType);
+    if (searchTerm) {
+      params = params.set('search', searchTerm);
     }
 
-    return this.http.get<{ files: FileInfo[]; total: number }>(
-      `${this.apiUrl}/files`,
-      { params }
+    // Use the correct endpoint based on storage type
+    const endpoint = storageType === 'all' ? 
+      `${this.apiUrl}/files/google_drive` : // Default to google_drive for now
+      `${this.apiUrl}/files/${storageType === 'google-drive' ? 'google_drive' : 'hetzner'}`;
+
+    return this.http.get<{ files: FileInfo[]; total: number; page: number; limit: number; total_pages: number }>(
+      endpoint,
+      { 
+        params,
+        headers: this.getAuthHeaders()
+      }
     );
   }
 
@@ -75,16 +74,32 @@ export class StorageManagementService {
    * Get storage statistics
    */
   getStorageStats(): Observable<StorageStats> {
-    return this.http.get<StorageStats>(`${this.apiUrl}/stats`);
+    return this.http.get<StorageStats>(`${this.apiUrl}/stats`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  /**
+   * Get authentication headers for admin requests
+   */
+  private getAuthHeaders(): HttpHeaders {
+    const token = this.adminAuthService.getAdminToken();
+    if (!token) {
+      throw new Error('No admin authentication token available');
+    }
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
   }
 
   /**
    * Delete a file from storage
    */
   deleteFile(fileId: string, storageType: 'google-drive' | 'hetzner'): Observable<{ success: boolean; message: string }> {
+    const storageTypeParam = storageType === 'google-drive' ? 'google_drive' : 'hetzner';
     return this.http.delete<{ success: boolean; message: string }>(
-      `${this.apiUrl}/files/${fileId}`,
-      { params: { storage: storageType } }
+      `${this.apiUrl}/files/${storageTypeParam}/${fileId}`,
+      { headers: this.getAuthHeaders() }
     );
   }
 
@@ -93,8 +108,9 @@ export class StorageManagementService {
    */
   syncFileStatus(fileId: string): Observable<{ success: boolean; message: string }> {
     return this.http.post<{ success: boolean; message: string }>(
-      `${this.apiUrl}/files/${fileId}/sync`,
-      {}
+      `${this.apiUrl}/storage/sync/${fileId}`,
+      {},
+      { headers: this.getAuthHeaders() }
     );
   }
 
@@ -102,7 +118,9 @@ export class StorageManagementService {
    * Get file details by ID
    */
   getFileDetails(fileId: string): Observable<FileInfo> {
-    return this.http.get<FileInfo>(`${this.apiUrl}/files/${fileId}`);
+    return this.http.get<FileInfo>(`${this.apiUrl}/files/${fileId}`, {
+      headers: this.getAuthHeaders()
+    });
   }
 
   /**

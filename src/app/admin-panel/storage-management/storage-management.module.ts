@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { StorageManagementComponent } from './storage-management.component';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -29,7 +30,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [StorageManagementComponent],
+  declarations: [StorageManagementComponent, ConfirmDialogComponent],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),

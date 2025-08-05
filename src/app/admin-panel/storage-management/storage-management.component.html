@@ -13,8 +13,8 @@
       >
         <i [class]="storage.icon"></i>
         <span>{{ storage.name }}</span>
-        <span class="badge" *ngIf="stats?.by_storage_type[storage.id]?.count">
-          {{ stats.by_storage_type[storage.id].count | number }}
+        <span class="badge" *ngIf="stats?.by_storage_type?.[storage.id]?.count">
+          {{ stats?.by_storage_type?.[storage.id]?.count | number }}
         </span>
       </button>
     </div>
@@ -45,22 +45,22 @@
     <div class="stat-card">
       <i class="fas fa-hdd"></i>
       <div class="stat-details">
-        <span class="stat-value">{{ stats.by_storage_type[activeStorage]?.size_formatted || '0 B' }}</span>
+        <span class="stat-value">{{ stats?.by_storage_type?.[activeStorage]?.size_formatted || '0 B' }}</span>
         <span class="stat-label">Total Storage Used</span>
       </div>
     </div>
     <div class="stat-card">
       <i class="fas fa-file"></i>
       <div class="stat-details">
-        <span class="stat-value">{{ stats.by_storage_type[activeStorage]?.count || 0 | number }}</span>
+        <span class="stat-value">{{ stats?.by_storage_type?.[activeStorage]?.count || 0 | number }}</span>
         <span class="stat-label">Total Files</span>
       </div>
     </div>
-    <div class="stat-card" *ngFor="let [status, count] of Object.entries(stats.by_status || {})">
+    <div class="stat-card" *ngFor="let statusEntry of getStatusEntries()">
       <i class="fas fa-info-circle"></i>
       <div class="stat-details">
-        <span class="stat-value">{{ count | number }}</span>
-        <span class="stat-label">{{ status | titlecase }}</span>
+        <span class="stat-value">{{ statusEntry.count | number }}</span>
+        <span class="stat-label">{{ statusEntry.status | titlecase }}</span>
       </div>
     </div>
   </div>
@@ -68,11 +68,11 @@
   <!-- Breadcrumb navigation -->
   <div class="breadcrumb">
     <span 
-      *ngFor="let part of path.split('/').filter(p => p); let last = last; let i = index"
-      (click)="!last && navigateToPath('/' + path.split('/').slice(0, i + 1).join('/'))"
+      *ngFor="let breadcrumbItem of getBreadcrumbItems(); let last = last"
+      (click)="!last && navigateToPath(breadcrumbItem.path)"
       [class.active]="!last"
     >
-      {{ part || 'Root' }}
+      {{ breadcrumbItem.name || 'Root' }}
       <span *ngIf="!last">/</span>
     </span>
   </div>
@@ -100,19 +100,19 @@
   </div>
   
   <!-- Loading indicator -->
-  <div class="loading" *ngIf="loading">
+  <div class="loading" *ngIf="isLoading">
     <i class="fas fa-spinner fa-spin"></i> Loading...
   </div>
   
   <!-- Error message -->
-  <div class="error-message" *ngIf="error && !loading">
+  <div class="error-message" *ngIf="error && !isLoading">
     <i class="fas fa-exclamation-triangle"></i>
     <span>{{ error }}</span>
     <button class="btn btn-sm btn-primary" (click)="loadFiles()">Retry</button>
   </div>
   
   <!-- List view -->
-  <div class="file-list" *ngIf="!loading && !error && viewMode === 'list'">
+  <div class="file-list" *ngIf="!isLoading && !error && viewMode === 'list'">
     <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z1">
       <!-- Checkbox column -->
       <ng-container matColumnDef="select">
@@ -182,7 +182,7 @@
               mat-icon-button 
               matTooltip="Sync status"
               (click)="syncFile(element.file_id)"
-              [disabled]="loading"
+              [disabled]="isLoading"
             >
               <i class="fas fa-sync-alt"></i>
             </button>
@@ -190,8 +190,8 @@
               mat-icon-button 
               color="warn"
               matTooltip="Delete file"
-              (click)="deleteFile(element)"
-              [disabled]="loading"
+              (click)="deleteFile(element.file_id, activeStorage === 'google_drive' ? 'google-drive' : 'hetzner')"
+              [disabled]="isLoading"
             >
               <i class="fas fa-trash"></i>
             </button>
@@ -228,7 +228,7 @@
   </div>
   
   <!-- Grid view -->
-  <div class="file-grid" *ngIf="!loading && !error && viewMode === 'grid'">
+  <div class="file-grid" *ngIf="!isLoading && !error && viewMode === 'grid'">
     <div 
       *ngFor="let file of dataSource.data"
       class="file-card"
@@ -258,7 +258,7 @@
           mat-icon-button 
           matTooltip="Sync status"
           (click)="$event.stopPropagation(); syncFile(file.file_id)"
-          [disabled]="loading"
+          [disabled]="isLoading"
         >
           <i class="fas fa-sync-alt"></i>
         </button>
@@ -266,8 +266,8 @@
           mat-icon-button 
           color="warn"
           matTooltip="Delete file"
-          (click)="$event.stopPropagation(); deleteFile(file)"
-          [disabled]="loading"
+          (click)="$event.stopPropagation(); deleteFile(file.file_id, activeStorage === 'google_drive' ? 'google-drive' : 'hetzner')"
+          [disabled]="isLoading"
         >
           <i class="fas fa-trash"></i>
         </button>
@@ -276,7 +276,7 @@
   </div>
   
   <!-- Empty state -->
-  <div class="empty-state" *ngIf="!loading && !error && dataSource.data.length === 0">
+  <div class="empty-state" *ngIf="!isLoading && !error && dataSource.data.length === 0">
     <i class="fas fa-folder-open"></i>
     <h3>No files found</h3>
     <p>There are no files in this location.</p>

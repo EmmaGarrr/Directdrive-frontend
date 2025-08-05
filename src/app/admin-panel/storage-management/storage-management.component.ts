@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
-import { StorageManagementService, FileInfo, StorageStats } from '../../services/storage-management.service';
+import { StorageManagementService } from '../../services/storage-management.service';
 import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
+import { environment } from '../../../environments/environment';
 import { AdminAuthService } from '../../services/admin-auth.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
@@ -63,10 +63,11 @@ export class StorageManagementComponent implements OnInit, AfterViewInit, OnDest
   
   constructor(
     private storageService: StorageManagementService,
+    private adminAuthService: AdminAuthService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog
   ) {
-    this.dataSource = new MatTableDataSource<FileInfo>([]);
+    this.dataSource = new MatTableDataSource<StorageFile>([]);
   }
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -80,7 +81,7 @@ export class StorageManagementComponent implements OnInit, AfterViewInit, OnDest
   
   // File list
   dataSource = new MatTableDataSource<StorageFile>([]);
-  displayedColumns: string[] = ['name', 'size', 'type', 'owner', 'uploadDate', 'status', 'storage', 'actions'];
+  displayedColumns: string[] = ['select', 'filename', 'size', 'last_modified', 'status', 'actions'];
   selection = new Set<string>();
   
   // Pagination
@@ -103,6 +104,14 @@ export class StorageManagementComponent implements OnInit, AfterViewInit, OnDest
   stats: StorageStats | null = null;
   
   ngOnInit(): void {
+    // Check if user is authenticated as admin
+    if (!this.adminAuthService.isAdminAuthenticated()) {
+      this.showError('Please login as admin to access storage management');
+      // Redirect to admin login
+      window.location.href = '/admin-auth/login';
+      return;
+    }
+    
     this.loadStats();
     this.loadFiles();
   }
@@ -123,8 +132,25 @@ export class StorageManagementComponent implements OnInit, AfterViewInit, OnDest
       this.storageService.getStorageStats()
         .pipe(finalize(() => this.isLoading = false))
         .subscribe({
-          next: (stats) => {
-            this.stats = stats;
+          next: (stats: any) => {
+            // Backend returns: { total_files, total_size_bytes, by_storage_type, by_status }
+            this.stats = {
+              total_files: stats.total_files || 0,
+              total_size_bytes: stats.total_size_bytes || 0,
+              by_storage_type: {
+                google_drive: {
+                  count: stats.by_storage_type?.google_drive?.count || 0,
+                  size_bytes: stats.by_storage_type?.google_drive?.size_bytes || 0,
+                  size_formatted: this.formatFileSize(stats.by_storage_type?.google_drive?.size_bytes || 0)
+                },
+                hetzner: {
+                  count: stats.by_storage_type?.hetzner?.count || 0,
+                  size_bytes: stats.by_storage_type?.hetzner?.size_bytes || 0,
+                  size_formatted: this.formatFileSize(stats.by_storage_type?.hetzner?.size_bytes || 0)
+                }
+              },
+              by_status: stats.by_status || {}
+            };
           },
           error: (error: any) => {
             console.error('Error loading storage stats:', error);
@@ -150,8 +176,25 @@ export class StorageManagementComponent implements OnInit, AfterViewInit, OnDest
       )
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
-        next: (response) => {
-          this.dataSource.data = response.files;
+        next: (response: any) => {
+          // Backend returns: { files: StorageFileInfo[], total, page, limit, total_pages }
+          const storageFiles: StorageFile[] = response.files.map((file: any) => ({
+            file_id: file.file_id,
+            filename: file.filename,
+            path: file.path,
+            size_bytes: file.size_bytes,
+            size_formatted: this.formatFileSize(file.size_bytes),
+            last_modified: file.last_modified, // Backend returns as string
+            content_type: file.content_type,
+            is_directory: file.is_directory,
+            status: 'uploaded', // Default status since backend doesn't provide it
+            error: undefined,
+            url: undefined
+          }));
+          
+          this.dataSource.data = storageFiles;
+          this.totalFiles = response.total;
+          this.totalPages = response.total_pages;
           if (this.paginator) {
             this.paginator.length = response.total;
           }
@@ -301,6 +344,71 @@ export class StorageManagementComponent implements OnInit, AfterViewInit, OnDest
     this.snackBar.open(message, 'Close', {
       duration: 5000,
       panelClass: ['error-snackbar']
+    });
+  }
+
+  // Helper method for template to get status entries
+  getStatusEntries(): Array<{status: string, count: number}> {
+    if (!this.stats?.by_status) return [];
+    return Object.entries(this.stats.by_status).map(([status, count]) => ({
+      status,
+      count
+    }));
+  }
+
+  // Helper method for template to get breadcrumb items
+  getBreadcrumbItems(): Array<{name: string, path: string}> {
+    const parts = this.path.split('/').filter(p => p);
+    const items: Array<{name: string, path: string}> = [];
+    
+    for (let i = 0; i < parts.length; i++) {
+      const path = '/' + parts.slice(0, i + 1).join('/');
+      items.push({
+        name: parts[i],
+        path
+      });
+    }
+    
+    return items;
+  }
+
+  // Toggle select all files
+  toggleSelectAll(): void {
+    if (this.selection.size === this.dataSource.data.length) {
+      this.selection.clear();
+    } else {
+      this.dataSource.data.forEach(file => {
+        this.selection.add(file.file_id);
+      });
+    }
+  }
+
+  // Delete selected files
+  deleteSelected(): void {
+    if (this.selection.size === 0) {
+      this.snackBar.open('No files selected', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Confirm Delete',
+        message: `Are you sure you want to delete ${this.selection.size} selected file(s)?`,
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        type: 'danger'
+      }
+    });
+
+    confirmDialog.afterClosed().subscribe(result => {
+      if (result) {
+        // Delete each selected file
+        this.selection.forEach(fileId => {
+          this.deleteFile(fileId, this.activeStorage === 'google_drive' ? 'google-drive' : 'hetzner');
+        });
+        this.selection.clear();
+      }
     });
   }
 }
