@@ -338,7 +338,9 @@ export class HetznerFileManagementComponent implements OnInit {
       })
         .subscribe({
           next: () => {
+            // Refresh both files and analytics to update storage stats
             this.loadFiles();
+            this.loadFileTypeAnalytics();
             alert('File deleted successfully from Hetzner backup');
           },
           error: (error) => {
@@ -363,15 +365,17 @@ export class HetznerFileManagementComponent implements OnInit {
     this.http.post(`${environment.apiUrl}/api/v1/admin/files/bulk-action`, actionData, {
       headers: this.getAuthHeaders()
     })
-      .subscribe({
-        next: (response: any) => {
-          alert(response.message);
-          this.selectedFiles = [];
-          this.showBulkActions = false;
-          this.bulkActionType = '';
-          this.bulkActionReason = '';
-          this.loadFiles();
-        },
+              .subscribe({
+          next: (response: any) => {
+            alert(response.message);
+            this.selectedFiles = [];
+            this.showBulkActions = false;
+            this.bulkActionType = '';
+            this.bulkActionReason = '';
+            // Refresh both files and analytics to update storage stats
+            this.loadFiles();
+            this.loadFileTypeAnalytics();
+          },
         error: (error) => {
           alert('Bulk action failed');
           console.error('Error executing bulk action:', error);
