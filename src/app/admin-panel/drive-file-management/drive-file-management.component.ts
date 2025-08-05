@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { AdminAuthService } from '../../services/admin-auth.service';
+import { AdminStatsService } from '../../services/admin-stats.service';
 
 interface DriveFileItem {
   _id: string;
@@ -99,7 +100,8 @@ export class DriveFileManagementComponent implements OnInit {
   
   constructor(
     private http: HttpClient,
-    private adminAuthService: AdminAuthService
+    private adminAuthService: AdminAuthService,
+    private adminStatsService: AdminStatsService
   ) {}
   
   ngOnInit(): void {
@@ -387,6 +389,8 @@ export class DriveFileManagementComponent implements OnInit {
             // Refresh both files and analytics to update storage stats
             this.loadFiles();
             this.loadFileTypeAnalytics();
+            // Trigger admin panel stats update
+            this.adminStatsService.triggerStatsUpdate();
             alert('File deleted successfully');
           },
           error: (error) => {
@@ -421,6 +425,8 @@ export class DriveFileManagementComponent implements OnInit {
             // Refresh both files and analytics to update storage stats
             this.loadFiles();
             this.loadFileTypeAnalytics();
+            // Trigger admin panel stats update
+            this.adminStatsService.triggerStatsUpdate();
           },
         error: (error) => {
           alert('Bulk action failed');

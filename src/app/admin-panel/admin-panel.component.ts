@@ -3,6 +3,7 @@ import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { AdminSocketService } from '../services/admin-socket.service';
 import { AdminAuthService } from '../services/admin-auth.service';
+import { AdminStatsService } from '../services/admin-stats.service';
 import { AdminUserInDB, UserRole } from '../models/admin.model';
 import { filter } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
@@ -119,6 +120,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   constructor(
     private adminSocketService: AdminSocketService,
     public adminAuthService: AdminAuthService,
+    private adminStatsService: AdminStatsService,
     private router: Router,
     private http: HttpClient
   ) { }
@@ -130,6 +132,11 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     this.loadSystemStats();
     this.initializeNotifications();
     this.generateMockChartData();
+    
+    // Listen for stats updates from other components
+    this.adminStatsService.statsUpdate$.subscribe(() => {
+      this.loadSystemStats();
+    });
     
     // Track route changes
     this.router.events.pipe(
@@ -472,6 +479,11 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   public async refreshStats(): Promise<void> {
     await this.loadSystemStats();
     this.addNotification('info', 'Stats Refreshed', 'System statistics have been updated');
+  }
+
+  // Method to refresh stats from child components
+  public async refreshSystemStats(): Promise<void> {
+    await this.loadSystemStats();
   }
 
   public formatNumber(num: number): string {
