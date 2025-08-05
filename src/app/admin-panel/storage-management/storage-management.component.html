@@ -1,0 +1,284 @@
+<div class="storage-management-container">
+  <!-- Header with tabs -->
+  <div class="header">
+    <h2>Storage Management</h2>
+    
+    <!-- Storage type tabs -->
+    <div class="storage-tabs">
+      <button 
+        *ngFor="let storage of storageTypes"
+        [class.active]="activeStorage === storage.id"
+        (click)="onStorageChange(storage.id)"
+        class="tab-button"
+      >
+        <i [class]="storage.icon"></i>
+        <span>{{ storage.name }}</span>
+        <span class="badge" *ngIf="stats?.by_storage_type[storage.id]?.count">
+          {{ stats.by_storage_type[storage.id].count | number }}
+        </span>
+      </button>
+    </div>
+    
+    <!-- View mode toggle -->
+    <div class="view-controls">
+      <button 
+        class="view-toggle" 
+        [class.active]="viewMode === 'list'"
+        (click)="toggleViewMode('list')"
+        title="List view"
+      >
+        <i class="fas fa-list"></i>
+      </button>
+      <button 
+        class="view-toggle"
+        [class.active]="viewMode === 'grid'"
+        (click)="toggleViewMode('grid')"
+        title="Grid view"
+      >
+        <i class="fas fa-th-large"></i>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Storage stats -->
+  <div class="storage-stats" *ngIf="stats">
+    <div class="stat-card">
+      <i class="fas fa-hdd"></i>
+      <div class="stat-details">
+        <span class="stat-value">{{ stats.by_storage_type[activeStorage]?.size_formatted || '0 B' }}</span>
+        <span class="stat-label">Total Storage Used</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <i class="fas fa-file"></i>
+      <div class="stat-details">
+        <span class="stat-value">{{ stats.by_storage_type[activeStorage]?.count || 0 | number }}</span>
+        <span class="stat-label">Total Files</span>
+      </div>
+    </div>
+    <div class="stat-card" *ngFor="let [status, count] of Object.entries(stats.by_status || {})">
+      <i class="fas fa-info-circle"></i>
+      <div class="stat-details">
+        <span class="stat-value">{{ count | number }}</span>
+        <span class="stat-label">{{ status | titlecase }}</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Breadcrumb navigation -->
+  <div class="breadcrumb">
+    <span 
+      *ngFor="let part of path.split('/').filter(p => p); let last = last; let i = index"
+      (click)="!last && navigateToPath('/' + path.split('/').slice(0, i + 1).join('/'))"
+      [class.active]="!last"
+    >
+      {{ part || 'Root' }}
+      <span *ngIf="!last">/</span>
+    </span>
+  </div>
+  
+  <!-- Search and actions -->
+  <div class="toolbar">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+        placeholder="Search files..."
+      >
+      <button class="btn btn-primary" (click)="onSearch()">
+        <i class="fas fa-search"></i> Search
+      </button>
+    </div>
+    
+    <div class="actions" *ngIf="selection.size > 0">
+      <button class="btn btn-danger" (click)="deleteSelected()">
+        <i class="fas fa-trash"></i> Delete ({{ selection.size }})
+      </button>
+    </div>
+  </div>
+  
+  <!-- Loading indicator -->
+  <div class="loading" *ngIf="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading...
+  </div>
+  
+  <!-- Error message -->
+  <div class="error-message" *ngIf="error && !loading">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span>{{ error }}</span>
+    <button class="btn btn-sm btn-primary" (click)="loadFiles()">Retry</button>
+  </div>
+  
+  <!-- List view -->
+  <div class="file-list" *ngIf="!loading && !error && viewMode === 'list'">
+    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z1">
+      <!-- Checkbox column -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox 
+            (change)="$event ? toggleSelectAll() : null"
+            [checked]="selection.size > 0 && selection.size === dataSource.data.length"
+            [indeterminate]="selection.size > 0 && selection.size !== dataSource.data.length"
+          ></mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let element">
+          <mat-checkbox
+            (click)="$event.stopPropagation()"
+            (change)="$event ? toggleFileSelection(element.file_id) : null"
+            [checked]="selection.has(element.file_id)"
+          ></mat-checkbox>
+        </td>
+      </ng-container>
+      
+      <!-- Filename column -->
+      <ng-container matColumnDef="filename">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+        <td mat-cell *matCellDef="let element">
+          <div class="file-cell" (click)="element.is_directory ? navigateToPath(element.path) : null">
+            <i [class]="getFileIcon(element.content_type)" [class.fa-folder]="element.is_directory"></i>
+            <span class="filename">{{ element.filename }}</span>
+            <span class="file-path" *ngIf="element.path !== '/' && element.path !== path">{{ element.path }}</span>
+          </div>
+        </td>
+      </ng-container>
+      
+      <!-- Size column -->
+      <ng-container matColumnDef="size">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Size</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.is_directory ? '--' : formatFileSize(element.size_bytes) }}
+        </td>
+      </ng-container>
+      
+      <!-- Last modified column -->
+      <ng-container matColumnDef="last_modified">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Modified</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.last_modified | date:'medium' }}
+        </td>
+      </ng-container>
+      
+      <!-- Status column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let element">
+          <span class="status-badge" [ngClass]="element.status?.toLowerCase()">
+            {{ element.status || 'Unknown' }}
+          </span>
+          <span class="error-message" *ngIf="element.error" [matTooltip]="element.error">
+            <i class="fas fa-exclamation-circle"></i>
+          </span>
+        </td>
+      </ng-container>
+      
+      <!-- Actions column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let element">
+          <div class="action-buttons">
+            <button 
+              mat-icon-button 
+              matTooltip="Sync status"
+              (click)="syncFile(element.file_id)"
+              [disabled]="loading"
+            >
+              <i class="fas fa-sync-alt"></i>
+            </button>
+            <button 
+              mat-icon-button 
+              color="warn"
+              matTooltip="Delete file"
+              (click)="deleteFile(element)"
+              [disabled]="loading"
+            >
+              <i class="fas fa-trash"></i>
+            </button>
+            <a 
+              *ngIf="!element.is_directory && element.url" 
+              mat-icon-button 
+              matTooltip="Download"
+              [href]="element.url"
+              target="_blank"
+              download
+            >
+              <i class="fas fa-download"></i>
+            </a>
+          </div>
+        </td>
+      </ng-container>
+      
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr 
+        mat-row 
+        *matRowDef="let row; columns: displayedColumns;"
+        [class.directory]="row.is_directory"
+        (click)="row.is_directory ? navigateToPath(row.path) : null"
+      ></tr>
+    </table>
+    
+    <mat-paginator 
+      [length]="totalFiles"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[10, 25, 50, 100]"
+      (page)="onPageChange($event)"
+      showFirstLastButtons>
+    </mat-paginator>
+  </div>
+  
+  <!-- Grid view -->
+  <div class="file-grid" *ngIf="!loading && !error && viewMode === 'grid'">
+    <div 
+      *ngFor="let file of dataSource.data"
+      class="file-card"
+      [class.directory]="file.is_directory"
+      (click)="file.is_directory ? navigateToPath(file.path) : null"
+    >
+      <div class="file-icon">
+        <i [class]="getFileIcon(file.content_type)" [class.fa-folder]="file.is_directory"></i>
+      </div>
+      <div class="file-info">
+        <div class="filename" [matTooltip]="file.filename">{{ file.filename }}</div>
+        <div class="file-meta">
+          <span *ngIf="!file.is_directory">{{ formatFileSize(file.size_bytes) }}</span>
+          <span>{{ file.last_modified | date:'short' }}</span>
+        </div>
+        <div class="file-status">
+          <span class="status-badge" [ngClass]="file.status?.toLowerCase()">
+            {{ file.status || 'Unknown' }}
+          </span>
+          <span class="error-message" *ngIf="file.error" [matTooltip]="file.error">
+            <i class="fas fa-exclamation-circle"></i>
+          </span>
+        </div>
+      </div>
+      <div class="file-actions">
+        <button 
+          mat-icon-button 
+          matTooltip="Sync status"
+          (click)="$event.stopPropagation(); syncFile(file.file_id)"
+          [disabled]="loading"
+        >
+          <i class="fas fa-sync-alt"></i>
+        </button>
+        <button 
+          mat-icon-button 
+          color="warn"
+          matTooltip="Delete file"
+          (click)="$event.stopPropagation(); deleteFile(file)"
+          [disabled]="loading"
+        >
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="!loading && !error && dataSource.data.length === 0">
+    <i class="fas fa-folder-open"></i>
+    <h3>No files found</h3>
+    <p>There are no files in this location.</p>
+  </div>
+</div>

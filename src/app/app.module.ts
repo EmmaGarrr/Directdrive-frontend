@@ -60,6 +60,7 @@ import { ForgotPasswordComponent } from './componet/forgot-password/forgot-passw
 import { ResetPasswordComponent } from './componet/reset-password/reset-password.component';
 import { FilePreviewComponent } from './componet/file-preview/file-preview.component';
 import { SafePipe } from './shared/pipes/safe.pipe';
+import { StorageManagementModule } from './admin-panel/storage-management/storage-management.module';
 
 
 @NgModule({
@@ -114,6 +115,7 @@ import { SafePipe } from './shared/pipes/safe.pipe';
     MatTabsModule,
     MatSelectModule,
     MatSlideToggleModule,
+    StorageManagementModule,
     MatCheckboxModule,
     MatChipsModule,
     MatToolbarModule,

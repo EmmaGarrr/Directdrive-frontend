@@ -26,6 +26,7 @@ import { GoogleDriveManagementComponent } from './admin-panel/google-drive-manag
 import { SecuritySettingsComponent } from './admin-panel/security-settings/security-settings.component';
 import { ForgotPasswordComponent } from './componet/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './componet/reset-password/reset-password.component';
+import { StorageManagementComponent } from './admin-panel/storage-management/storage-management.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -48,7 +49,8 @@ const routes: Routes = [
       { path: 'users', component: UserManagementComponent },
       { path: 'analytics', component: UserAnalyticsComponent },
       { path: 'files', component: FileBrowserComponent },
-      { path: 'storage', component: GoogleDriveManagementComponent },
+      { path: 'drive', component: GoogleDriveManagementComponent },
+      { path: 'storage', component: StorageManagementComponent },
       { path: 'backup', component: BackupManagementComponent },
       { path: 'monitoring', component: SystemMonitoringComponent },
       { path: 'security', component: SecuritySettingsComponent },
