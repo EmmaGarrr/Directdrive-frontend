@@ -14,6 +14,28 @@ export interface FileInfo {
   is_directory: boolean;
 }
 
+export interface AdminFileInfo {
+  file_id: string;
+  filename: string;
+  size_bytes: number;
+  content_type: string;
+  file_type?: string;
+  owner?: string;
+  upload_date: string;
+  status: string;
+  storage: string;
+  error?: string;
+  url?: string;
+}
+
+export interface AdminFileListResponse {
+  files: AdminFileInfo[];
+  total: number;
+  page: number;
+  limit: number;
+  total_pages: number;
+}
+
 export interface StorageStats {
   total_files: number;
   total_size_bytes: number;
@@ -46,8 +68,10 @@ export class StorageManagementService {
     storageType: 'google-drive' | 'hetzner' | 'all',
     page: number = 1,
     pageSize: number = 20,
-    searchTerm: string = ''
-  ): Observable<{ files: FileInfo[]; total: number; page: number; limit: number; total_pages: number }> {
+    searchTerm: string = '',
+    status?: string,
+    ownerType?: string
+  ): Observable<AdminFileListResponse> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('limit', pageSize.toString());
@@ -56,12 +80,25 @@ export class StorageManagementService {
       params = params.set('search', searchTerm);
     }
 
-    // Use the correct endpoint based on storage type
-    const endpoint = storageType === 'all' ? 
-      `${this.apiUrl}/files/google_drive` : // Default to google_drive for now
-      `${this.apiUrl}/files/${storageType === 'google-drive' ? 'google_drive' : 'hetzner'}`;
+    if (status) {
+      params = params.set('status', status);
+    }
 
-    return this.http.get<{ files: FileInfo[]; total: number; page: number; limit: number; total_pages: number }>(
+    if (ownerType) {
+      params = params.set('owner_type', ownerType);
+    }
+
+    // Use the correct endpoint based on storage type
+    let endpoint = '';
+    if (storageType === 'google-drive') {
+      endpoint = `${environment.apiUrl}/api/v1/admin/storage/files/google_drive`;
+    } else if (storageType === 'hetzner') {
+      endpoint = `${environment.apiUrl}/api/v1/admin/storage/files/hetzner`;
+    } else {
+      endpoint = `${environment.apiUrl}/api/v1/admin/storage/files`;
+    }
+
+    return this.http.get<AdminFileListResponse>(
       endpoint,
       { 
         params,
@@ -95,10 +132,12 @@ export class StorageManagementService {
   /**
    * Delete a file from storage
    */
-  deleteFile(fileId: string, storageType: 'google-drive' | 'hetzner'): Observable<{ success: boolean; message: string }> {
+  deleteFile(fileId: string, storageType: 'google-drive' | 'hetzner' | 'both'): Observable<any> {
+    // For 'both' storage type, default to 'hetzner' since files should be deleted from both places
+    // and the backend will handle the cascading deletion
     const storageTypeParam = storageType === 'google-drive' ? 'google_drive' : 'hetzner';
-    return this.http.delete<{ success: boolean; message: string }>(
-      `${this.apiUrl}/files/${storageTypeParam}/${fileId}`,
+    return this.http.delete<any>(
+      `${environment.apiUrl}/api/v1/storage/files/${storageTypeParam}/${fileId}`,
       { headers: this.getAuthHeaders() }
     );
   }
@@ -106,9 +145,9 @@ export class StorageManagementService {
   /**
    * Sync file status with storage providers
    */
-  syncFileStatus(fileId: string): Observable<{ success: boolean; message: string }> {
-    return this.http.post<{ success: boolean; message: string }>(
-      `${this.apiUrl}/storage/sync/${fileId}`,
+  syncFileStatus(fileId: string): Observable<any> {
+    return this.http.post<any>(
+      `${environment.apiUrl}/api/v1/storage/sync/${fileId}`,
       {},
       { headers: this.getAuthHeaders() }
     );

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
-import { StorageManagementService } from '../../services/storage-management.service';
-import { Subscription } from 'rxjs';
+import { StorageManagementService, AdminFileInfo } from '../../services/storage-management.service';
+import { Subscription, forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
@@ -10,20 +10,15 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { SelectionModel } from '@angular/cdk/collections';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 
-interface StorageFile {
-  file_id: string;
-  filename: string;
+interface StorageFile extends AdminFileInfo {
   path: string;
-  size_bytes: number;
   size_formatted: string;
-  last_modified: string;
-  content_type: string;
   is_directory: boolean;
-  status?: string;
-  error?: string;
-  url?: string;
+  backup_status?: string;
+  storage: 'google-drive' | 'hetzner' | 'both';
 }
 
 interface StorageFileListResponse {
@@ -81,8 +76,8 @@ export class StorageManagementComponent implements OnInit, AfterViewInit, OnDest
   
   // File list
   dataSource = new MatTableDataSource<StorageFile>([]);
-  displayedColumns: string[] = ['select', 'filename', 'size', 'last_modified', 'status', 'actions'];
-  selection = new Set<string>();
+  displayedColumns: string[] = ['select', 'filename', 'size', 'type', 'owner', 'upload_date', 'status', 'storage', 'actions'];
+  selection = new SelectionModel<StorageFile>(true, []);
   
   // Pagination
   currentPage = 1;
@@ -97,8 +92,17 @@ export class StorageManagementComponent implements OnInit, AfterViewInit, OnDest
   // UI state
   isLoading = false;
   error = '';
-  viewMode: 'list' | 'grid' = 'list';
+  viewMode: string = 'list'; // Can be 'list' or 'grid'
   activeTabIndex = 0;
+  
+  // View mode helper methods
+  isGridView(): boolean {
+    return this.viewMode === 'grid';
+  }
+  
+  isListView(): boolean {
+    return this.viewMode === 'list';
+  }
   
   // Statistics
   stats: StorageStats | null = null;
@@ -163,45 +167,66 @@ export class StorageManagementComponent implements OnInit, AfterViewInit, OnDest
   // Load files based on current filters
   loadFiles(): void {
     this.isLoading = true;
+    this.error = '';
+    this.selection.clear();
     
-    const storageType = this.activeTabIndex === 0 ? 'all' : 
-                       this.activeTabIndex === 1 ? 'google-drive' : 'hetzner';
+    // Convert activeStorage to the format expected by the service
+    const storageType = this.activeStorage === 'google_drive' ? 'google-drive' : 'hetzner';
     
     this.subscriptions.add(
       this.storageService.getFiles(
         storageType,
-        this.paginator?.pageIndex + 1 || 1,
-        this.paginator?.pageSize || 20,
-        this.searchTerm
+        this.currentPage,
+        this.pageSize,
+        this.searchTerm,
+        undefined, // status filter
+        undefined  // owner type filter
       )
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (response: any) => {
-          // Backend returns: { files: StorageFileInfo[], total, page, limit, total_pages }
-          const storageFiles: StorageFile[] = response.files.map((file: any) => ({
-            file_id: file.file_id,
-            filename: file.filename,
-            path: file.path,
-            size_bytes: file.size_bytes,
-            size_formatted: this.formatFileSize(file.size_bytes),
-            last_modified: file.last_modified, // Backend returns as string
-            content_type: file.content_type,
-            is_directory: file.is_directory,
-            status: 'uploaded', // Default status since backend doesn't provide it
-            error: undefined,
-            url: undefined
+          if (!response || !response.files || !Array.isArray(response.files)) {
+            this.error = 'Invalid response format from server';
+            this.dataSource.data = [];
+            return;
+          }
+          
+          // Transform the response to match our StorageFile interface
+          const files: StorageFile[] = response.files.map((file: any) => ({
+            ...file,
+            size_formatted: this.formatFileSize(file.size_bytes || 0),
+            path: '/',  // Default path
+            is_directory: false,  // These are files, not directories
+            last_modified: file.upload_date || new Date().toISOString(),  // Use upload_date as last_modified
+            // Handle missing fields with defaults
+            file_id: file.file_id || 'unknown',
+            filename: file.filename || 'Unnamed File',
+            content_type: file.content_type || 'application/octet-stream',
+            status: file.status || 'unknown',
+            storage: file.storage || 'unknown',
+            owner: file.owner || null
           }));
           
-          this.dataSource.data = storageFiles;
-          this.totalFiles = response.total;
-          this.totalPages = response.total_pages;
+          this.dataSource.data = files;
+          this.totalFiles = response.total || 0;
+          this.totalPages = response.total_pages || 1;
+          
+          // Update paginator
           if (this.paginator) {
-            this.paginator.length = response.total;
+            this.paginator.length = this.totalFiles;
+            this.paginator.pageIndex = this.currentPage - 1;
+            this.paginator.pageSize = this.pageSize;
+          }
+          
+          // If no files found, show appropriate message
+          if (files.length === 0) {
+            this.showInfo('No files found matching your criteria');
           }
         },
         error: (error: any) => {
           console.error('Error loading files:', error);
-          this.snackBar.open('Failed to load files', 'Close', { duration: 5000 });
+          this.error = error.message || 'Failed to load files';
+          this.dataSource.data = [];
         }
       })
     );
@@ -216,12 +241,8 @@ export class StorageManagementComponent implements OnInit, AfterViewInit, OnDest
   }
 
   // Handle file selection
-  toggleFileSelection(fileId: string): void {
-    if (this.selection.has(fileId)) {
-      this.selection.delete(fileId);
-    } else {
-      this.selection.add(fileId);
-    }
+  toggleFileSelection(file: StorageFile): void {
+    this.selection.toggle(file);
   }
 
   // Handle directory navigation
@@ -233,31 +254,49 @@ export class StorageManagementComponent implements OnInit, AfterViewInit, OnDest
 
   // Handle file deletion
   deleteFile(fileId: string, storageType: 'google-drive' | 'hetzner'): void {
+    // Check if deletion is allowed based on storage type and file status
+    const file = this.dataSource.data.find(f => f.file_id === fileId);
+    
+    if (!file) {
+      this.showError('File not found');
+      return;
+    }
+    
+    // For Google Drive files, only allow deletion if they are already in Hetzner
+    if (storageType === 'google-drive' && file.storage !== 'hetzner') {
+      this.showError('Cannot delete from Google Drive until backup to Hetzner is complete');
+      return;
+    }
+    
+    // Show confirmation dialog
     const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
         title: 'Confirm Delete',
-        message: `Are you sure you want to delete this file from ${storageType === 'google-drive' ? 'Google Drive' : 'Hetzner'}?`,
+        message: 'Are you sure you want to delete this file? This action cannot be undone.',
         confirmText: 'Delete',
         cancelText: 'Cancel',
-        confirmColor: 'warn'
+        type: 'danger'
       }
     });
-
+    
     confirmDialog.afterClosed().subscribe(result => {
       if (result) {
+        this.isLoading = true;
         this.subscriptions.add(
-          this.storageService.deleteFile(fileId, storageType).subscribe({
-            next: (response) => {
-              this.snackBar.open(response.message, 'Close', { duration: 3000 });
-              this.loadFiles();
-              this.loadStats();
-            },
-            error: (error: any) => {
-              console.error('Error deleting file:', error);
-              this.snackBar.open('Failed to delete file', 'Close', { duration: 5000 });
-            }
-          })
+          this.storageService.deleteFile(fileId, storageType)
+            .pipe(finalize(() => this.isLoading = false))
+            .subscribe({
+              next: (response) => {
+                this.showSuccess('File deleted successfully');
+                this.loadFiles(); // Refresh the file list
+                this.loadStats(); // Refresh stats
+              },
+              error: (error: any) => {
+                console.error('Error deleting file:', error);
+                this.showError(error.message || 'Failed to delete file');
+              }
+            })
         );
       }
     });
@@ -304,6 +343,60 @@ export class StorageManagementComponent implements OnInit, AfterViewInit, OnDest
   toggleViewMode(mode: ViewMode): void {
     this.viewMode = mode;
   }
+  
+  // Delete selected files
+  deleteSelectedFiles(): void {
+    const selectedFiles = this.selection.selected as StorageFile[];
+    if (selectedFiles.length === 0) {
+      this.showInfo('No files selected');
+      return;
+    }
+    
+    // Check if any Google Drive files are selected that don't have Hetzner backup
+    const invalidFiles = selectedFiles.filter((file: StorageFile) => 
+      file.storage === 'google-drive' && !file.backup_status?.includes('completed')
+    );
+    
+    if (invalidFiles.length > 0) {
+      this.showError('Cannot delete Google Drive files until their Hetzner backup is complete');
+      return;
+    }
+    
+    // Show confirmation dialog
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Confirm Bulk Deletion',
+        message: `Are you sure you want to delete ${selectedFiles.length} file(s)? This action cannot be undone.`,
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        type: 'danger'
+      }
+    });
+    
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.isLoading = true;
+        const deleteObservables = selectedFiles.map((file: StorageFile) => 
+          this.storageService.deleteFile(file.file_id, file.storage)
+        );
+        
+        forkJoin(deleteObservables)
+          .pipe(finalize(() => this.isLoading = false))
+          .subscribe({
+            next: () => {
+              this.showSuccess(`Successfully deleted ${selectedFiles.length} files`);
+              this.loadFiles();
+              this.selection.clear();
+            },
+            error: (error: any) => {
+              console.error('Error deleting files:', error);
+              this.showError('Failed to delete one or more files');
+            }
+          });
+      }
+    });
+  }
 
   // Helper to get file icon based on content type
   getFileIcon(contentType: string): string {
@@ -346,6 +439,14 @@ export class StorageManagementComponent implements OnInit, AfterViewInit, OnDest
       panelClass: ['error-snackbar']
     });
   }
+  
+  // Show info message
+  private showInfo(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      panelClass: ['info-snackbar']
+    });
+  }
 
   // Helper method for template to get status entries
   getStatusEntries(): Array<{status: string, count: number}> {
@@ -372,21 +473,29 @@ export class StorageManagementComponent implements OnInit, AfterViewInit, OnDest
     return items;
   }
 
-  // Toggle select all files
-  toggleSelectAll(): void {
-    if (this.selection.size === this.dataSource.data.length) {
+  // Check if all files are selected
+  isAllSelected(): boolean {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.dataSource.data.length;
+    return numSelected === numRows && numRows > 0;
+  }
+  
+  // Toggle all file selections
+  toggleAllFiles(): void {
+    if (this.isAllSelected()) {
       this.selection.clear();
     } else {
       this.dataSource.data.forEach(file => {
-        this.selection.add(file.file_id);
+        this.selection.select(file);
       });
     }
   }
 
   // Delete selected files
   deleteSelected(): void {
-    if (this.selection.size === 0) {
-      this.snackBar.open('No files selected', 'Close', { duration: 3000 });
+    const selectedFiles = this.selection.selected;
+    if (selectedFiles.length === 0) {
+      this.showInfo('No files selected');
       return;
     }
 
@@ -394,7 +503,7 @@ export class StorageManagementComponent implements OnInit, AfterViewInit, OnDest
       width: '400px',
       data: {
         title: 'Confirm Delete',
-        message: `Are you sure you want to delete ${this.selection.size} selected file(s)?`,
+        message: `Are you sure you want to delete ${selectedFiles.length} selected file(s)?`,
         confirmText: 'Delete',
         cancelText: 'Cancel',
         type: 'danger'
@@ -404,10 +513,24 @@ export class StorageManagementComponent implements OnInit, AfterViewInit, OnDest
     confirmDialog.afterClosed().subscribe(result => {
       if (result) {
         // Delete each selected file
-        this.selection.forEach(fileId => {
-          this.deleteFile(fileId, this.activeStorage === 'google_drive' ? 'google-drive' : 'hetzner');
-        });
-        this.selection.clear();
+        this.isLoading = true;
+        const deleteObservables = selectedFiles.map((file: StorageFile) => 
+          this.storageService.deleteFile(file.file_id, file.storage)
+        );
+        
+        forkJoin(deleteObservables)
+          .pipe(finalize(() => this.isLoading = false))
+          .subscribe({
+            next: () => {
+              this.showSuccess(`Successfully deleted ${selectedFiles.length} files`);
+              this.loadFiles();
+              this.selection.clear();
+            },
+            error: (error: any) => {
+              console.error('Error deleting files:', error);
+              this.showError('Failed to delete one or more files');
+            }
+          });
       }
     });
   }

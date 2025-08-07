@@ -92,122 +92,126 @@
       </button>
     </div>
     
-    <div class="actions" *ngIf="selection.size > 0">
+    <div class="actions" *ngIf="selection.selected.length > 0">
       <button class="btn btn-danger" (click)="deleteSelected()">
-        <i class="fas fa-trash"></i> Delete ({{ selection.size }})
+        <i class="fas fa-trash"></i> Delete ({{ selection.selected.length }})
       </button>
     </div>
   </div>
   
   <!-- Loading indicator -->
-  <div class="loading" *ngIf="isLoading">
-    <i class="fas fa-spinner fa-spin"></i> Loading...
+  <div class="loading-overlay" *ngIf="isLoading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <span>Loading...</span>
   </div>
   
   <!-- Error message -->
   <div class="error-message" *ngIf="error && !isLoading">
-    <i class="fas fa-exclamation-triangle"></i>
+    <mat-icon color="warn">error</mat-icon>
     <span>{{ error }}</span>
-    <button class="btn btn-sm btn-primary" (click)="loadFiles()">Retry</button>
+    <button mat-raised-button color="primary" (click)="loadFiles()">Retry</button>
   </div>
   
   <!-- List view -->
   <div class="file-list" *ngIf="!isLoading && !error && viewMode === 'list'">
-    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z1">
-      <!-- Checkbox column -->
-      <ng-container matColumnDef="select">
-        <th mat-header-cell *matHeaderCellDef>
-          <mat-checkbox 
-            (change)="$event ? toggleSelectAll() : null"
-            [checked]="selection.size > 0 && selection.size === dataSource.data.length"
-            [indeterminate]="selection.size > 0 && selection.size !== dataSource.data.length"
-          ></mat-checkbox>
-        </th>
-        <td mat-cell *matCellDef="let element">
-          <mat-checkbox
-            (click)="$event.stopPropagation()"
-            (change)="$event ? toggleFileSelection(element.file_id) : null"
-            [checked]="selection.has(element.file_id)"
-          ></mat-checkbox>
-        </td>
-      </ng-container>
-      
-      <!-- Filename column -->
-      <ng-container matColumnDef="filename">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
-        <td mat-cell *matCellDef="let element">
-          <div class="file-cell" (click)="element.is_directory ? navigateToPath(element.path) : null">
-            <i [class]="getFileIcon(element.content_type)" [class.fa-folder]="element.is_directory"></i>
-            <span class="filename">{{ element.filename }}</span>
-            <span class="file-path" *ngIf="element.path !== '/' && element.path !== path">{{ element.path }}</span>
-          </div>
-        </td>
-      </ng-container>
-      
-      <!-- Size column -->
-      <ng-container matColumnDef="size">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Size</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.is_directory ? '--' : formatFileSize(element.size_bytes) }}
-        </td>
-      </ng-container>
-      
-      <!-- Last modified column -->
-      <ng-container matColumnDef="last_modified">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Modified</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.last_modified | date:'medium' }}
-        </td>
-      </ng-container>
-      
-      <!-- Status column -->
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef>Status</th>
-        <td mat-cell *matCellDef="let element">
-          <span class="status-badge" [ngClass]="element.status?.toLowerCase()">
-            {{ element.status || 'Unknown' }}
-          </span>
-          <span class="error-message" *ngIf="element.error" [matTooltip]="element.error">
-            <i class="fas fa-exclamation-circle"></i>
-          </span>
-        </td>
-      </ng-container>
-      
-      <!-- Actions column -->
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Actions</th>
-        <td mat-cell *matCellDef="let element">
-          <div class="action-buttons">
-            <button 
-              mat-icon-button 
-              matTooltip="Sync status"
-              (click)="syncFile(element.file_id)"
-              [disabled]="isLoading"
-            >
+    <div class="mat-elevation-z8 table-container">
+      <table mat-table [dataSource]="dataSource" matSort>
+        <!-- Select Column -->
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox (change)="toggleAllFiles()" [checked]="isAllSelected()"></mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let file">
+            <mat-checkbox (click)="$event.stopPropagation()" (change)="toggleFileSelection(file)" [checked]="selection.isSelected(file)"></mat-checkbox>
+          </td>
+        </ng-container>
+
+        <!-- Filename Column -->
+        <ng-container matColumnDef="filename">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Filename</th>
+          <td mat-cell *matCellDef="let file">
+            <div class="file-name-cell">
+              <i class="{{getFileIcon(file.content_type)}} file-icon"></i>
+              <span>{{file.filename}}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Size Column -->
+        <ng-container matColumnDef="size">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Size</th>
+          <td mat-cell *matCellDef="let file">{{file.size_formatted}}</td>
+        </ng-container>
+        
+        <!-- Type Column -->
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+          <td mat-cell *matCellDef="let file">{{file.file_type || file.content_type}}</td>
+        </ng-container>
+        
+        <!-- Owner Column -->
+        <ng-container matColumnDef="owner">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Owner</th>
+          <td mat-cell *matCellDef="let file">
+            <span *ngIf="file.owner">{{file.owner}}</span>
+            <span *ngIf="!file.owner" class="anonymous-badge">Anonymous</span>
+          </td>
+        </ng-container>
+
+        <!-- Upload Date Column -->
+        <ng-container matColumnDef="upload_date">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Upload Date</th>
+          <td mat-cell *matCellDef="let file">{{file.upload_date | date:'medium'}}</td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let file">
+            <span class="status-badge" [ngClass]="{
+              'status-success': file.status === 'completed' || file.status === 'uploaded',
+              'status-warning': file.status === 'processing' || file.status === 'pending',
+              'status-error': file.status === 'failed' || file.status === 'error'
+            }" [matTooltip]="file.error || ''">
+              {{file.status || 'Unknown'}}
+            </span>
+          </td>
+        </ng-container>
+        
+        <!-- Storage Column -->
+        <ng-container matColumnDef="storage">
+          <th mat-header-cell *matHeaderCellDef>Storage</th>
+          <td mat-cell *matCellDef="let file">
+            <span class="storage-badge" [ngClass]="{
+              'storage-gdrive': file.storage === 'google_drive',
+              'storage-hetzner': file.storage === 'hetzner',
+              'storage-both': file.storage === 'both'
+            }">
+              {{file.storage === 'google_drive' ? 'Google Drive' : 
+                file.storage === 'hetzner' ? 'Hetzner' : 
+                file.storage === 'both' ? 'Both' : 'Unknown'}}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let file">
+            <button mat-icon-button color="primary" (click)="syncFile(file.file_id)" matTooltip="Sync Status">
               <i class="fas fa-sync-alt"></i>
             </button>
-            <button 
-              mat-icon-button 
-              color="warn"
-              matTooltip="Delete file"
-              (click)="deleteFile(element.file_id, activeStorage === 'google_drive' ? 'google-drive' : 'hetzner')"
-              [disabled]="isLoading"
-            >
+            <button mat-icon-button color="warn" 
+                    (click)="deleteFile(file.file_id, activeStorage === 'google_drive' ? 'google-drive' : 'hetzner')" 
+                    matTooltip="Delete"
+                    [disabled]="activeStorage === 'google_drive' && file.storage !== 'hetzner'">
               <i class="fas fa-trash"></i>
             </button>
-            <a 
-              *ngIf="!element.is_directory && element.url" 
-              mat-icon-button 
-              matTooltip="Download"
-              [href]="element.url"
-              target="_blank"
-              download
-            >
+            <a mat-icon-button color="accent" [href]="file.url" target="_blank" matTooltip="Download" *ngIf="file.url">
               <i class="fas fa-download"></i>
             </a>
-          </div>
-        </td>
-      </ng-container>
+          </td>
+        </ng-container>
       
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr 
@@ -228,7 +232,7 @@
   </div>
   
   <!-- Grid view -->
-  <div class="file-grid" *ngIf="!isLoading && !error && viewMode === 'grid'">
+  <div class="file-grid" *ngIf="!isLoading && !error && isGridView()">
     <div 
       *ngFor="let file of dataSource.data"
       class="file-card"
@@ -242,7 +246,7 @@
         <div class="filename" [matTooltip]="file.filename">{{ file.filename }}</div>
         <div class="file-meta">
           <span *ngIf="!file.is_directory">{{ formatFileSize(file.size_bytes) }}</span>
-          <span>{{ file.last_modified | date:'short' }}</span>
+          <span>{{ file.upload_date | date:'short' }}</span>
         </div>
         <div class="file-status">
           <span class="status-badge" [ngClass]="file.status?.toLowerCase()">
