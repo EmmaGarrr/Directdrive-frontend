@@ -342,63 +342,151 @@
 
 /* Actions Cell */
 .actions-cell {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: flex-start;
+  padding: 0.5rem;
+  text-align: center;
 }
 
-.btn-action {
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+.action-group {
   display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.25rem;
+  justify-content: center;
+}
+
+.action-group:last-child {
+  margin-bottom: 0;
+}
+
+/* Bootstrap button styles */
+.btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
-  color: white;
-  font-size: 0.9rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  cursor: pointer;
+  text-decoration: none;
+  min-width: 32px;
+  height: 32px;
 }
 
-.btn-action:hover {
-  transform: scale(1.1);
-}
-
-.btn-action[title*="Download"] {
-  background: #28a745;
-}
-
-.btn-action[title*="Download"]:hover {
-  background: #218838;
-}
-
-.btn-action[title*="Preview"] {
-  background: #17a2b8;
-}
-
-.btn-action[title*="Preview"]:hover {
-  background: #138496;
-}
-
-.btn-delete {
-  background: #dc3545;
-}
-
-.btn-delete:hover {
-  background: #c82333;
-}
-
-.btn-delete-disabled {
-  background: #6c757d;
+.btn:disabled {
+  opacity: 0.65;
   cursor: not-allowed;
-  opacity: 0.6;
 }
 
-.btn-delete-disabled:hover {
-  background: #6c757d;
-  transform: none;
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 0.25rem;
+  min-width: 28px;
+  height: 28px;
 }
+
+.btn-primary {
+  color: #fff;
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-primary:hover:not(:disabled) {
+  color: #fff;
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+}
+
+.btn-secondary {
+  color: #fff;
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  color: #fff;
+  background-color: #5c636a;
+  border-color: #565e64;
+}
+
+.btn-info {
+  color: #000;
+  background-color: #0dcaf0;
+  border-color: #0dcaf0;
+}
+
+.btn-info:hover:not(:disabled) {
+  color: #000;
+  background-color: #31d2f2;
+  border-color: #25cff2;
+}
+
+.btn-warning {
+  color: #000;
+  background-color: #ffc107;
+  border-color: #ffc107;
+}
+
+.btn-warning:hover:not(:disabled) {
+  color: #000;
+  background-color: #ffca2c;
+  border-color: #ffc720;
+}
+
+.btn-success {
+  color: #fff;
+  background-color: #198754;
+  border-color: #198754;
+}
+
+.btn-success:hover:not(:disabled) {
+  color: #fff;
+  background-color: #157347;
+  border-color: #146c43;
+}
+
+.btn-danger {
+  color: #fff;
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-danger:hover:not(:disabled) {
+  color: #fff;
+  background-color: #bb2d3b;
+  border-color: #b02a37;
+}
+
+/* Disabled specific action styles */
+.btn-action[title*="Check Integrity"]:disabled {
+  background: #6c757d;
+  color: #adb5bd;
+}
+
+.btn-action[title*="Move File"]:disabled {
+  background: #6c757d;
+  color: #adb5bd;
+}
+
+.btn-action[title*="Force Backup"]:disabled {
+  background: #6c757d;
+  color: #adb5bd;
+}
+
+.btn-action[title*="Quarantine"]:disabled {
+  background: #6c757d;
+  color: #adb5bd;
+}
+
+.btn-action[title*="Recover from Backup"]:disabled {
+  background: #6c757d;
+  color: #adb5bd;
+}
+
+
 
 /* Empty State */
 .empty-state {

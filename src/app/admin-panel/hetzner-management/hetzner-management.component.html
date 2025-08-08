@@ -191,23 +191,69 @@
             </span>
           </td>
           <td class="actions-cell">
-            <button (click)="downloadFile(file)" class="btn-action" title="Download">
-              <i class="fas fa-download"></i>
-            </button>
+            <div class="action-group">
+              <button 
+                class="btn btn-sm btn-primary" 
+                (click)="downloadFile(file)"
+                title="Download">
+                <i class="fas fa-download"></i>
+              </button>
+              <button 
+                class="btn btn-sm btn-info" 
+                (click)="previewFile(file)"
+                *ngIf="file.preview_available"
+                title="Preview">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
             
-            <button (click)="previewFile(file)" 
-                    class="btn-action" 
-                    title="Preview"
-                    *ngIf="file.preview_available">
-              <i class="fas fa-eye"></i>
-            </button>
+            <div class="action-group">
+              <button 
+                class="btn btn-sm btn-secondary" 
+                (click)="checkFileIntegrity(file)"
+                [disabled]="!canPerformAction(file)"
+                [title]="getActionTooltip(file, 'integrity')">
+                <i class="fas fa-shield-alt"></i>
+              </button>
+              <button 
+                class="btn btn-sm btn-warning" 
+                (click)="moveFile(file)"
+                [disabled]="!canPerformAction(file)"
+                [title]="getActionTooltip(file, 'move')">
+                <i class="fas fa-arrows-alt"></i>
+              </button>
+              <button 
+                class="btn btn-sm btn-success" 
+                (click)="forceBackup(file)"
+                [disabled]="!canPerformAction(file)"
+                [title]="getActionTooltip(file, 'backup')">
+                <i class="fas fa-cloud-upload-alt"></i>
+              </button>
+            </div>
             
-            <button (click)="confirmDeleteFile(file)" 
-                    [class]="getDeleteButtonClass(file)"
-                    [title]="canDeleteFile(file) ? 'Delete from Hetzner' : 'Cannot delete - file not in Hetzner'"
-                    [disabled]="!canDeleteFile(file)">
-              <i class="fas fa-trash"></i>
-            </button>
+            <div class="action-group">
+              <button 
+                class="btn btn-sm btn-warning" 
+                (click)="quarantineFile(file)"
+                [disabled]="!canPerformAction(file)"
+                [title]="getActionTooltip(file, 'quarantine')">
+                <i class="fas fa-ban"></i>
+              </button>
+              <button 
+                class="btn btn-sm btn-info" 
+                (click)="recoverFile(file)"
+                [disabled]="!canPerformAction(file)"
+                [title]="getActionTooltip(file, 'recover')">
+                <i class="fas fa-undo"></i>
+              </button>
+              <button 
+                class="btn btn-sm btn-danger" 
+                (click)="confirmDeleteFile(file)"
+                [disabled]="!canDeleteFile(file)"
+                [title]="canDeleteFile(file) ? 'Delete from Hetzner' : 'Cannot delete - file not in Hetzner'">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
           </td>
         </tr>
       </tbody>

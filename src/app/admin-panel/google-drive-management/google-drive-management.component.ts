@@ -285,7 +285,188 @@ export class GoogleDriveManagementComponent implements OnInit {
     return file.backup_status === 'completed';
   }
 
-  getDeleteButtonClass(file: GoogleDriveFile): string {
-    return this.canDeleteFile(file) ? 'btn-delete' : 'btn-delete-disabled';
+
+
+  // === COMPREHENSIVE FILE OPERATIONS ===
+
+  checkFileIntegrity(file: GoogleDriveFile): void {
+    const operationData = {
+      operation: 'integrity_check',
+      reason: 'Manual integrity check from Google Drive admin panel'
+    };
+    
+    this.http.post(`${environment.apiUrl}/api/v1/admin/files/${file._id}/operation`, operationData, {
+      headers: this.getHeaders()
+    })
+      .subscribe({
+        next: (response: any) => {
+          const result = response.integrity_check;
+          const status = result.status;
+          
+          if (status === 'verified') {
+            alert(`File integrity check passed!\n\nStatus: ${status}\nChecksum match: ${result.checksum_match}\nLast check: ${new Date(result.last_check).toLocaleString()}`);
+          } else if (status === 'corrupted') {
+            alert(`WARNING: File integrity check failed!\n\nStatus: ${status}\nCorruption detected: ${result.corruption_detected}\nCorruption type: ${result.corruption_type || 'Unknown'}\n\nPlease consider recovering from backup.`);
+          } else if (status === 'inaccessible') {
+            alert(`ERROR: File is inaccessible!\n\nStatus: ${status}\nError: ${result.error}\n\nFile may need to be recovered from backup.`);
+          }
+        },
+        error: (error) => {
+          alert('Failed to check file integrity');
+          console.error('Error checking file integrity:', error);
+        }
+      });
+  }
+
+  moveFile(file: GoogleDriveFile): void {
+    const targetLocation = prompt('Enter target Google Drive account ID:');
+    if (!targetLocation) {
+      alert('Target location is required');
+      return;
+    }
+
+    const reason = prompt('Reason for moving file (optional):');
+    
+    const operationData = {
+      operation: 'move',
+      target_location: targetLocation,
+      reason: reason || undefined
+    };
+    
+    this.http.post(`${environment.apiUrl}/api/v1/admin/files/${file._id}/operation`, operationData, {
+      headers: this.getHeaders()
+    })
+      .subscribe({
+        next: (response: any) => {
+          alert(`File moved successfully to ${response.target_location}`);
+          this.loadFiles(); // Refresh the file list
+        },
+        error: (error) => {
+          alert('Failed to move file');
+          console.error('Error moving file:', error);
+        }
+      });
+  }
+
+  forceBackup(file: GoogleDriveFile): void {
+    if (confirm(`Force backup for "${file.filename}" to Hetzner storage?`)) {
+      const reason = prompt('Reason for force backup (optional):');
+      
+      const operationData = {
+        operation: 'force_backup',
+        reason: reason || undefined
+      };
+      
+      this.http.post(`${environment.apiUrl}/api/v1/admin/files/${file._id}/operation`, operationData, {
+        headers: this.getHeaders()
+      })
+        .subscribe({
+          next: (response: any) => {
+            alert(`File backup completed!\nBackup path: ${response.backup_path}`);
+            this.loadFiles(); // Refresh the file list
+          },
+          error: (error) => {
+            alert('Failed to backup file');
+            console.error('Error forcing backup:', error);
+          }
+        });
+    }
+  }
+
+  quarantineFile(file: GoogleDriveFile): void {
+    if (confirm(`Quarantine "${file.filename}"? This will mark the file as suspicious and prevent access.`)) {
+      const reason = prompt('Reason for quarantine:');
+      if (!reason) {
+        alert('Reason is required for quarantine');
+        return;
+      }
+      
+      const actionData = {
+        file_ids: [file._id],
+        action: 'quarantine',
+        reason: reason
+      };
+      
+      this.http.post(`${environment.apiUrl}/api/v1/admin/files/bulk-action`, actionData, {
+        headers: this.getHeaders()
+      })
+        .subscribe({
+          next: (response: any) => {
+            alert(response.message);
+            this.loadFiles(); // Refresh the file list
+          },
+          error: (error) => {
+            alert('Failed to quarantine file');
+            console.error('Error quarantining file:', error);
+          }
+        });
+    }
+  }
+
+  recoverFile(file: GoogleDriveFile): void {
+    if (confirm(`Recover "${file.filename}" from backup? This will restore the file if it's corrupted or missing.`)) {
+      const reason = prompt('Reason for file recovery (optional):');
+      
+      const operationData = {
+        operation: 'recover',
+        reason: reason || undefined
+      };
+      
+      this.http.post(`${environment.apiUrl}/api/v1/admin/files/${file._id}/operation`, operationData, {
+        headers: this.getHeaders()
+      })
+        .subscribe({
+          next: (response: any) => {
+            alert('File recovered successfully from backup!');
+            this.loadFiles(); // Refresh the file list
+          },
+          error: (error) => {
+            if (error.error?.detail?.includes('no completed backup')) {
+              alert('Cannot recover file: No completed backup available');
+            } else {
+              alert('Failed to recover file');
+            }
+            console.error('Error recovering file:', error);
+          }
+        });
+    }
+  }
+
+  // === BULK ACTIONS ===
+
+  executeBulkAction(): void {
+    if (this.selectedFiles.length === 0) {
+      alert('Please select files first');
+      return;
+    }
+
+    const action = prompt('Enter action (delete/quarantine/backup):');
+    if (!action || !['delete', 'quarantine', 'backup'].includes(action)) {
+      alert('Invalid action. Use delete, quarantine, or backup');
+      return;
+    }
+
+    const reason = prompt('Reason (optional):');
+    
+    const actionData = {
+      file_ids: this.selectedFiles,
+      action: action,
+      reason: reason || undefined
+    };
+    
+    this.http.post(`${environment.apiUrl}/api/v1/admin/files/bulk-action`, actionData, {
+      headers: this.getHeaders()
+    })
+      .subscribe({
+        next: (response: any) => {
+          alert(response.message);
+          this.selectedFiles = [];
+          this.loadFiles(); // Refresh the file list
+        },
+        error: (error) => {
+          alert('Failed to execute bulk action');
+          console.error('Error executing bulk action:', error);
+        }
+      });
   }
 }
