@@ -1,19 +1,89 @@
-<nav class="bg-gray-800 text-white p-4 shadow-md">
-  <div class="container mx-auto flex justify-between items-center">
-    <a routerLink="/" class="text-xl font-bold">DirectDrive</a>
-    <div class="flex items-center space-x-4">
-      <!-- For authenticated users: Show Profile with user email -->
-      <div *ngIf="isLoggedIn" class="flex items-center space-x-3">
-        <span class="text-gray-300 text-sm">Welcome, {{ currentUser?.email }}</span>
-        <a routerLink="/profile" class="px-3 py-2 rounded hover:bg-gray-700 bg-blue-600">Profile</a>
-        <button (click)="logout()" class="px-3 py-2 rounded hover:bg-gray-700 text-gray-300">Logout</button>
+<!-- BOLT-Inspired Header with Geometric Elements -->
+<header class="border-b bg-white/10 backdrop-blur-md shadow-lg fixed top-0 left-0 right-0 z-50 premium-header">
+  <!-- Subtle Geometric Accent -->
+  <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-bolt-cyan via-bolt-blue to-bolt-purple opacity-60"></div>
+  <div class="container mx-auto px-4 py-4">
+    <div class="flex items-center justify-between">
+      <!-- Enhanced Logo Section -->
+      <div class="flex items-center space-x-3">
+                  <div class="w-8 h-8 bg-gradient-to-br from-astronaut-600 to-astronaut-700 rounded-lg flex items-center justify-center">
+          <!-- Enhanced Upload icon -->
+          <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z M12,12L16,16H13.5V19H10.5V16H8L12,12Z"/>
+          </svg>
+        </div>
+        <a routerLink="/" class="text-xl font-semibold text-white hover:text-white/80 transition-colors">
+          DirectDrive
+        </a>
+        <div class="hidden md:block ml-4">
+          <span class="text-xs bg-white/20 text-white px-2 py-1 rounded-full font-medium">
+            Secure File Storage
+          </span>
+        </div>
       </div>
-      
-      <!-- For anonymous users: Show Login/Register -->
-      <div *ngIf="!isLoggedIn" class="flex items-center space-x-2">
-        <a routerLink="/login" class="px-3 py-2 rounded hover:bg-gray-700">Login</a>
-        <a routerLink="/register" class="px-3 py-2 rounded hover:bg-gray-700 bg-blue-600">Register</a>
+
+      <!-- Professional Navigation -->
+      <nav class="hidden lg:flex items-center space-x-8 mr-8">
+        <a href="#how-it-works" class="text-white/90 hover:text-white transition-colors font-medium text-sm">How it Works</a>
+        <a href="#pricing" class="text-white/90 hover:text-white transition-colors font-medium text-sm">Pricing</a>
+        <a href="#security" class="text-white/90 hover:text-white transition-colors font-medium text-sm">Security</a>
+        <a href="#enterprise" class="text-white/90 hover:text-white transition-colors font-medium text-sm">Enterprise</a>
+      </nav>
+
+      <!-- Enhanced Navigation -->
+      <div class="flex items-center space-x-4">
+        <!-- For authenticated users: Enhanced Profile Section -->
+        <div *ngIf="isLoggedIn" class="flex items-center space-x-4">
+          <div class="hidden sm:flex items-center space-x-3 px-4 py-2 bg-slate-50 rounded-full">
+            <div class="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+              <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+            </div>
+            <span class="text-slate-700 text-sm font-medium">{{ currentUser?.email }}</span>
+          </div>
+          <a routerLink="/profile" class="btn-outline px-4 py-2 hover:bg-primary hover:text-white transition-all duration-200">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+            Profile
+          </a>
+          <button (click)="logout()" class="btn-ghost px-4 py-2 text-slate-600 hover:text-destructive transition-all duration-200">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+            Logout
+          </button>
+        </div>
+        
+        <!-- For anonymous users: Professional Login/Register -->
+        <div *ngIf="!isLoggedIn" class="flex items-center space-x-4">
+          <!-- Trust Badge -->
+          <div class="hidden lg:flex items-center space-x-2 text-white/80 text-xs bg-white/10 px-3 py-1.5 rounded-full">
+            <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+            <span class="font-medium">99.9% Uptime</span>
+          </div>
+          
+          <a routerLink="/login" class="text-white/90 hover:text-white font-medium transition-all duration-200 px-4 py-2">
+            Login
+          </a>
+          
+          <!-- Enhanced Start Free Button -->
+          <a routerLink="/register" class="bg-white text-primary px-6 py-2.5 rounded-lg font-bold hover:bg-slate-100 transition-all duration-200 shadow-sm">
+            Start Free
+          </a>
+        </div>
+
+        <!-- Mobile Menu Button (for future mobile navigation) -->
+        <button class="md:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors">
+          <svg class="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
       </div>
     </div>
   </div>
-</nav>
+  
+  <!-- Optional: Subtle gradient line under header -->
+  <div class="h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
+</header>

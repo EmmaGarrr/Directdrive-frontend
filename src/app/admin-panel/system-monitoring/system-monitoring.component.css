@@ -1,0 +1,261 @@
+/* System Monitoring Component Styles */
+
+.monitoring-card {
+  @apply bg-white rounded-lg shadow-md p-6 transition-shadow hover:shadow-lg;
+}
+
+.metric-card {
+  @apply rounded-lg p-4 transition-all hover:scale-105;
+}
+
+.metric-value {
+  @apply text-2xl font-bold;
+}
+
+.metric-label {
+  @apply text-sm font-medium;
+}
+
+.metric-sublabel {
+  @apply text-xs;
+}
+
+.status-good {
+  @apply text-green-600;
+}
+
+.status-warning {
+  @apply text-yellow-600;
+}
+
+.status-critical {
+  @apply text-red-600;
+}
+
+.alert-critical {
+  @apply bg-red-50 border-red-200 text-red-800;
+}
+
+.alert-warning {
+  @apply bg-yellow-50 border-yellow-200 text-yellow-800;
+}
+
+.alert-info {
+  @apply bg-blue-50 border-blue-200 text-blue-800;
+}
+
+.progress-bar {
+  @apply w-full bg-gray-200 rounded-full h-2;
+}
+
+.progress-fill {
+  @apply h-2 rounded-full transition-all duration-300;
+}
+
+.progress-fill-green {
+  @apply bg-green-500;
+}
+
+.progress-fill-yellow {
+  @apply bg-yellow-500;
+}
+
+.progress-fill-red {
+  @apply bg-red-500;
+}
+
+.system-grid {
+  @apply grid gap-6;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.loading-spinner {
+  @apply animate-spin;
+}
+
+.error-alert {
+  @apply bg-red-50 border border-red-200 rounded-md p-4 mb-4;
+}
+
+.metric-icon {
+  @apply text-lg;
+}
+
+/* Chart containers */
+.chart-container {
+  @apply bg-gray-50 rounded-lg p-4 h-64;
+}
+
+/* Performance indicators */
+.performance-good {
+  @apply bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.performance-warning {
+  @apply bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.performance-poor {
+  @apply bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium;
+}
+
+/* Alert animations */
+@keyframes pulse-alert {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.alert-pulse {
+  animation: pulse-alert 2s ease-in-out infinite;
+}
+
+/* Stats grid responsiveness */
+@media (max-width: 768px) {
+  .system-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .metric-card {
+    @apply p-3;
+  }
+  
+  .metric-value {
+    @apply text-xl;
+  }
+}
+
+@media (max-width: 640px) {
+  .monitoring-card {
+    @apply p-4;
+  }
+}
+
+/* Database performance styles */
+.db-stat-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4;
+}
+
+.query-performance {
+  @apply bg-gray-50 rounded-lg p-4;
+}
+
+.query-time-good {
+  @apply text-green-600 font-medium;
+}
+
+.query-time-slow {
+  @apply text-yellow-600 font-medium;
+}
+
+.query-time-very-slow {
+  @apply text-red-600 font-medium;
+}
+
+/* API metrics styles */
+.api-endpoint-list {
+  @apply space-y-2 max-h-64 overflow-y-auto;
+}
+
+.endpoint-item {
+  @apply flex justify-between items-center p-2 hover:bg-gray-100 rounded;
+}
+
+.endpoint-path {
+  @apply text-sm text-gray-600 truncate flex-1 mr-4;
+}
+
+.endpoint-count {
+  @apply text-sm font-medium text-gray-900 whitespace-nowrap;
+}
+
+/* System uptime display */
+.uptime-display {
+  @apply font-mono text-sm;
+}
+
+/* Network stats */
+.network-stats {
+  @apply grid grid-cols-2 gap-2 text-xs;
+}
+
+.network-stat {
+  @apply flex justify-between;
+}
+
+/* Auto-refresh indicator */
+.auto-refresh-indicator {
+  @apply inline-flex items-center text-sm text-gray-600;
+}
+
+.auto-refresh-active {
+  @apply text-green-600;
+}
+
+.auto-refresh-inactive {
+  @apply text-gray-400;
+}
+
+/* Collection stats table */
+.collection-stats-table {
+  @apply min-w-full divide-y divide-gray-200;
+}
+
+.collection-stats-table th {
+  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+}
+
+.collection-stats-table td {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 480px) {
+  .db-stat-grid {
+    @apply grid-cols-1;
+  }
+  
+  .api-endpoint-list {
+    @apply max-h-48;
+  }
+  
+  .endpoint-item {
+    @apply flex-col items-start;
+  }
+  
+  .endpoint-path {
+    @apply mb-1;
+  }
+}
+
+/* Hover effects for interactive elements */
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.alert-item:hover {
+  transform: translateX(2px);
+}
+
+/* Custom scrollbar for lists */
+.api-endpoint-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.api-endpoint-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.api-endpoint-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.api-endpoint-list::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}

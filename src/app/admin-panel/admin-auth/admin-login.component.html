@@ -1,0 +1,85 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8">
+    <div>
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        Admin Login
+      </h2>
+      <p class="mt-2 text-center text-sm text-gray-600">
+        Access the DirectDrive administration panel
+      </p>
+    </div>
+    
+    <form class="mt-8 space-y-6" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="rounded-md shadow-sm -space-y-px">
+        <div>
+          <label for="email" class="sr-only">Email address</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            formControlName="email"
+            required
+            class="appearance-none rounded-none relative block w-full px-3 py-2 border"
+            [class.border-red-300]="f['email'].invalid && f['email'].touched"
+            [class.border-gray-300]="!(f['email'].invalid && f['email'].touched)"
+            placeholder="Admin email address"
+          />
+          <div *ngIf="f['email'].invalid && f['email'].touched" class="mt-1 text-sm text-red-600">
+            <div *ngIf="f['email'].errors?.['required']">Email is required</div>
+            <div *ngIf="f['email'].errors?.['email']">Please enter a valid email</div>
+          </div>
+        </div>
+        
+        <div>
+          <label for="password" class="sr-only">Password</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            formControlName="password"
+            required
+            class="appearance-none rounded-none relative block w-full px-3 py-2 border"
+            [class.border-red-300]="f['password'].invalid && f['password'].touched"
+            [class.border-gray-300]="!(f['password'].invalid && f['password'].touched)"
+            placeholder="Admin password"
+          />
+          <div *ngIf="f['password'].invalid && f['password'].touched" class="mt-1 text-sm text-red-600">
+            <div *ngIf="f['password'].errors?.['required']">Password is required</div>
+            <div *ngIf="f['password'].errors?.['minlength']">Password must be at least 6 characters</div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        {{ error }}
+      </div>
+
+      <div>
+        <button
+          type="submit"
+          [disabled]="loading || loginForm.invalid"
+          class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white"
+          [class.bg-indigo-600]="!loading && loginForm.valid"
+          [class.hover:bg-indigo-700]="!loading && loginForm.valid"
+          [class.bg-gray-400]="loading || loginForm.invalid"
+          [class.cursor-not-allowed]="loading || loginForm.invalid"
+        >
+          <span *ngIf="loading" class="absolute left-0 inset-y-0 flex items-center pl-3">
+            <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+          </span>
+          {{ loading ? 'Signing in...' : 'Sign in as Admin' }}
+        </button>
+      </div>
+
+      <div class="text-center">
+        <button
+          type="button"
+          (click)="goToUserLogin()"
+          class="text-indigo-600 hover:text-indigo-500 text-sm font-medium"
+        >
+          Switch to User Login
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,199 @@
+<div class="file-preview-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p class="loading-text">Loading preview...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-icon class="error-icon">error</mat-icon>
+    <h3 class="error-title">Preview Error</h3>
+    <p class="error-message">{{ errorMessage }}</p>
+    <div class="error-actions">
+      <button mat-raised-button color="primary" (click)="retry()">
+        <mat-icon>refresh</mat-icon>
+        Retry
+      </button>
+      <button mat-stroked-button (click)="downloadFile()">
+        <mat-icon>download</mat-icon>
+        Download File
+      </button>
+    </div>
+  </div>
+
+  <!-- Preview Content -->
+  <div *ngIf="!loading && !error && previewMetadata" class="preview-content">
+    <!-- File Info Header -->
+    <div class="file-info-header">
+      <div class="file-info">
+        <h2 class="file-name">{{ previewMetadata.filename }}</h2>
+        <div class="file-details">
+          <span class="file-size">{{ getFormattedFileSize() }}</span>
+          <span class="file-type">{{ previewMetadata.content_type }}</span>
+          <span *ngIf="getFormattedDuration()" class="file-duration">
+            Duration: {{ getFormattedDuration() }}
+          </span>
+          <span *ngIf="getFormattedDimensions()" class="file-dimensions">
+            {{ getFormattedDimensions() }}
+          </span>
+        </div>
+      </div>
+      <div class="file-actions">
+        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="More options">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="downloadFile()">
+            <mat-icon>download</mat-icon>
+            <span>Download</span>
+          </button>
+          <button mat-menu-item (click)="retry()">
+            <mat-icon>refresh</mat-icon>
+            <span>Refresh</span>
+          </button>
+        </mat-menu>
+      </div>
+    </div>
+
+    <!-- Video Preview -->
+    <div *ngIf="previewType === 'video'" class="video-preview">
+      <div class="video-container">
+        <video 
+          #videoPlayer
+          [src]="mediaUrl" 
+          controls 
+          preload="none"
+          class="video-player"
+          (error)="onVideoError($event)"
+          (loadedmetadata)="onVideoLoaded()">
+          Your browser does not support the video tag.
+        </video>
+        
+        <!-- Custom Video Controls Overlay -->
+        <div class="custom-video-controls">
+          <button 
+            mat-mini-fab 
+            color="primary" 
+            class="skip-button skip-back"
+            (click)="skipBackward()"
+            title="Skip back 10 seconds">
+            <mat-icon>replay_10</mat-icon>
+          </button>
+          
+          <button 
+            mat-mini-fab 
+            color="primary" 
+            class="skip-button skip-forward"
+            (click)="skipForward()"
+            title="Skip forward 10 seconds">
+            <mat-icon>forward_10</mat-icon>
+          </button>
+        </div>
+      </div>
+      
+      <div class="video-info" *ngIf="mediaInfo">
+        <p *ngIf="mediaInfo && mediaInfo.format">Format: {{ mediaInfo.format }}</p>
+        <p *ngIf="mediaInfo && mediaInfo.bitrate">Bitrate: {{ mediaInfo.bitrate }} kbps</p>
+        <p *ngIf="mediaInfo && mediaInfo.fps">Frame Rate: {{ mediaInfo.fps }} fps</p>
+        <p *ngIf="mediaInfo && mediaInfo.has_audio !== undefined">
+          Audio: {{ mediaInfo.has_audio ? 'Yes' : 'No' }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Audio Preview -->
+    <div *ngIf="previewType === 'audio'" class="audio-preview">
+      <div class="audio-player-container">
+        <audio 
+          [src]="mediaUrl" 
+          controls 
+          preload="none"
+          class="audio-player"
+          (error)="onAudioError($event)">
+          Your browser does not support the audio tag.
+        </audio>
+      </div>
+      <div class="audio-info" *ngIf="mediaInfo">
+        <p *ngIf="mediaInfo && mediaInfo.format">Format: {{ mediaInfo.format }}</p>
+        <p *ngIf="mediaInfo && mediaInfo.bitrate">Bitrate: {{ mediaInfo.bitrate }} kbps</p>
+        <p *ngIf="mediaInfo && mediaInfo.sample_rate">Sample Rate: {{ mediaInfo.sample_rate }} Hz</p>
+        <p *ngIf="mediaInfo && mediaInfo.channels">Channels: {{ mediaInfo.channels }}</p>
+      </div>
+    </div>
+
+    <!-- Image Preview -->
+    <div *ngIf="previewType === 'image'" class="image-preview">
+      <div class="image-container">
+        <img 
+          [src]="imageUrl" 
+          [alt]="previewMetadata.filename || 'Image'"
+          class="preview-image"
+          (error)="onImageError()"
+          (load)="imageLoading = false">
+        <div *ngIf="imageLoading" class="image-loading">
+          <mat-spinner diameter="30"></mat-spinner>
+        </div>
+      </div>
+      <div class="image-info" *ngIf="mediaInfo">
+        <p *ngIf="mediaInfo && mediaInfo.format">Format: {{ mediaInfo.format }}</p>
+        <p *ngIf="mediaInfo && mediaInfo.width && mediaInfo.height">
+          Dimensions: {{ mediaInfo.width }} × {{ mediaInfo.height }}
+        </p>
+      </div>
+    </div>
+
+    <!-- PDF Preview -->
+    <div *ngIf="previewType === 'document'" class="pdf-preview">
+      <div class="pdf-container">
+        <iframe 
+          [src]="pdfUrl | safe" 
+          class="pdf-viewer"
+          (load)="pdfLoading = false"
+          (error)="onPdfError()">
+          Your browser does not support PDF preview.
+        </iframe>
+        <div *ngIf="pdfLoading" class="pdf-loading">
+          <mat-spinner diameter="30"></mat-spinner>
+          <p>Loading PDF...</p>
+        </div>
+      </div>
+      <div class="pdf-info">
+        <p>PDF Document</p>
+        <p *ngIf="mediaInfo && mediaInfo.format">Format: {{ mediaInfo.format }}</p>
+      </div>
+    </div>
+
+    <!-- Text Preview -->
+    <div *ngIf="previewType === 'text'" class="text-preview">
+      <div class="text-container">
+        <div *ngIf="textLoading" class="text-loading">
+          <mat-spinner diameter="30"></mat-spinner>
+          <p>Loading text content...</p>
+        </div>
+        <pre *ngIf="!textLoading && textContent" class="text-content">{{ textContent }}</pre>
+        <div *ngIf="!textLoading && !textContent" class="text-empty">
+          <mat-icon>description</mat-icon>
+          <p>No text content available</p>
+        </div>
+      </div>
+      <div class="text-info">
+        <p>Text File</p>
+        <p *ngIf="mediaInfo && mediaInfo.format">Format: {{ mediaInfo.format }}</p>
+      </div>
+    </div>
+
+    <!-- Unsupported Type -->
+    <div *ngIf="previewType === 'unknown'" class="unsupported-preview">
+      <div class="unsupported-container">
+        <mat-icon class="unsupported-icon">file_present</mat-icon>
+        <h3>Preview Not Available</h3>
+        <p>This file type does not support preview. Please download the file to view it.</p>
+        <button mat-raised-button color="primary" (click)="downloadFile()">
+          <mat-icon>download</mat-icon>
+          Download File
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -4,12 +4,27 @@ import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
+export interface FileTypeBreakdown {
+  documents: number;
+  images: number;
+  videos: number;
+  other: number;
+}
+
 export interface User {
+  id: string;
   email: string;
-  storage_used_bytes: number;
+  role?: string;
+  is_admin?: boolean;
   storage_limit_bytes: number;
+  storage_used_bytes: number;
   storage_used_gb: number;
   storage_limit_gb: number;
+  storage_percentage: number;
+  remaining_storage_bytes: number;
+  remaining_storage_gb: number;
+  file_type_breakdown: FileTypeBreakdown;
+  total_files: number;
 }
 
 export interface LoginCredentials {
@@ -24,6 +39,15 @@ export interface RegisterData {
 
 export interface PasswordChangeData {
   current_password: string;
+  new_password: string;
+}
+
+export interface ForgotPasswordData {
+  email: string;
+}
+
+export interface ResetPasswordData {
+  reset_token: string;
   new_password: string;
 }
 
@@ -51,16 +75,36 @@ export class AuthService {
   private initializeAuth(): void {
     const token = this.getToken();
     if (token) {
+      // Validate token format first
+      if (!this.isValidTokenFormat(token)) {
+        console.log('Invalid user token format detected - clearing session');
+        this.logout();
+        return;
+      }
+      
       this.loadUserProfile().subscribe({
         next: (user) => {
           this.currentUserSubject.next(user);
           this.isAuthenticatedSubject.next(true);
         },
-        error: () => {
+        error: (error) => {
           // Token might be expired or invalid
+          console.log('User profile load failed - clearing session:', error.message);
           this.logout();
         }
       });
+    }
+  }
+
+  /**
+   * Validate JWT token format
+   */
+  private isValidTokenFormat(token: string): boolean {
+    try {
+      const parts = token.split('.');
+      return parts.length === 3 && parts.every(part => part.length > 0);
+    } catch {
+      return false;
     }
   }
 
@@ -116,6 +160,20 @@ export class AuthService {
     }).pipe(
       catchError(this.handleError)
     );
+  }
+
+  forgotPassword(forgotData: ForgotPasswordData): Observable<any> {
+    return this.http.post(`${this.API_URL}/forgot-password`, forgotData)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  resetPassword(resetData: ResetPasswordData): Observable<any> {
+    return this.http.post(`${this.API_URL}/reset-password`, resetData)
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 
   loadUserProfile(): Observable<User> {

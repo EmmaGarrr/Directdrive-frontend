@@ -1,0 +1,569 @@
+<!-- User Management Component -->
+<div class="user-management">
+  <!-- Header -->
+  <div class="management-header">
+    <h2><i class="fas fa-users"></i> User Management</h2>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="exportUsers('csv')">
+        <i class="fas fa-download"></i> Export CSV
+      </button>
+      <button class="btn btn-secondary" (click)="exportUsers('json')">
+        <i class="fas fa-download"></i> Export JSON
+      </button>
+      <button 
+        class="btn btn-warning" 
+        (click)="openBulkActions()" 
+        [disabled]="selectedUsers.size === 0">
+        <i class="fas fa-tasks"></i> Bulk Actions ({{ selectedUsers.size }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        placeholder="Search users by email..." 
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+        class="search-input">
+      <button class="btn-search" (click)="onSearch()">Search</button>
+    </div>
+    
+    <div class="filters">
+      <select [(ngModel)]="selectedRole" (change)="onFilterChange()" class="filter-select">
+        <option value="">All Roles</option>
+        <option value="regular">Regular</option>
+        <option value="admin">Admin</option>
+        <option value="superadmin">Super Admin</option>
+      </select>
+      
+      <select [(ngModel)]="selectedStatus" (change)="onFilterChange()" class="filter-select">
+        <option value="">All Status</option>
+        <option value="active">Active</option>
+        <option value="suspended">Suspended</option>
+        <option value="banned">Banned</option>
+      </select>
+      
+      <select [(ngModel)]="pageSize" (change)="onFilterChange()" class="filter-select">
+        <option value="10">10 per page</option>
+        <option value="20">20 per page</option>
+        <option value="50">50 per page</option>
+        <option value="100">100 per page</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Error Display -->
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-triangle"></i>
+    {{ error }}
+    <button class="btn-close" (click)="error = ''">×</button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i>
+    Loading users...
+  </div>
+
+  <!-- Users Table -->
+  <div class="table-container" *ngIf="!loading">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>
+            <input 
+              type="checkbox" 
+              [checked]="selectAll" 
+              (change)="toggleSelectAll()"
+              class="checkbox">
+          </th>
+          <th (click)="onSort('email')" class="sortable">
+            Email 
+            <i class="fas fa-sort" *ngIf="sortBy !== 'email'"></i>
+            <i class="fas fa-sort-up" *ngIf="sortBy === 'email' && sortOrder === 'asc'"></i>
+            <i class="fas fa-sort-down" *ngIf="sortBy === 'email' && sortOrder === 'desc'"></i>
+          </th>
+          <th (click)="onSort('role')" class="sortable">
+            Role
+            <i class="fas fa-sort" *ngIf="sortBy !== 'role'"></i>
+            <i class="fas fa-sort-up" *ngIf="sortBy === 'role' && sortOrder === 'asc'"></i>
+            <i class="fas fa-sort-down" *ngIf="sortBy === 'role' && sortOrder === 'desc'"></i>
+          </th>
+          <th>Status</th>
+          <th>Files</th>
+          <th>Storage Used</th>
+          <th (click)="onSort('created_at')" class="sortable">
+            Created
+            <i class="fas fa-sort" *ngIf="sortBy !== 'created_at'"></i>
+            <i class="fas fa-sort-up" *ngIf="sortBy === 'created_at' && sortOrder === 'asc'"></i>
+            <i class="fas fa-sort-down" *ngIf="sortBy === 'created_at' && sortOrder === 'desc'"></i>
+          </th>
+          <th>Last Login</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users" class="user-row">
+          <td>
+            <input 
+              type="checkbox" 
+              [checked]="selectedUsers.has(user.email)"
+              (change)="toggleUserSelection(user.email)"
+              class="checkbox">
+          </td>
+          <td class="email-cell">
+            <div class="user-email">{{ user.email }}</div>
+            <div class="user-id">ID: {{ user._id }}</div>
+          </td>
+          <td>
+            <span class="role-badge" [class]="getRoleClass(user.role || 'regular')">
+              {{ user.role || 'regular' }}
+            </span>
+          </td>
+          <td>
+            <span class="status-badge" [class]="getStatusClass(user.status)">
+              {{ user.status }}
+            </span>
+          </td>
+          <td>{{ user.files_count }}</td>
+          <td>{{ formatBytes(user.storage_used) }}</td>
+          <td>{{ formatDate(user.created_at || '') }}</td>
+          <td>{{ formatDate(user.last_login || '') }}</td>
+          <td class="actions-cell">
+            <div class="action-buttons">
+              <button 
+                class="btn-action btn-info" 
+                (click)="viewUserDetail(user)"
+                title="View Details">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button 
+                class="btn-action btn-files" 
+                (click)="viewUserFiles(user)"
+                title="View Files">
+                <i class="fas fa-file-alt"></i>
+              </button>
+              <button 
+                class="btn-action btn-edit" 
+                (click)="editUser(user)"
+                title="Edit User">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button 
+                class="btn-action btn-warning" 
+                (click)="updateUserStatus(user, 'suspend', 'Admin action')"
+                *ngIf="user.status === 'active'"
+                title="Suspend User">
+                <i class="fas fa-pause"></i>
+              </button>
+              <button 
+                class="btn-action btn-danger" 
+                (click)="updateUserStatus(user, 'ban', 'Admin action')"
+                *ngIf="user.status !== 'banned'"
+                title="Ban User">
+                <i class="fas fa-ban"></i>
+              </button>
+              <button 
+                class="btn-action btn-success" 
+                (click)="updateUserStatus(user, 'activate')"
+                *ngIf="user.status !== 'active'"
+                title="Activate User">
+                <i class="fas fa-check"></i>
+              </button>
+              <button 
+                class="btn-action btn-secondary" 
+                (click)="resetUserPassword(user)"
+                title="Reset Password">
+                <i class="fas fa-key"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty State -->
+    <div *ngIf="users.length === 0" class="empty-state">
+      <i class="fas fa-users"></i>
+      <h3>No users found</h3>
+      <p>Try adjusting your search or filter criteria</p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <div class="pagination-info">
+      Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, totalUsers) }} of {{ totalUsers }} users
+    </div>
+    <div class="pagination-controls">
+      <button 
+        class="btn-page" 
+        (click)="goToPage(1)" 
+        [disabled]="currentPage === 1">
+        <i class="fas fa-angle-double-left"></i>
+      </button>
+      <button 
+        class="btn-page" 
+        (click)="goToPage(currentPage - 1)" 
+        [disabled]="currentPage === 1">
+        <i class="fas fa-angle-left"></i>
+      </button>
+      
+      <button 
+        *ngFor="let page of getPaginationPages()" 
+        class="btn-page" 
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)">
+        {{ page }}
+      </button>
+      
+      <button 
+        class="btn-page" 
+        (click)="goToPage(currentPage + 1)" 
+        [disabled]="currentPage === totalPages">
+        <i class="fas fa-angle-right"></i>
+      </button>
+      <button 
+        class="btn-page" 
+        (click)="goToPage(totalPages)" 
+        [disabled]="currentPage === totalPages">
+        <i class="fas fa-angle-double-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- User Detail Modal -->
+<div class="modal-overlay" *ngIf="showUserDetail" (click)="closeUserDetail()">
+  <div class="modal user-detail-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-user"></i> User Details</h3>
+      <button class="btn-close" (click)="closeUserDetail()">×</button>
+    </div>
+    <div class="modal-body" *ngIf="selectedUser">
+      <div class="user-info-grid">
+        <div class="info-item">
+          <label>Email:</label>
+          <span>{{ selectedUser.email }}</span>
+        </div>
+        <div class="info-item">
+          <label>Role:</label>
+          <span class="role-badge" [class]="getRoleClass(selectedUser.role || 'regular')">
+            {{ selectedUser.role || 'regular' }}
+          </span>
+        </div>
+        <div class="info-item">
+          <label>Status:</label>
+          <span class="status-badge" [class]="getStatusClass(selectedUser.status)">
+            {{ selectedUser.status }}
+          </span>
+        </div>
+        <div class="info-item">
+          <label>Files Count:</label>
+          <span>{{ selectedUser.files_count }}</span>
+        </div>
+        <div class="info-item">
+          <label>Storage Used:</label>
+          <span>{{ formatBytes(selectedUser.storage_used) }}</span>
+        </div>
+        <div class="info-item">
+          <label>Created:</label>
+          <span>{{ formatDate(selectedUser.created_at || '') }}</span>
+        </div>
+        <div class="info-item">
+          <label>Last Login:</label>
+          <span>{{ formatDate(selectedUser.last_login || '') }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+  <div class="modal edit-user-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-edit"></i> Edit User</h3>
+      <button class="btn-close" (click)="closeEditModal()">×</button>
+    </div>
+    <div class="modal-body" *ngIf="editingUser">
+      <div class="form-group">
+        <label>Email:</label>
+        <input type="text" [value]="editingUser.email" readonly class="form-input readonly">
+      </div>
+      <div class="form-group">
+        <label>Role:</label>
+        <select [(ngModel)]="editingUser.role" class="form-select">
+          <option value="regular">Regular</option>
+          <option value="admin">Admin</option>
+          <option value="superadmin">Super Admin</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" (click)="saveUserChanges()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk Actions Modal -->
+<div class="modal-overlay" *ngIf="showBulkActions" (click)="closeBulkActions()">
+  <div class="modal bulk-actions-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-tasks"></i> Bulk Actions</h3>
+      <button class="btn-close" (click)="closeBulkActions()">×</button>
+    </div>
+    <div class="modal-body">
+      <p>Selected {{ selectedUsers.size }} user(s)</p>
+      <div class="form-group">
+        <label>Action:</label>
+        <select [(ngModel)]="bulkAction" class="form-select">
+          <option value="">Select Action</option>
+          <option value="suspend">Suspend Users</option>
+          <option value="ban">Ban Users</option>
+          <option value="activate">Activate Users</option>
+          <option value="delete">Delete Users</option>
+        </select>
+      </div>
+      <div class="form-group" *ngIf="bulkAction">
+        <label>Reason (optional):</label>
+        <textarea 
+          [(ngModel)]="bulkReason" 
+          placeholder="Enter reason for this action..."
+          class="form-textarea"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeBulkActions()">Cancel</button>
+      <button 
+        class="btn btn-danger" 
+        (click)="performBulkAction()"
+        [disabled]="!bulkAction">
+        Perform Action
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- User Files Modal -->
+<div class="modal-overlay" *ngIf="showUserFiles" (click)="closeUserFiles()">
+  <div class="modal user-files-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-file-alt"></i> Files for {{ selectedUser?.email }}</h3>
+      <button class="btn-close" (click)="closeUserFiles()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="files-summary" *ngIf="userFiles.length > 0">
+        <p><strong>{{ userFilesPagination.total }}</strong> files found ({{ formatBytes(userFilesTotalSize) }} total)</p>
+      </div>
+      
+      <div class="loading-state" *ngIf="loadingUserFiles">
+        <i class="fas fa-spinner fa-spin"></i> Loading files...
+      </div>
+      
+      <div class="files-table-container" *ngIf="!loadingUserFiles && userFiles.length > 0">
+        <table class="files-table">
+          <thead>
+            <tr>
+              <th>Filename</th>
+              <th>Type</th>
+              <th>Size</th>
+              <th>Upload Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let file of userFiles">
+              <td class="filename-cell">
+                <div class="file-info">
+                  <i [class]="getFileIcon(file.file_type)"></i>
+                  <span class="filename" [title]="file.filename">{{ file.filename }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="file-type-badge" [class]="'type-' + file.file_type">
+                  {{ file.file_type | titlecase }}
+                </span>
+              </td>
+              <td>{{ file.size_formatted }}</td>
+              <td>{{ file.upload_date_formatted }}</td>
+              <td>
+                <span class="status-badge" [class]="'status-' + file.status">
+                  {{ file.status | titlecase }}
+                </span>
+              </td>
+              <td class="file-actions-cell">
+                <div class="file-action-buttons">
+                  <!-- View button for completed files -->
+                  <button 
+                    *ngIf="file.status === 'completed'" 
+                    class="btn-file-action btn-view" 
+                    (click)="viewFile(file)"
+                    title="View File">
+                    <i class="fas fa-eye"></i> View
+                  </button>
+                  
+                  <!-- Check Storage button for failed/uploading files -->
+                  <button 
+                    *ngIf="file.status === 'failed' || file.status === 'uploading'" 
+                    class="btn-file-action btn-storage" 
+                    (click)="checkFileStorage(file)"
+                    title="Check Storage">
+                    <i class="fas fa-search"></i> Check Storage
+                  </button>
+                  
+                  <!-- Info button for pending files -->
+                  <button 
+                    *ngIf="file.status === 'pending'" 
+                    class="btn-file-action btn-pending" 
+                    disabled
+                    title="File is pending upload">
+                    <i class="fas fa-clock"></i> Pending
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="empty-files-state" *ngIf="!loadingUserFiles && userFiles.length === 0">
+        <i class="fas fa-folder-open"></i>
+        <h4>No files found</h4>
+        <p>This user hasn't uploaded any files yet.</p>
+      </div>
+      
+      <!-- Pagination for files -->
+      <div class="files-pagination" *ngIf="userFilesPagination.total_pages > 1">
+        <div class="pagination-info">
+          Showing {{ ((userFilesPagination.page - 1) * userFilesPagination.limit) + 1 }} to 
+          {{ Math.min(userFilesPagination.page * userFilesPagination.limit, userFilesPagination.total) }} 
+          of {{ userFilesPagination.total }} files
+        </div>
+        <div class="pagination-controls">
+          <button 
+            class="btn-page" 
+            (click)="loadUserFiles(userFilesPagination.page - 1)"
+            [disabled]="userFilesPagination.page <= 1">
+            Previous
+          </button>
+          <span class="page-numbers">
+            <button 
+              *ngFor="let page of getFilesPaginationPages()" 
+              class="btn-page"
+              [class.active]="page === userFilesPagination.page"
+              (click)="loadUserFiles(page)">
+              {{ page }}
+            </button>
+          </span>
+          <button 
+            class="btn-page" 
+            (click)="loadUserFiles(userFilesPagination.page + 1)"
+            [disabled]="userFilesPagination.page >= userFilesPagination.total_pages">
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Storage Insights Modal -->
+<div class="modal-overlay" *ngIf="showStorageInsights" (click)="closeStorageInsights()">
+  <div class="modal storage-insights-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3><i class="fas fa-database"></i> Storage Insights - {{ selectedFileForInsights?.filename }}</h3>
+      <button class="btn-close" (click)="closeStorageInsights()">×</button>
+    </div>
+    <div class="modal-body" *ngIf="selectedFileForInsights">
+      <div class="loading-state" *ngIf="loadingStorageInsights">
+        <i class="fas fa-spinner fa-spin"></i> Checking storage locations...
+      </div>
+      
+      <div class="storage-insights-content" *ngIf="!loadingStorageInsights && storageInsights">
+        <!-- File Information -->
+        <div class="file-info-section">
+          <h4><i class="fas fa-file"></i> File Information</h4>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Status:</label>
+              <span class="status-badge" [class]="'status-' + storageInsights.status">
+                {{ storageInsights.status | titlecase }}
+              </span>
+            </div>
+            <div class="info-item">
+              <label>Storage Location:</label>
+              <span>{{ storageInsights.storage_location || 'Not specified' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Google Drive Status -->
+        <div class="storage-section">
+          <h4><i class="fab fa-google-drive"></i> Google Drive Status</h4>
+          <div class="storage-status-card" [class]="getStorageStatusClass(storageInsights.google_drive)">
+            <div class="status-indicator">
+              <i [class]="getStorageStatusIcon(storageInsights.google_drive)"></i>
+              <span class="status-text">
+                {{ storageInsights.google_drive.exists ? 'File Found' : 'File Not Found' }}
+              </span>
+            </div>
+            <div class="status-details">
+              <p>{{ storageInsights.google_drive.details }}</p>
+              <div class="storage-metadata" *ngIf="storageInsights.google_drive.account_id">
+                <small><strong>Account:</strong> {{ storageInsights.google_drive.account_id }}</small>
+                <small *ngIf="storageInsights.google_drive.file_size">
+                  <strong>Size:</strong> {{ formatBytes(storageInsights.google_drive.file_size) }}
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hetzner Storage Status -->
+        <div class="storage-section">
+          <h4><i class="fas fa-server"></i> Hetzner Backup Storage</h4>
+          <div class="storage-status-card" [class]="getStorageStatusClass(storageInsights.hetzner_storage)">
+            <div class="status-indicator">
+              <i [class]="getStorageStatusIcon(storageInsights.hetzner_storage)"></i>
+              <span class="status-text">
+                {{ storageInsights.hetzner_storage.exists ? 'Backup Found' : 'Backup Not Found' }}
+              </span>
+            </div>
+            <div class="status-details">
+              <p>{{ storageInsights.hetzner_storage.details }}</p>
+              <div class="storage-metadata" *ngIf="storageInsights.hetzner_storage.path">
+                <small><strong>Path:</strong> {{ storageInsights.hetzner_storage.path }}</small>
+                <small *ngIf="storageInsights.hetzner_storage.file_size">
+                  <strong>Size:</strong> {{ formatBytes(storageInsights.hetzner_storage.file_size) }}
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="recommendations-section" *ngIf="storageInsights.recommendations.length > 0">
+          <h4><i class="fas fa-lightbulb"></i> Recommendations</h4>
+          <ul class="recommendations-list">
+            <li *ngFor="let recommendation of storageInsights.recommendations">
+              <i class="fas fa-arrow-right"></i> {{ recommendation }}
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="error-state" *ngIf="!loadingStorageInsights && storageInsightsError">
+        <i class="fas fa-exclamation-triangle"></i>
+        <h4>Error Loading Storage Insights</h4>
+        <p>{{ storageInsightsError }}</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,121 +1,48 @@
-// // // frontend/src/app/services/file.service.ts (Completely Updated)
-
-// // import { Injectable } from '@angular/core';
-// // import { HttpClient, HttpEventType, HttpHeaders, HttpRequest } from '@angular/common/http';
-// // import { Observable, Subject, switchMap, tap } from 'rxjs';
-// // import { environment } from '../../../environments/environment';
-
-// // // const API_URL = 'http://localhost:8000/api/v1';
-
-// // @Injectable({
-// //   providedIn: 'root'
-// // })
-// // export class FileService {
-// //   [x: string]: any;
-
-// //   private apiUrl = 'http://localhost:5000/api/v1';
-// //   constructor(private http: HttpClient) { }
-
-// //   // --- THE NEW UPLOAD METHOD ---
-// //   upload(file: File): Observable<any> {
-// //     const progressSubject = new Subject<number>();
-// //     let fileId = '';
-    
-// //     // Step 1: Initiate the upload with our backend
-// //     const initiate$ = this.http.post<{file_id: string, upload_url: string}>(`${API_URL}/upload/initiate`, {
-// //       filename: file.name,
-// //       filesize: file.size,
-// //       content_type: file.type || 'application/octet-stream'
-// //     });
-
-// //     return initiate$.pipe(
-// //       switchMap(response => {
-// //         fileId = response.file_id;
-// //         const uploadUrl = response.upload_url;
-        
-// //         // Step 2: Upload the file directly to Google Drive's URL
-// //         const uploadReq = new HttpRequest('PUT', uploadUrl, file, {
-// //           reportProgress: true,
-// //         });
-
-// //         return this.http.request(uploadReq);
-// //       }),
-// //       switchMap(event => {
-// //         if (event.type === HttpEventType.UploadProgress) {
-// //           const percentDone = Math.round(100 * event.loaded / event.total!);
-// //           progressSubject.next(percentDone);
-// //           // Return an observable that emits progress but doesn't complete the stream
-// //           return new Observable(sub => {});
-// //         } else if (event.type === HttpEventType.Response) {
-// //           // Step 3: Finalize the upload with our backend
-// //           return this.http.post(`${API_URL}/upload/finalize/${fileId}`, {});
-// //         }
-// //         // For other event types, do nothing and wait
-// //         return new Observable(sub => {});
-// //       })
-// //     );
-// //   }
-
-// //   // --- Other methods remain the same ---
-// //   getFileMeta(id: string): Observable<any> {
-// //     return this.http.get<any>(`${this.apiUrl}/files/${id}/meta`);
-// //   }
-
-// //   getStreamUrl(id: string): string {
-// //     return `${this.apiUrl}/download/stream/${id}`;
-// //   }
-
-// //   getUserFiles(): Observable<any> {
-// //     // This already works with the AuthInterceptor
-// //     return this.http.get(`${API_URL}/files/me/history`);
-// //   }
-// // }
-
-
-// // src/app/shared/services/file.service.ts
-// import { Injectable } from '@angular/core';
-// import { HttpClient } from '@angular/common/http';
-// import { Observable } from 'rxjs';
-// import { environment } from '../../../environments/environment'; // <-- IMPORT
-
-// @Injectable({
-//   providedIn: 'root'
-// })
-// export class FileService {
-//   // Use the environment variable
-//   private apiUrl = environment.apiUrl;
-
-//   constructor(private http: HttpClient) { }
-
-//   getFileMeta(id: string): Observable<any> {
-//     return this.http.get<any>(`${this.apiUrl}/files/${id}/meta`);
-//   }
-
-//   getStreamUrl(id: string): string {
-//     return `${this.apiUrl}/download/stream/${id}`;
-//   }
-
-//   getUserFiles(): Observable<any> {
-//     return this.http.get<any[]>(`${this.apiUrl}/files/me/history`);
-//   }
-// }
-
-
-
-////////////07/07////////
-
 // src/app/shared/services/file.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+// --- NEW: Preview metadata interface ---
+export interface MediaInfo {
+  duration?: number;
+  width?: number;
+  height?: number;
+  has_audio?: boolean;
+  format?: string;
+  bitrate?: number;
+  fps?: number;
+  sample_rate?: number;
+  channels?: number;
+}
+
+export interface StreamingUrls {
+  full: string;
+  preview: string;
+}
+
+export interface PreviewMetadata {
+  file_id: string;
+  filename: string;
+  content_type: string;
+  size_bytes: number;
+  preview_available: boolean;
+  preview_type: string;
+  media_info?: MediaInfo;
+  streaming_urls: StreamingUrls;
+  preview_status: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class FileService {
-  // Construct the specific API path for files
+  // Construct the specific API path for files - EXACT same as BatchUploadService
   private fileApiUrl = `${environment.apiUrl}/api/v1`;
+  
+  // --- NEW: Hardcoded API URL for production consistency ---
+  private hardcodedApiUrl = 'https://api.mfcnextgen.com';
 
   constructor(private http: HttpClient) { }
 
@@ -124,11 +51,91 @@ export class FileService {
   }
 
   getStreamUrl(id: string): string {
-    // This now correctly constructs the full backend URL for downloads
-    return `${this.fileApiUrl}/download/stream/${id}`;
+    // Hardcode API URL since environment.apiUrl has issues in production
+    const url = `${this.hardcodedApiUrl}/api/v1/download/stream/${id}`;
+    console.log('[FILE_SERVICE] Using hardcoded API URL:', this.hardcodedApiUrl);
+    console.log('[FILE_SERVICE] fileApiUrl was:', this.fileApiUrl);
+    console.log('[FILE_SERVICE] Generated download URL:', url);
+    return url;
   }
 
   getUserFiles(): Observable<any> {
     return this.http.get<any[]>(`${this.fileApiUrl}/files/me/history`);
+  }
+
+  // --- NEW: Preview metadata method ---
+  getPreviewMetadata(id: string): Observable<PreviewMetadata> {
+    return this.http.get<PreviewMetadata>(`${this.fileApiUrl}/preview/meta/${id}`);
+  }
+
+  // --- NEW: Preview stream URL method ---
+  getPreviewStreamUrl(id: string): string {
+    const url = `${this.hardcodedApiUrl}/api/v1/preview/stream/${id}`;
+    console.log('[FILE_SERVICE] Generated preview stream URL:', url);
+    return url;
+  }
+
+  // --- NEW: Check if content type is previewable ---
+  isPreviewableContentType(contentType: string): boolean {
+    const previewableTypes = [
+      // Video formats
+      'video/mp4', 'video/webm', 'video/avi', 'video/mov', 'video/quicktime',
+      // Audio formats
+      'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/m4a', 'audio/aac',
+      // Image formats
+      'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+      // Document formats
+      'application/pdf',
+      // Text formats
+      'text/plain', 'application/json', 'text/xml', 'text/css',
+      'text/javascript', 'text/python', 'text/html'
+    ];
+    
+    return previewableTypes.includes(contentType.toLowerCase());
+  }
+
+  // --- NEW: Get preview type from content type ---
+  getPreviewType(contentType: string): string {
+    const contentTypeLower = contentType.toLowerCase();
+    
+    if (contentTypeLower.startsWith('video/')) {
+      return 'video';
+    } else if (contentTypeLower.startsWith('audio/')) {
+      return 'audio';
+    } else if (contentTypeLower.startsWith('image/')) {
+      return 'image';
+    } else if (contentTypeLower === 'application/pdf') {
+      return 'document';
+    } else if (contentTypeLower.startsWith('text/') || contentTypeLower === 'application/json') {
+      return 'text';
+    } else {
+      return 'unknown';
+    }
+  }
+
+  // --- NEW: Get formatted file size ---
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  // --- NEW: Get formatted duration for media files ---
+  formatDuration(seconds: number): string {
+    if (!seconds || seconds <= 0) return '00:00';
+    
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    
+    if (hours > 0) {
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    } else {
+      return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
   }
 }
