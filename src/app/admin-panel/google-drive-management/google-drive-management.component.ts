@@ -89,14 +89,23 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    console.log('🚀 [GoogleDriveManagement] Component initializing...');
+    
     // Force refresh on initial load to get real Google Drive data
-    this.refreshAllAccounts();
+    try {
+      console.log('🚀 [GoogleDriveManagement] Calling refreshAllAccounts...');
+      this.refreshAllAccounts();
+    } catch (error) {
+      console.error('🚀 [GoogleDriveManagement] ERROR in refreshAllAccounts:', error);
+    }
     
     // Subscribe to stats updates to auto-refresh when files are deleted/added
     this.statsSubscription = this.adminStatsService.statsUpdate$.subscribe(() => {
       console.log('[GoogleDriveManagement] Stats update triggered, refreshing accounts...');
       this.refreshAllAccounts();
     });
+    
+    console.log('🚀 [GoogleDriveManagement] Component initialization complete');
   }
   
   ngOnDestroy(): void {
@@ -114,6 +123,7 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
   }
 
   async loadAccounts(forceRefresh: boolean = false): Promise<void> {
+    console.log(`🚀 [GoogleDriveManagement] loadAccounts called with forceRefresh=${forceRefresh}`);
     this.loading = true;
     this.error = '';
 
@@ -123,6 +133,7 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
       const url = `${environment.apiUrl}/api/v1/admin/storage/google-drive/accounts` + 
                   (forceRefresh ? `?refresh=true&_t=${timestamp}` : `?_t=${timestamp}`);
       
+      console.log(`🚀 [GoogleDriveManagement] Making API call to: ${url}`);
       console.log(`Loading accounts... (force refresh: ${forceRefresh})`);
       
       const headers = this.getHeaders()
@@ -130,11 +141,13 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
         .set('Pragma', 'no-cache')
         .set('Expires', '0');
 
+      console.log(`🚀 [GoogleDriveManagement] About to make HTTP GET request...`);
       const response = await this.http.get<GoogleDriveAccountsResponse>(
         url,
         { headers: headers }
       ).toPromise();
 
+      console.log(`🚀 [GoogleDriveManagement] API response received:`, response);
       if (response) {
         this.accounts = response.accounts;
         this.totalAccounts = response.statistics.total_accounts;
@@ -154,9 +167,16 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
         })));
       }
     } catch (error: any) {
-      console.error('Error loading Google Drive accounts:', error);
+      console.error('🚀 [GoogleDriveManagement] ERROR loading Google Drive accounts:', error);
+      console.error('🚀 [GoogleDriveManagement] Error details:', {
+        status: error.status,
+        statusText: error.statusText,
+        message: error.message,
+        error: error.error
+      });
       this.error = error.error?.detail || 'Failed to load Google Drive accounts';
     } finally {
+      console.log(`🚀 [GoogleDriveManagement] loadAccounts finished, loading=${this.loading}`);
       this.loading = false;
     }
   }
