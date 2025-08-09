@@ -625,3 +625,68 @@
     max-width: calc(100vw - 2rem);
   }
 }
+
+/* Folder Information Section */
+.folder-info {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #4285f4;
+}
+
+.folder-details {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.folder-details i {
+  color: #4285f4;
+  font-size: 1.2rem;
+}
+
+.folder-text {
+  flex: 1;
+}
+
+.folder-name {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+.folder-path {
+  color: #6c757d;
+  font-size: 0.8rem;
+  font-family: 'Courier New', monospace;
+}
+
+.data-freshness {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.data-freshness.fresh {
+  color: #28a745;
+}
+
+.data-freshness.fresh i {
+  color: #28a745;
+}
+
+.data-freshness.stale {
+  color: #ffc107;
+}
+
+.data-freshness.stale i {
+  color: #ffc107;
+}
+
+.data-freshness small {
+  color: #6c757d;
+  margin-left: 0.5rem;
+}
