@@ -137,6 +137,9 @@
         <button class="btn btn-sm btn-info" (click)="viewAccountDetails(account.account_id)" [disabled]="loading">
           <i class="fas fa-eye"></i> Details
         </button>
+        <button class="btn btn-sm btn-secondary" (click)="refreshAccountStats(account.account_id)" [disabled]="loading">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
         <button class="btn btn-sm" 
                 [class]="account.is_active ? 'btn-warning' : 'btn-success'"
                 (click)="toggleAccount(account.account_id)" 
@@ -144,8 +147,11 @@
           <i class="fas" [class]="account.is_active ? 'fa-pause' : 'fa-play'"></i>
           {{ account.is_active ? 'Deactivate' : 'Activate' }}
         </button>
+        <button class="btn btn-sm btn-danger" (click)="deleteAllAccountFiles(account.account_id)" [disabled]="loading">
+          <i class="fas fa-trash-alt"></i> Delete All Files
+        </button>
         <button class="btn btn-sm btn-danger" (click)="removeAccount(account.account_id)" [disabled]="loading">
-          <i class="fas fa-trash"></i> Remove
+          <i class="fas fa-user-times"></i> Remove Account
         </button>
       </div>
 

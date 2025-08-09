@@ -291,4 +291,74 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
     if (!dateString) return 'Never';
     return new Date(dateString).toLocaleString();
   }
+  
+  async refreshAccountStats(accountId: string): Promise<void> {
+    if (!confirm(`Refresh stats for account ${accountId}? This will fetch current data from Google Drive.`)) {
+      return;
+    }
+    
+    this.loading = true;
+    try {
+      const response = await this.http.post(
+        `${environment.apiUrl}/api/v1/admin/storage/google-drive/accounts/${accountId}/refresh-stats`,
+        {},
+        { headers: this.getHeaders() }
+      ).toPromise();
+      
+      console.log('Account stats refreshed:', response);
+      
+      // Reload accounts to show updated stats
+      await this.loadAccounts();
+      alert(`Stats refreshed successfully for account ${accountId}`);
+      
+    } catch (error: any) {
+      console.error('Error refreshing account stats:', error);
+      alert(`Failed to refresh stats: ${error.error?.detail || 'Unknown error'}`);
+    } finally {
+      this.loading = false;
+    }
+  }
+  
+  async deleteAllAccountFiles(accountId: string): Promise<void> {
+    const confirmation = prompt(
+      `⚠️ DANGER: This will DELETE ALL FILES from Google Drive account ${accountId}!\n\n` +
+      `This includes:\n` +
+      `- All files uploaded via the app\n` +
+      `- All files manually uploaded to the folder\n` +
+      `- This action cannot be undone!\n\n` +
+      `Type "DELETE ALL FILES" to confirm:`
+    );
+    
+    if (confirmation !== 'DELETE ALL FILES') {
+      alert('Operation cancelled. Files were not deleted.');
+      return;
+    }
+    
+    this.loading = true;
+    try {
+      const response = await this.http.post<any>(
+        `${environment.apiUrl}/api/v1/admin/storage/google-drive/accounts/${accountId}/delete-all-files`,
+        {},
+        { headers: this.getHeaders() }
+      ).toPromise();
+      
+      console.log('All account files deleted:', response);
+      
+      // Reload accounts to show updated stats
+      await this.loadAccounts();
+      
+      alert(
+        `All files deleted successfully!\n\n` +
+        `Google Drive: ${response?.gdrive_deleted || 0} files deleted\n` +
+        `Database: ${response?.mongodb_soft_deleted || 0} records marked as deleted\n` +
+        `Errors: ${response?.gdrive_errors || 0}`
+      );
+      
+    } catch (error: any) {
+      console.error('Error deleting all account files:', error);
+      alert(`Failed to delete files: ${error.error?.detail || 'Unknown error'}`);
+    } finally {
+      this.loading = false;
+    }
+  }
 }
