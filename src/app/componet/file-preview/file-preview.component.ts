@@ -125,7 +125,7 @@ export class FilePreviewComponent implements OnInit, OnDestroy {
   }
 
   getFormattedFileSize(): string {
-    if (!this.previewMetadata) return '';
+    if (!this.previewMetadata || !this.previewMetadata.size_bytes) return '';
     return this.fileService.formatFileSize(this.previewMetadata.size_bytes);
   }
 
