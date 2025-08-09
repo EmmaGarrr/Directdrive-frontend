@@ -16,6 +16,7 @@ export class DownloadComponent implements OnInit {
   public showPreview = false;
   public previewAvailable = false;
   public previewType: string = 'unknown';
+  public previewMessage: string = '';
   public fileId: string | null = null;
 
   constructor(
@@ -37,8 +38,12 @@ export class DownloadComponent implements OnInit {
       this.previewMetadata$.subscribe(metadata => {
         this.previewAvailable = metadata.preview_available;
         this.previewType = metadata.preview_type;
+        this.previewMessage = metadata.message || '';
         console.log('[DOWNLOAD_COMPONENT] Preview available:', this.previewAvailable);
         console.log('[DOWNLOAD_COMPONENT] Preview type:', this.previewType);
+        if (!this.previewAvailable && metadata.message) {
+          console.log('[DOWNLOAD_COMPONENT] Preview message:', metadata.message);
+        }
       });
       
       console.log('[DOWNLOAD_COMPONENT] fileId:', this.fileId);

@@ -26,12 +26,17 @@ export interface PreviewMetadata {
   file_id: string;
   filename: string;
   content_type: string;
-  size_bytes: number;
   preview_available: boolean;
   preview_type: string;
+  message?: string;
+  can_stream: boolean;
+  suggested_action: string;
+  preview_url?: string;
+  // Legacy fields for backward compatibility
+  size_bytes?: number;
   media_info?: MediaInfo;
-  streaming_urls: StreamingUrls;
-  preview_status: string;
+  streaming_urls?: StreamingUrls;
+  preview_status?: string;
 }
 
 @Injectable({
