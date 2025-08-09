@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AdminAuthService } from '../../services/admin-auth.service';
+import { AdminStatsService } from '../../services/admin-stats.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { Subscription } from 'rxjs';
 
 interface GoogleDriveAccount {
   account_id: string;
@@ -46,7 +48,7 @@ interface AddAccountRequest {
   templateUrl: './google-drive-management.component.html',
   styleUrls: ['./google-drive-management.component.css']
 })
-export class GoogleDriveManagementComponent implements OnInit {
+export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
   accounts: GoogleDriveAccount[] = [];
   loading = false;
   error = '';
@@ -70,13 +72,29 @@ export class GoogleDriveManagementComponent implements OnInit {
   showAccountDetailsModal = false;
   selectedAccount: GoogleDriveAccount | null = null;
   
+  // Subscription for auto-refresh
+  private statsSubscription?: Subscription;
+  
   constructor(
     private adminAuthService: AdminAuthService,
+    private adminStatsService: AdminStatsService,
     private http: HttpClient
   ) { }
 
   ngOnInit(): void {
     this.loadAccounts();
+    
+    // Subscribe to stats updates to auto-refresh when files are deleted/added
+    this.statsSubscription = this.adminStatsService.statsUpdate$.subscribe(() => {
+      console.log('[GoogleDriveManagement] Stats update triggered, refreshing accounts...');
+      this.loadAccounts();
+    });
+  }
+  
+  ngOnDestroy(): void {
+    if (this.statsSubscription) {
+      this.statsSubscription.unsubscribe();
+    }
   }
 
   private getHeaders(): HttpHeaders {
