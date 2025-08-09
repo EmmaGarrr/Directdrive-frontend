@@ -18,6 +18,19 @@ interface SystemStats {
   systemHealth: 'good' | 'warning' | 'critical';
 }
 
+interface GoogleDriveStorageStats {
+  total_accounts: number;
+  active_accounts: number;
+  total_storage_quota: number;
+  total_storage_quota_formatted: string;
+  total_storage_used: number;
+  total_storage_used_formatted: string;
+  available_storage: number;
+  available_storage_formatted: string;
+  usage_percentage: number;
+  health_status: 'good' | 'warning' | 'critical';
+}
+
 interface SystemHealthResponse {
   timestamp: string;
   system: {
@@ -105,6 +118,19 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     systemHealth: 'good'
   };
 
+  public gdriveStorageStats: GoogleDriveStorageStats = {
+    total_accounts: 0,
+    active_accounts: 0,
+    total_storage_quota: 0,
+    total_storage_quota_formatted: '0 B',
+    total_storage_used: 0,
+    total_storage_used_formatted: '0 B',
+    available_storage: 0,
+    available_storage_formatted: '0 B',
+    usage_percentage: 0,
+    health_status: 'good'
+  };
+
   public chartData: ChartData = {
     uploads: []
   };
@@ -130,12 +156,14 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     this.setupWebSocket();
     this.initializeTheme();
     this.loadSystemStats();
+    this.loadGoogleDriveStats();
     this.initializeNotifications();
     this.generateMockChartData();
     
     // Listen for stats updates from other components
     this.adminStatsService.statsUpdate$.subscribe(() => {
       this.loadSystemStats();
+      this.loadGoogleDriveStats();
     });
     
     // Track route changes
@@ -398,18 +426,12 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
 
       if (response) {
         // Map backend data to dashboard stats
-        // Calculate storage usage percentage based on user files (not system disk)
-        const maxStorageQuota = 1024 * 1024 * 1024 * 1024; // 1TB default quota
-        const storageUsagePercent = response.database.size_bytes > 0 
-          ? Math.round((response.database.size_bytes / maxStorageQuota) * 100)
-          : 0;
-        
         this.systemStats = {
           totalUsers: response.database.total_users,
           userGrowth: 0, // TODO: Calculate growth from user analytics
           totalFiles: response.database.total_files,
           totalStorage: response.database.size_bytes,
-          storageUsagePercent: storageUsagePercent,
+          storageUsagePercent: 0, // Deprecated - Google Drive storage handled separately
           systemHealth: this.calculateSystemHealth(response)
         };
         
@@ -427,6 +449,36 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
         systemHealth: 'critical'
       };
       this.isConnected = false;
+    }
+  }
+
+  // Google Drive Storage Stats Management
+  private async loadGoogleDriveStats(): Promise<void> {
+    try {
+      const headers = this.getAdminHeaders();
+      const response = await this.http.get<GoogleDriveStorageStats>(
+        `${environment.apiUrl}/api/v1/admin/storage/google-drive/combined-stats`,
+        { headers }
+      ).toPromise();
+
+      if (response) {
+        this.gdriveStorageStats = response;
+      }
+    } catch (error) {
+      console.error('Failed to load Google Drive storage stats:', error);
+      // Fallback to empty stats on error
+      this.gdriveStorageStats = {
+        total_accounts: 0,
+        active_accounts: 0,
+        total_storage_quota: 0,
+        total_storage_quota_formatted: '0 B',
+        total_storage_used: 0,
+        total_storage_used_formatted: '0 B',
+        available_storage: 0,
+        available_storage_formatted: '0 B',
+        usage_percentage: 0,
+        health_status: 'good'
+      };
     }
   }
 

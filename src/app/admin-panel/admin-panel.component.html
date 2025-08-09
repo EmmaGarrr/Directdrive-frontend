@@ -234,20 +234,6 @@
             </div>
           </div>
 
-          <!-- Storage Stats -->
-          <div class="stat-card">
-            <div class="stat-icon storage">
-              <i class="fas fa-database"></i>
-            </div>
-            <div class="stat-content">
-              <h3>{{ systemStats.storageUsagePercent || 0 }}%</h3>
-              <p>Storage Used</p>
-              <div class="progress-bar">
-                <div class="progress-fill" [style.width.%]="systemStats.storageUsagePercent"></div>
-              </div>
-            </div>
-          </div>
-
           <!-- System Health -->
           <div class="stat-card">
             <div class="stat-icon health" [class]="'status-' + systemStats.systemHealth">
@@ -259,6 +245,34 @@
               <div class="connection-status" [class]="'status-' + (isConnected ? 'connected' : 'disconnected')">
                 <i class="fas fa-circle"></i>
                 {{ isConnected ? 'Connected' : 'Checking...' }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Google Drive Storage -->
+          <div class="stat-card">
+            <div class="stat-icon gdrive" [class]="'status-' + gdriveStorageStats.health_status">
+              <i class="fab fa-google-drive"></i>
+            </div>
+            <div class="stat-content">
+              <h3>{{ gdriveStorageStats.total_storage_quota_formatted }}</h3>
+              <p>Google Drive Storage</p>
+              <div class="gdrive-breakdown">
+                <div class="breakdown-item">
+                  <span class="breakdown-label">Used:</span>
+                  <span class="breakdown-value">{{ gdriveStorageStats.total_storage_used_formatted }}</span>
+                </div>
+                <div class="breakdown-item">
+                  <span class="breakdown-label">Available:</span>
+                  <span class="breakdown-value">{{ gdriveStorageStats.available_storage_formatted }}</span>
+                </div>
+                <div class="breakdown-item">
+                  <span class="breakdown-label">Usage:</span>
+                  <span class="breakdown-value" [class]="'usage-' + gdriveStorageStats.health_status">{{ gdriveStorageStats.usage_percentage }}%</span>
+                </div>
+                <div class="breakdown-accounts">
+                  <span class="accounts-info">{{ gdriveStorageStats.active_accounts }}/{{ gdriveStorageStats.total_accounts }} accounts active</span>
+                </div>
               </div>
             </div>
           </div>
