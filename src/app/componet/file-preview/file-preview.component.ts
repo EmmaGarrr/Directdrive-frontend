@@ -17,7 +17,7 @@ export class FilePreviewComponent implements OnInit, OnDestroy {
   errorMessage = '';
   
   // Preview type specific properties
-  previewType: 'video' | 'audio' | 'image' | 'document' | 'text' | 'unknown' = 'unknown';
+  previewType: 'video' | 'audio' | 'image' | 'document' | 'text' | 'thumbnail' | 'viewer' | 'unknown' = 'unknown';
   
   // Video/Audio specific
   mediaUrl = '';
@@ -78,29 +78,41 @@ export class FilePreviewComponent implements OnInit, OnDestroy {
   private async initializePreview(): Promise<void> {
     if (!this.previewMetadata) return;
 
-    switch (this.previewType) {
-      case 'video':
-      case 'audio':
-        this.mediaUrl = this.fileService.getPreviewStreamUrl(this.fileId);
-        break;
-        
-      case 'image':
-        this.imageUrl = this.fileService.getPreviewStreamUrl(this.fileId);
-        break;
-        
-      case 'document':
-        this.pdfUrl = this.fileService.getPreviewStreamUrl(this.fileId);
-        break;
-        
-      case 'text':
-        await this.loadTextContent();
-        break;
-        
-      default:
-        this.error = true;
-        this.errorMessage = 'Preview not supported for this file type.';
-        break;
+    // Determine preview type based on both preview_type and content_type
+    const contentType = this.previewMetadata.content_type || '';
+    const previewType = this.previewType;
+
+    // Handle image types (support both "image" and "thumbnail" from backend)
+    if (previewType === 'image' || previewType === 'thumbnail' || contentType.startsWith('image/')) {
+      this.previewType = 'image'; // Normalize to 'image'
+      this.imageUrl = this.fileService.getPreviewStreamUrl(this.fileId);
+      return;
     }
+
+    // Handle video/audio types
+    if (previewType === 'video' || previewType === 'audio' || 
+        contentType.startsWith('video/') || contentType.startsWith('audio/')) {
+      this.mediaUrl = this.fileService.getPreviewStreamUrl(this.fileId);
+      return;
+    }
+
+    // Handle document types (PDF)
+    if (previewType === 'document' || previewType === 'viewer' || contentType === 'application/pdf') {
+      this.previewType = 'document'; // Normalize to 'document'
+      this.pdfUrl = this.fileService.getPreviewStreamUrl(this.fileId);
+      return;
+    }
+
+    // Handle text types
+    if (previewType === 'text' || contentType.startsWith('text/')) {
+      this.previewType = 'text'; // Normalize to 'text'
+      await this.loadTextContent();
+      return;
+    }
+
+    // If no supported type found
+    this.error = true;
+    this.errorMessage = `Preview not supported for ${contentType || previewType} files.`;
   }
 
   private async loadTextContent(): Promise<void> {
