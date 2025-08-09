@@ -398,12 +398,18 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
 
       if (response) {
         // Map backend data to dashboard stats
+        // Calculate storage usage percentage based on user files (not system disk)
+        const maxStorageQuota = 1024 * 1024 * 1024 * 1024; // 1TB default quota
+        const storageUsagePercent = response.database.size_bytes > 0 
+          ? Math.round((response.database.size_bytes / maxStorageQuota) * 100)
+          : 0;
+        
         this.systemStats = {
           totalUsers: response.database.total_users,
           userGrowth: 0, // TODO: Calculate growth from user analytics
           totalFiles: response.database.total_files,
           totalStorage: response.database.size_bytes,
-          storageUsagePercent: Math.round(response.system.disk.percent),
+          storageUsagePercent: storageUsagePercent,
           systemHealth: this.calculateSystemHealth(response)
         };
         

@@ -58,6 +58,7 @@ import { ActivityLogsComponent } from './admin-panel/activity-logs/activity-logs
 import { CreateAdminComponent } from './admin-panel/create-admin/create-admin.component';
 import { GoogleDriveManagementComponent } from './admin-panel/google-drive-management/google-drive-management.component';
 import { SecuritySettingsComponent } from './admin-panel/security-settings/security-settings.component';
+import { StorageCleanupComponent } from './admin-panel/storage-cleanup/storage-cleanup.component';
 import { ForgotPasswordComponent } from './componet/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './componet/reset-password/reset-password.component';
 import { FilePreviewComponent } from './componet/file-preview/file-preview.component';
@@ -91,6 +92,7 @@ import { SafePipe } from './shared/pipes/safe.pipe';
     CreateAdminComponent,
     GoogleDriveManagementComponent,
     SecuritySettingsComponent,
+    StorageCleanupComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
     FilePreviewComponent,

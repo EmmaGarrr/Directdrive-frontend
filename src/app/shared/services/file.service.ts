@@ -40,9 +40,6 @@ export interface PreviewMetadata {
 export class FileService {
   // Construct the specific API path for files - EXACT same as BatchUploadService
   private fileApiUrl = `${environment.apiUrl}/api/v1`;
-  
-  // --- NEW: Hardcoded API URL for production consistency ---
-  private hardcodedApiUrl = 'https://api.mfcnextgen.com';
 
   constructor(private http: HttpClient) { }
 
@@ -51,10 +48,8 @@ export class FileService {
   }
 
   getStreamUrl(id: string): string {
-    // Hardcode API URL since environment.apiUrl has issues in production
-    const url = `${this.hardcodedApiUrl}/api/v1/download/stream/${id}`;
-    console.log('[FILE_SERVICE] Using hardcoded API URL:', this.hardcodedApiUrl);
-    console.log('[FILE_SERVICE] fileApiUrl was:', this.fileApiUrl);
+    const url = `${environment.apiUrl}/api/v1/download/stream/${id}`;
+    console.log('[FILE_SERVICE] Using apiUrl:', environment.apiUrl);
     console.log('[FILE_SERVICE] Generated download URL:', url);
     return url;
   }
@@ -70,7 +65,7 @@ export class FileService {
 
   // --- NEW: Preview stream URL method ---
   getPreviewStreamUrl(id: string): string {
-    const url = `${this.hardcodedApiUrl}/api/v1/preview/stream/${id}`;
+    const url = `${environment.apiUrl}/api/v1/preview/stream/${id}`;
     console.log('[FILE_SERVICE] Generated preview stream URL:', url);
     return url;
   }

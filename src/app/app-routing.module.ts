@@ -26,6 +26,7 @@ import { ActivityLogsComponent } from './admin-panel/activity-logs/activity-logs
 import { CreateAdminComponent } from './admin-panel/create-admin/create-admin.component';
 import { GoogleDriveManagementComponent } from './admin-panel/google-drive-management/google-drive-management.component';
 import { SecuritySettingsComponent } from './admin-panel/security-settings/security-settings.component';
+import { StorageCleanupComponent } from './admin-panel/storage-cleanup/storage-cleanup.component';
 import { ForgotPasswordComponent } from './componet/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './componet/reset-password/reset-password.component';
 
@@ -53,6 +54,7 @@ const routes: Routes = [
       { path: 'drive-files', component: DriveFileManagementComponent },
       { path: 'hetzner-files', component: HetznerFileManagementComponent },
       { path: 'storage', component: GoogleDriveManagementComponent },
+      { path: 'storage-cleanup', component: StorageCleanupComponent },
       { path: 'backup', component: BackupManagementComponent },
       { path: 'monitoring', component: SystemMonitoringComponent },
       { path: 'security', component: SecuritySettingsComponent },

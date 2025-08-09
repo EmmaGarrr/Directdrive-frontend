@@ -1,0 +1,69 @@
+/* Reuse Google Drive Management styles for consistent look */
+.toggle { display: flex; align-items: center; gap: 8px; font-weight: 500; color: #2d3748; }
+.toggle input { transform: scale(1.2); }
+
+/* Container matches other admin pages */
+.google-drive-management {
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
+.management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+.management-header h2 { margin: 0; color: #2d3748; font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+.header-actions { display: flex; gap: 1rem; align-items: center; }
+
+/* Buttons (copied style for parity) */
+.btn { padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.2s; text-decoration: none; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-danger { background: #e53e3e; color: white; }
+.btn-danger:hover:not(:disabled) { background: #c53030; }
+.btn-secondary { background: #718096; color: white; }
+.btn-secondary:hover:not(:disabled) { background: #4a5568; }
+
+/* Stats overview cards */
+.stats-overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+.stat-card { background: #f7fafc; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #3182ce; display: flex; align-items: center; gap: 1rem; }
+.stat-icon { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; }
+.stat-icon.total { background: #3182ce; }
+.stat-icon.storage { background: #38a169; }
+.stat-icon.performance { background: #d69e2e; }
+.stat-icon.quota { background: #9f7aea; }
+.stat-content h3 { margin: 0; font-size: 1.5rem; font-weight: 700; color: #2d3748; }
+.stat-content p { margin: 0.25rem 0; color: #718096; font-size: 0.9rem; }
+.stat-detail { font-size: 0.8rem; color: #4a5568; }
+
+/* Detail grid */
+.account-details { max-height: 60vh; overflow-y: auto; }
+.detail-section { margin-bottom: 2rem; }
+.detail-section h4 { margin: 0 0 1rem 0; color: #2d3748; font-size: 1.1rem; font-weight: 600; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; }
+.detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+.detail-item label { display: block; font-size: 0.8rem; font-weight: 600; color: #718096; text-transform: uppercase; letter-spacing: .05em; }
+.detail-item span { font-weight: 500; color: #2d3748; }
+
+/* Loading / empty states */
+.loading-spinner { text-align: center; padding: 3rem; color: #718096; }
+.loading-spinner i { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+.empty-state { text-align: center; padding: 3rem; color: #718096; }
+.empty-state i { font-size: 3rem; margin-bottom: 1rem; color: #cbd5e0; }
+
+/* Logs block */
+.logs-block { background: #0b1020; color: #c7e1ff; padding: 12px; border-radius: 6px; max-height: 300px; overflow: auto; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 12px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .google-drive-management { padding: 1rem; }
+  .management-header { flex-direction: column; gap: 1rem; align-items: stretch; }
+  .header-actions { justify-content: center; }
+  .stats-overview { grid-template-columns: 1fr; }
+}
+

@@ -6,13 +6,22 @@ import { environment } from '../../../environments/environment';
 interface GoogleDriveAccount {
   account_id: string;
   email: string;
+  alias?: string;
   is_active: boolean;
   storage_used: number;
   storage_quota: number;
+  storage_used_formatted?: string;
+  storage_quota_formatted?: string;
+  storage_percentage?: number;
   files_count: number;
   last_activity: string;
   health_status: string;
   performance_score: number;
+  created_at?: string;
+  updated_at?: string;
+  folder_id?: string | null;
+  folder_name?: string | null;
+  folder_path?: string | null;
 }
 
 interface GoogleDriveAccountsResponse {
