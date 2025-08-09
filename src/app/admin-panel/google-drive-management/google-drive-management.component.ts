@@ -348,17 +348,26 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
   }
   
   formatDateTime(dateString: string): string {
+    console.log(`🚀 [formatDateTime] Input: "${dateString}"`);
     if (!dateString) return 'Never';
+    
     const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / (1000 * 60));
     
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
+    console.log(`🚀 [formatDateTime] Parsed date: ${date.toISOString()}`);
+    console.log(`🚀 [formatDateTime] Current time: ${now.toISOString()}`);
+    console.log(`🚀 [formatDateTime] Diff ms: ${diffMs}, diff mins: ${diffMins}`);
     
-    return date.toLocaleDateString();
+    let result: string;
+    if (diffMins < 1) result = 'Just now';
+    else if (diffMins < 60) result = `${diffMins}m ago`;
+    else if (diffMins < 1440) result = `${Math.floor(diffMins / 60)}h ago`;
+    else result = date.toLocaleDateString();
+    
+    console.log(`🚀 [formatDateTime] Result: "${result}"`);
+    return result;
   }
   
   async refreshAccountStats(accountId: string): Promise<void> {
