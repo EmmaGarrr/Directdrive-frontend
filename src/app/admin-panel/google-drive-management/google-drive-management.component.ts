@@ -119,14 +119,20 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
 
     try {
       // Add refresh parameter to get real Google Drive data
+      const timestamp = new Date().getTime();
       const url = `${environment.apiUrl}/api/v1/admin/storage/google-drive/accounts` + 
-                  (forceRefresh ? '?refresh=true' : '');
+                  (forceRefresh ? `?refresh=true&_t=${timestamp}` : `?_t=${timestamp}`);
       
       console.log(`Loading accounts... (force refresh: ${forceRefresh})`);
       
+      const headers = this.getHeaders()
+        .set('Cache-Control', 'no-cache, no-store, must-revalidate')
+        .set('Pragma', 'no-cache')
+        .set('Expires', '0');
+
       const response = await this.http.get<GoogleDriveAccountsResponse>(
         url,
-        { headers: this.getHeaders() }
+        { headers: headers }
       ).toPromise();
 
       if (response) {
@@ -142,7 +148,9 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
           files: acc.files_count,
           storage: acc.storage_used_formatted,
           freshness: acc.data_freshness,
-          folder: acc.folder_info?.folder_path
+          folder: acc.folder_info?.folder_path,
+          last_quota_check: acc.last_quota_check,
+          timestamp_formatted: this.formatDateTime(acc.last_quota_check || '')
         })));
       }
     } catch (error: any) {
