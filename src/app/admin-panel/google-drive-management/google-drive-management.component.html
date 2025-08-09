@@ -7,8 +7,8 @@
       <button class="btn btn-success" (click)="showAddAccountModal = true" [disabled]="loading">
         <i class="fas fa-plus"></i> Add Account
       </button>
-      <button class="btn btn-secondary" (click)="loadAccounts()" [disabled]="loading">
-        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i> Refresh
+      <button class="btn btn-secondary" (click)="refreshAllAccounts()" [disabled]="loading">
+        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i> Refresh All from Google Drive
       </button>
     </div>
   </div>
@@ -129,6 +129,22 @@
           <span class="performance-score" [class]="getPerformanceClass(account.performance_score || 0)">
             {{ (account.performance_score || 0).toFixed(1) }}%
           </span>
+        </div>
+      </div>
+
+      <!-- Folder Information -->
+      <div class="folder-info" *ngIf="account.folder_info">
+        <div class="folder-details">
+          <i class="fab fa-google-drive"></i>
+          <div class="folder-text">
+            <div class="folder-name">{{ account.folder_info.folder_name }}</div>
+            <div class="folder-path">{{ account.folder_info.folder_path }}</div>
+          </div>
+        </div>
+        <div class="data-freshness" [class]="account.data_freshness">
+          <i class="fas" [class]="account.data_freshness === 'fresh' ? 'fa-check-circle' : 'fa-exclamation-triangle'"></i>
+          <span>{{ account.data_freshness === 'fresh' ? 'Live Data' : 'Cached Data' }}</span>
+          <small *ngIf="account.last_quota_check">Updated: {{ formatDateTime(account.last_quota_check) }}</small>
         </div>
       </div>
 

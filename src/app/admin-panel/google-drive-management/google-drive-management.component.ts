@@ -24,6 +24,13 @@ interface GoogleDriveAccount {
   folder_id?: string | null;
   folder_name?: string | null;
   folder_path?: string | null;
+  folder_info?: {
+    folder_id: string;
+    folder_name: string;
+    folder_path: string;
+  };
+  last_quota_check?: string;
+  data_freshness?: 'fresh' | 'stale';
 }
 
 interface GoogleDriveAccountsResponse {
@@ -82,12 +89,13 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.loadAccounts();
+    // Force refresh on initial load to get real Google Drive data
+    this.refreshAllAccounts();
     
     // Subscribe to stats updates to auto-refresh when files are deleted/added
     this.statsSubscription = this.adminStatsService.statsUpdate$.subscribe(() => {
       console.log('[GoogleDriveManagement] Stats update triggered, refreshing accounts...');
-      this.loadAccounts();
+      this.refreshAllAccounts();
     });
   }
   
@@ -105,13 +113,19 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
     });
   }
 
-  async loadAccounts(): Promise<void> {
+  async loadAccounts(forceRefresh: boolean = false): Promise<void> {
     this.loading = true;
     this.error = '';
 
     try {
+      // Add refresh parameter to get real Google Drive data
+      const url = `${environment.apiUrl}/api/v1/admin/storage/google-drive/accounts` + 
+                  (forceRefresh ? '?refresh=true' : '');
+      
+      console.log(`Loading accounts... (force refresh: ${forceRefresh})`);
+      
       const response = await this.http.get<GoogleDriveAccountsResponse>(
-        `${environment.apiUrl}/api/v1/admin/storage/google-drive/accounts`,
+        url,
         { headers: this.getHeaders() }
       ).toPromise();
 
@@ -122,6 +136,14 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
         this.totalStorageUsed = response.statistics.total_storage_used;
         this.totalStorageQuota = response.statistics.total_storage_quota;
         this.averagePerformance = response.statistics.average_performance;
+        
+        console.log(`Loaded ${this.accounts.length} accounts:`, this.accounts.map(acc => ({
+          id: acc.account_id,
+          files: acc.files_count,
+          storage: acc.storage_used_formatted,
+          freshness: acc.data_freshness,
+          folder: acc.folder_info?.folder_path
+        })));
       }
     } catch (error: any) {
       console.error('Error loading Google Drive accounts:', error);
@@ -129,6 +151,11 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
     } finally {
       this.loading = false;
     }
+  }
+  
+  async refreshAllAccounts(): Promise<void> {
+    console.log('Refreshing all accounts from Google Drive API...');
+    await this.loadAccounts(true);
   }
 
   async toggleAccount(accountId: string): Promise<void> {
@@ -292,6 +319,20 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
     return new Date(dateString).toLocaleString();
   }
   
+  formatDateTime(dateString: string): string {
+    if (!dateString) return 'Never';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
+    
+    return date.toLocaleDateString();
+  }
+  
   async refreshAccountStats(accountId: string): Promise<void> {
     if (!confirm(`Refresh stats for account ${accountId}? This will fetch current data from Google Drive.`)) {
       return;
@@ -308,7 +349,7 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
       console.log('Account stats refreshed:', response);
       
       // Reload accounts to show updated stats
-      await this.loadAccounts();
+      await this.refreshAllAccounts();
       alert(`Stats refreshed successfully for account ${accountId}`);
       
     } catch (error: any) {
@@ -345,7 +386,7 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
       console.log('All account files deleted:', response);
       
       // Reload accounts to show updated stats
-      await this.loadAccounts();
+      await this.refreshAllAccounts();
       
       alert(
         `All files deleted successfully!\n\n` +
