@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class AdminStatsService {
-  private readonly API_URL = `${environment.apiUrl}/api/v1/admin/monitoring`;
+  private readonly API_URL = `${environment.apiUrl}/api/v1/admin`;
   private statsUpdateSubject = new Subject<void>();
   public statsUpdate$ = this.statsUpdateSubject.asObservable();
 
