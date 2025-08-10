@@ -45,9 +45,12 @@ export class BackgroundProcessesComponent implements OnInit, OnDestroy {
   priorityInfo: PrioritySystemInfo | null = null;
   loading = false;
   error: string | null = null;
+  isRefreshing = false;
+  lastRefreshTime: Date | null = null;
   
   private refreshSubscription: Subscription | null = null;
-  private readonly REFRESH_INTERVAL = 5000; // 5 seconds
+  private readonly REFRESH_INTERVAL = 30000; // 30 seconds (much more reasonable)
+  private readonly SMART_REFRESH_INTERVAL = 60000; // 1 minute when no active processes
 
   constructor(private adminStatsService: AdminStatsService) {}
 
@@ -60,6 +63,16 @@ export class BackgroundProcessesComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.stopAutoRefresh();
+  }
+
+  // Manual refresh method
+  manualRefresh(): void {
+    this.isRefreshing = true;
+    this.loadQueueStatus();
+    this.loadActiveProcesses();
+    this.loadPriorityInfo();
+    this.lastRefreshTime = new Date();
+    this.isRefreshing = false;
   }
 
   // Load queue status from backend
@@ -76,6 +89,7 @@ export class BackgroundProcessesComponent implements OnInit, OnDestroy {
           this.queueStatus = null;
         }
         this.loading = false;
+        this.lastRefreshTime = new Date();
       },
       error: (err) => {
         this.error = 'Error loading queue status: ' + (err.message || 'Unknown error');
@@ -96,9 +110,10 @@ export class BackgroundProcessesComponent implements OnInit, OnDestroy {
           this.activeProcesses = [];
           console.warn('Unexpected response format for active processes:', response);
         }
+        this.lastRefreshTime = new Date();
       },
       error: (err) => {
-        this.error = 'Error loading active processes: ' + (err.message || 'Unknown error');
+        console.error('Error loading active processes:', err);
         this.activeProcesses = [];
       }
     });
@@ -114,6 +129,7 @@ export class BackgroundProcessesComponent implements OnInit, OnDestroy {
           this.priorityInfo = null;
           console.warn('Unexpected response format for priority system info:', response);
         }
+        this.lastRefreshTime = new Date();
       },
       error: (err) => {
         this.error = 'Error loading priority system info: ' + (err.message || 'Unknown error');
@@ -163,12 +179,19 @@ export class BackgroundProcessesComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Start automatic refresh of data
+  // Start automatic refresh of data with smart logic
   private startAutoRefresh(): void {
     this.refreshSubscription = interval(this.REFRESH_INTERVAL).subscribe(() => {
-      this.loadQueueStatus();
-      this.loadActiveProcesses();
-      this.loadPriorityInfo();
+      // Smart refresh: only refresh frequently if there are active processes
+      const hasActiveProcesses = this.activeProcesses && this.activeProcesses.length > 0;
+      const refreshInterval = hasActiveProcesses ? this.REFRESH_INTERVAL : this.SMART_REFRESH_INTERVAL;
+      
+      // Only refresh if we're not already loading
+      if (!this.loading) {
+        this.loadQueueStatus();
+        this.loadActiveProcesses();
+        this.loadPriorityInfo();
+      }
     });
   }
 
@@ -197,6 +220,21 @@ export class BackgroundProcessesComponent implements OnInit, OnDestroy {
     if (diffDays < 7) return `${diffDays}d ago`;
     
     return date.toLocaleDateString();
+  }
+
+  // Get refresh status text
+  getRefreshStatusText(): string {
+    if (!this.lastRefreshTime) return 'Never refreshed';
+    
+    const now = new Date();
+    const diffMs = now.getTime() - this.lastRefreshTime.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffSecs = Math.floor(diffMs / 1000);
+    
+    if (diffSecs < 60) return `Refreshed ${diffSecs}s ago`;
+    if (diffMins < 60) return `Refreshed ${diffMins}m ago`;
+    
+    return `Refreshed ${this.lastRefreshTime.toLocaleTimeString()}`;
   }
 }
 

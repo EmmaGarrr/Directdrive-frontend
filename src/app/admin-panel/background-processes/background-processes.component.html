@@ -1,7 +1,21 @@
 <div class="background-processes-container">
   <div class="header">
-    <h2><i class="fas fa-cogs"></i> Background Process Management</h2>
-    <p>Monitor and manage background processes with priority queuing</p>
+    <div class="header-content">
+      <div class="header-text">
+        <h2><i class="fas fa-cogs"></i> Background Process Management</h2>
+        <p>Monitor and manage background processes with priority queuing</p>
+      </div>
+      <div class="header-actions">
+        <div class="refresh-status">
+          <span class="status-text">{{ getRefreshStatusText() }}</span>
+          <span class="auto-refresh-info">Auto-refresh: {{ activeProcesses && activeProcesses.length > 0 ? '30s' : '1m' }}</span>
+        </div>
+        <button class="manual-refresh-btn" (click)="manualRefresh()" [disabled]="isRefreshing">
+          <i class="fas fa-sync-alt" [class.fa-spin]="isRefreshing"></i>
+          {{ isRefreshing ? 'Refreshing...' : 'Manual Refresh' }}
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Priority System Overview -->

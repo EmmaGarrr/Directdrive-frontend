@@ -306,7 +306,7 @@ export class AdminAuthService {
   /**
    * Get admin auth headers
    */
-  private getAdminAuthHeaders(): HttpHeaders {
+  public getAdminAuthHeaders(): HttpHeaders {
     const token = this.getAdminToken();
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`,

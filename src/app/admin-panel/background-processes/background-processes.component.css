@@ -13,6 +13,16 @@
   color: white;
 }
 
+.header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header-text {
+  text-align: center;
+}
+
 .header h2 {
   margin: 0 0 8px 0;
   font-size: 28px;
@@ -23,6 +33,63 @@
   margin: 0;
   opacity: 0.9;
   font-size: 16px;
+}
+
+.header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.refresh-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 12px 20px;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.status-text {
+  font-size: 14px;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.auto-refresh-info {
+  font-size: 12px;
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.manual-refresh-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.manual-refresh-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.manual-refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* Priority Overview */
@@ -494,6 +561,36 @@
     font-size: 24px;
   }
   
+  .header-content {
+    gap: 16px;
+  }
+  
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+    flex-direction: row;
+    gap: 12px;
+  }
+  
+  .refresh-status {
+    padding: 8px 12px;
+    min-width: 120px;
+  }
+  
+  .status-text {
+    font-size: 12px;
+  }
+  
+  .auto-refresh-info {
+    font-size: 11px;
+  }
+  
+  .manual-refresh-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  
   .queue-cards {
     grid-template-columns: 1fr;
   }
@@ -506,11 +603,6 @@
     flex-direction: column;
     gap: 16px;
     align-items: flex-start;
-  }
-  
-  .header-actions {
-    width: 100%;
-    justify-content: space-between;
   }
   
   .process-header {
