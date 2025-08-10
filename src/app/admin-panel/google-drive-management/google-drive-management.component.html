@@ -75,10 +75,10 @@
         <i class="fas fa-chart-pie"></i>
       </div>
       <div class="stat-content">
-        <h3>{{ getStoragePercentage(totalStorageUsed, totalStorageQuota) }}%</h3>
+        <h3>{{ ((totalStorageUsed / totalStorageQuota) * 100 || 0).toFixed(2) }}%</h3>
         <p>Quota Usage</p>
         <div class="progress-bar">
-          <div class="progress-fill" [style.width.%]="getStoragePercentage(totalStorageUsed, totalStorageQuota)"></div>
+          <div class="progress-fill" [style.width.%]="(totalStorageUsed / totalStorageQuota) * 100 || 0"></div>
         </div>
       </div>
     </div>
@@ -133,12 +133,12 @@
         <div class="storage-progress">
           <div class="progress-info">
             <span>Storage Usage</span>
-            <span>{{ getStoragePercentage(account.storage_used, account.storage_quota) }}%</span>
+            <span>{{ (account.storage_percentage || 0).toFixed(2) }}%</span>
           </div>
           <div class="progress-bar">
             <div class="progress-fill" 
-                 [style.width.%]="getStoragePercentage(account.storage_used, account.storage_quota)"
-                 [class]="getStoragePercentage(account.storage_used, account.storage_quota) > 80 ? 'warning' : ''">
+                 [style.width.%]="account.storage_percentage || 0"
+                 [class]="(account.storage_percentage || 0) > 80 ? 'warning' : ''">
             </div>
           </div>
         </div>
@@ -322,7 +322,7 @@
             </div>
             <div class="detail-item">
               <label>Usage Percentage:</label>
-              <span>{{ getStoragePercentage(selectedAccount.storage_used || 0, selectedAccount.storage_quota || 0) }}%</span>
+              <span>{{ (selectedAccount.storage_percentage || 0).toFixed(2) }}%</span>
             </div>
           </div>
         </div>
