@@ -162,7 +162,7 @@
         </div>
         <div class="data-freshness" [class]="account.data_freshness">
           <i class="fas" [class]="account.data_freshness === 'fresh' ? 'fa-check-circle' : 'fa-exclamation-triangle'"></i>
-          <span>{{ account.data_freshness === 'fresh' ? 'Live Data' : 'Cached Data' }}</span>
+          <span>{{ account.data_freshness === 'fresh' ? 'Data Fresh' : 'Data Stale' }}</span>
           <small *ngIf="account.last_quota_check">Updated: {{ formatDateTime(account.last_quota_check) }}</small>
         </div>
       </div>
