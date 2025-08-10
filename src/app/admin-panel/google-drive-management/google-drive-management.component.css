@@ -10,10 +10,56 @@
 .management-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
   border-bottom: 2px solid #e2e8f0;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Cache Status */
+.cache-status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.85rem;
+}
+
+.cache-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cache-badge.cache-fresh {
+  background: #d4edda;
+  color: #155724;
+}
+
+.cache-badge.cache-stale {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.cache-badge.cache-error {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.last-updated {
+  color: #6c757d;
+  font-style: italic;
 }
 
 .management-header h2 {
@@ -208,6 +254,30 @@
   font-size: 2rem;
   margin-bottom: 1rem;
   display: block;
+}
+
+/* Background Refresh Indicator */
+.background-refresh-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  margin: 1rem 0;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  color: #6c757d;
+}
+
+.background-refresh-indicator i {
+  font-size: 1.5rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+}
+
+.background-refresh-indicator p {
+  margin: 0;
+  font-size: 0.9rem;
 }
 
 /* Accounts Grid */

@@ -2,13 +2,26 @@
 <div class="google-drive-management">
   <!-- Header -->
   <div class="management-header">
-    <h2><i class="fab fa-google-drive"></i> Google Drive Management</h2>
+    <div class="header-left">
+      <h2><i class="fab fa-google-drive"></i> Google Drive Management</h2>
+      <!-- Cache Status Indicator -->
+      <div class="cache-status" *ngIf="lastUpdated">
+        <span class="cache-badge" [class]="'cache-' + cacheStatus">
+          <i class="fas" [class]="getCacheIcon(cacheStatus)"></i>
+          {{ getCacheStatusText(cacheStatus) }}
+        </span>
+        <span class="last-updated" *ngIf="lastUpdated">
+          Last updated: {{ formatDateTime(lastUpdated) }}
+        </span>
+      </div>
+    </div>
     <div class="header-actions">
-      <button class="btn btn-success" (click)="showAddAccountModal = true" [disabled]="loading">
+      <button class="btn btn-success" (click)="showAddAccountModal = true" [disabled]="loading || isRefreshing">
         <i class="fas fa-plus"></i> Add Account
       </button>
-      <button class="btn btn-secondary" (click)="refreshAllAccounts()" [disabled]="loading">
-        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i> Refresh All from Google Drive
+      <button class="btn btn-secondary" (click)="refreshAllAccounts()" [disabled]="loading || isRefreshing">
+        <i class="fas fa-sync-alt" [class.fa-spin]="isRefreshing"></i> 
+        {{ isRefreshing ? 'Refreshing...' : 'Refresh All from Google Drive' }}
       </button>
     </div>
   </div>
@@ -75,6 +88,12 @@
   <div class="loading-spinner" *ngIf="loading">
     <i class="fas fa-spinner fa-spin"></i>
     <p>Loading accounts...</p>
+  </div>
+
+  <!-- Background Refresh Indicator -->
+  <div class="background-refresh-indicator" *ngIf="backgroundRefreshInProgress && !loading">
+    <i class="fas fa-sync-alt fa-spin"></i>
+    <p>Updating data in background...</p>
   </div>
 
   <!-- Accounts Grid -->

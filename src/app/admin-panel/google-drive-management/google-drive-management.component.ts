@@ -42,6 +42,12 @@ interface GoogleDriveAccountsResponse {
     total_storage_quota: number;
     average_performance: number;
   };
+  cache_info?: {
+    status: 'fresh' | 'stale' | 'error';
+    last_updated: string;
+    cache_expiry_seconds: number;
+    is_forced_refresh: boolean;
+  };
 }
 
 interface AddAccountRequest {
@@ -67,6 +73,12 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
   totalStorageQuota = 0;
   averagePerformance = 0;
   
+  // Cache management
+  cacheStatus: 'fresh' | 'stale' | 'error' = 'fresh';
+  lastUpdated: string = '';
+  isRefreshing = false;
+  backgroundRefreshInProgress = false;
+  
   // Add account modal
   showAddAccountModal = false;
   addAccountForm = {
@@ -89,12 +101,12 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    // Force refresh on initial load to get real Google Drive data
-    this.refreshAllAccounts();
+    // Smart loading: Load cached data first, then refresh in background if needed
+    this.loadAccountsSmart();
     
     // Subscribe to stats updates to auto-refresh when files are deleted/added
     this.statsSubscription = this.adminStatsService.statsUpdate$.subscribe(() => {
-      this.refreshAllAccounts();
+      this.loadAccountsSmart();
     });
   }
   
@@ -112,8 +124,34 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
     });
   }
 
+  async loadAccountsSmart(): Promise<void> {
+    // Step 1: Load cached data immediately (fast)
+    await this.loadAccounts(false);
+    
+    // Step 2: Check if we need background refresh
+    if (this.cacheStatus === 'stale' && !this.backgroundRefreshInProgress) {
+      this.backgroundRefreshInProgress = true;
+      
+      // Refresh in background without blocking UI
+      setTimeout(async () => {
+        try {
+          await this.loadAccounts(true);
+          this.backgroundRefreshInProgress = false;
+        } catch (error) {
+          console.error('Background refresh failed:', error);
+          this.backgroundRefreshInProgress = false;
+        }
+      }, 1000); // Small delay to ensure UI is responsive
+    }
+  }
+
   async loadAccounts(forceRefresh: boolean = false): Promise<void> {
-    this.loading = true;
+    if (forceRefresh) {
+      this.isRefreshing = true;
+    } else {
+      this.loading = true;
+    }
+    
     this.error = '';
 
     try {
@@ -139,17 +177,38 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
         this.totalStorageUsed = response.statistics.total_storage_used;
         this.totalStorageQuota = response.statistics.total_storage_quota;
         this.averagePerformance = response.statistics.average_performance;
+        
+        // Update cache information
+        if (response.cache_info) {
+          this.cacheStatus = response.cache_info.status;
+          this.lastUpdated = response.cache_info.last_updated;
+        }
       }
     } catch (error: any) {
       console.error('Error loading Google Drive accounts:', error);
       this.error = error.error?.detail || 'Failed to load Google Drive accounts';
+      this.cacheStatus = 'error';
     } finally {
       this.loading = false;
+      this.isRefreshing = false;
     }
   }
   
   async refreshAllAccounts(): Promise<void> {
-    await this.loadAccounts(true);
+    // Manual refresh: Force update from Google Drive API
+    this.isRefreshing = true;
+    this.error = '';
+    
+    try {
+      await this.loadAccounts(true);
+      // Show success feedback
+      console.log('Manual refresh completed successfully');
+    } catch (error) {
+      console.error('Manual refresh failed:', error);
+      this.error = 'Manual refresh failed. Please try again.';
+    } finally {
+      this.isRefreshing = false;
+    }
   }
 
   async toggleAccount(accountId: string): Promise<void> {
@@ -395,6 +454,25 @@ export class GoogleDriveManagementComponent implements OnInit, OnDestroy {
       alert(`Failed to delete files: ${error.error?.detail || 'Unknown error'}`);
     } finally {
       this.loading = false;
+    }
+  }
+
+  // Cache status helper methods
+  getCacheIcon(status: 'fresh' | 'stale' | 'error'): string {
+    switch (status) {
+      case 'fresh': return 'fa-check-circle';
+      case 'stale': return 'fa-clock';
+      case 'error': return 'fa-exclamation-triangle';
+      default: return 'fa-question-circle';
+    }
+  }
+
+  getCacheStatusText(status: 'fresh' | 'stale' | 'error'): string {
+    switch (status) {
+      case 'fresh': return 'Data Fresh';
+      case 'stale': return 'Data Stale';
+      case 'error': return 'Update Error';
+      default: return 'Unknown';
     }
   }
 }
