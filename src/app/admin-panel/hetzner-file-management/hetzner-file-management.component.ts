@@ -98,6 +98,8 @@ export class HetznerFileManagementComponent implements OnInit {
   // Statistics
   hetznerStats: any = {};
   fileTypeAnalytics: HetznerFileTypeAnalytics | null = null;
+  realStorageInfo: any = null;
+  orphanedFilesCount: number = 0;
   
   // Bulk actions
   showBulkActions = false;
@@ -113,6 +115,7 @@ export class HetznerFileManagementComponent implements OnInit {
   ngOnInit(): void {
     this.loadFiles();
     this.loadFileTypeAnalytics();
+    this.loadRealStorageInfo();
   }
 
   private getAuthHeaders(): HttpHeaders {
@@ -186,6 +189,24 @@ export class HetznerFileManagementComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error loading Hetzner analytics:', error);
+        }
+      });
+  }
+
+  loadRealStorageInfo(): void {
+    this.http.get(`${environment.apiUrl}/api/v1/admin/hetzner/storage-info`, { 
+      headers: this.getAuthHeaders()
+    })
+      .subscribe({
+        next: (response: any) => {
+          this.realStorageInfo = response.storage_info;
+          this.orphanedFilesCount = response.database_comparison.orphaned_files;
+          console.log('Real storage info loaded:', response);
+        },
+        error: (error) => {
+          console.error('Error loading real storage info:', error);
+          this.realStorageInfo = null;
+          this.orphanedFilesCount = 0;
         }
       });
   }
@@ -343,6 +364,7 @@ export class HetznerFileManagementComponent implements OnInit {
             // Refresh both files and analytics to update storage stats
             this.loadFiles();
             this.loadFileTypeAnalytics();
+            this.loadRealStorageInfo(); // Refresh real storage info
             // Trigger admin panel stats update
             this.adminStatsService.triggerStatsUpdate();
             alert('File deleted successfully from Hetzner backup');
@@ -358,18 +380,22 @@ export class HetznerFileManagementComponent implements OnInit {
   deleteAllFiles(): void {
     // Get current file count for confirmation
     const currentFileCount = this.hetznerStats?.total_files || 0;
+    const realFileCount = this.realStorageInfo?.total_files || 0;
+    const orphanedCount = this.orphanedFilesCount || 0;
     
-    if (currentFileCount === 0) {
+    if (realFileCount === 0) {
       alert('No files found in Hetzner storage to delete.');
       return;
     }
 
-    // Show detailed confirmation dialog
+    // Show detailed confirmation dialog with real storage info
     const confirmationMessage = 
       `🚨 DANGEROUS OPERATION: Delete ALL files from Hetzner storage!\n\n` +
       `This will permanently remove:\n` +
-      `• ${currentFileCount} files from Hetzner backup storage\n` +
-      `• ${this.hetznerStats?.total_storage_formatted || 'Unknown'} of data\n` +
+      `• ${realFileCount} actual files from Hetzner storage\n` +
+      `• ${this.realStorageInfo?.used_formatted || 'Unknown'} of real storage\n` +
+      `• ${orphanedCount} orphaned files (not in database)\n` +
+      `• ${currentFileCount} database-tracked files\n` +
       `• This action CANNOT be undone!\n\n` +
       `Type "DELETE ALL FILES" to confirm:`;
 
@@ -401,20 +427,23 @@ export class HetznerFileManagementComponent implements OnInit {
         next: (response: any) => {
           this.loading = false;
           
-          // Show success message with details
+          // Show success message with enhanced details
           const successMessage = 
             `✅ All Hetzner files deleted successfully!\n\n` +
             `Results:\n` +
             `• Hetzner Storage: ${response.deleted_files || 0} files, ${response.deleted_dirs || 0} directories\n` +
             `• Database Records: ${response.database_records_updated || 0} updated\n` +
             `• Errors: ${response.errors || 0}\n` +
-            `• Storage Cleaned: ${response.storage_cleaned || 'Unknown'}`;
+            `• Storage Cleaned: ${response.storage_cleaned || 'Unknown'}\n\n` +
+            `Storage Before: ${response.storage_info_before?.used_formatted || 'Unknown'} (${response.storage_info_before?.total_files || 0} files)\n` +
+            `Storage After: ${response.storage_info_after?.used_formatted || '0 B'} (${response.storage_info_after?.total_files || 0} files)`;
           
           alert(successMessage);
           
-          // Refresh data
+          // Refresh all data
           this.loadFiles();
           this.loadFileTypeAnalytics();
+          this.loadRealStorageInfo();
           this.adminStatsService.triggerStatsUpdate();
           
           // Reset selections

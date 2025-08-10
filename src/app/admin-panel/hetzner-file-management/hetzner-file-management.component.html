@@ -33,6 +33,35 @@
           </div>
         </div>
       </div>
+      
+      <!-- Real Storage Information -->
+      <div class="real-storage-info" *ngIf="realStorageInfo">
+        <h3><i class="fas fa-info-circle"></i> Real Storage Information (Live from Hetzner)</h3>
+        <div class="real-stats-grid">
+          <div class="real-stat-card">
+            <i class="fas fa-database"></i>
+            <div>
+              <span class="stat-value">{{ realStorageInfo.total_files | number }}</span>
+              <span class="stat-label">Actual Files on Hetzner</span>
+            </div>
+          </div>
+          <div class="real-stat-card">
+            <i class="fas fa-hdd"></i>
+            <div>
+              <span class="stat-value">{{ realStorageInfo.used_formatted }}</span>
+              <span class="stat-label">Real Storage Used</span>
+            </div>
+          </div>
+          <div class="real-stat-card warning" *ngIf="orphanedFilesCount > 0">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+              <span class="stat-value">{{ orphanedFilesCount | number }}</span>
+              <span class="stat-label">Orphaned Files</span>
+              <span class="stat-note">Not in database</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     
     <div class="header-controls">
