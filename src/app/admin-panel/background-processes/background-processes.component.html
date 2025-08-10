@@ -1,0 +1,178 @@
+<div class="background-processes-container">
+  <div class="header">
+    <h2><i class="fas fa-cogs"></i> Background Process Management</h2>
+    <p>Monitor and manage background processes with priority queuing</p>
+  </div>
+
+  <!-- Priority System Overview -->
+  <div class="priority-overview" *ngIf="priorityInfo">
+    <div class="overview-card">
+      <h3><i class="fas fa-layer-group"></i> Priority System Status</h3>
+      <div class="priority-stats">
+        <div class="stat-item">
+          <span class="label">Admin Workers:</span>
+          <span class="value admin">{{ priorityInfo.admin_workers }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="label">User Workers:</span>
+          <span class="value user">{{ priorityInfo.user_workers }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="label">Total Requests:</span>
+          <span class="value">{{ priorityInfo.total_requests_processed }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Queue Status -->
+  <div class="queue-status-section" *ngIf="queueStatus">
+    <div class="section-header">
+      <h3><i class="fas fa-list-ol"></i> Queue Status</h3>
+      <button class="refresh-btn" (click)="loadQueueStatus()" [disabled]="loading">
+        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
+        Refresh
+      </button>
+    </div>
+    
+    <div class="queue-cards">
+      <div class="queue-card admin-queue">
+        <div class="queue-header">
+          <i class="fas fa-crown"></i>
+          <h4>Admin Queue (High Priority)</h4>
+        </div>
+        <div class="queue-info">
+          <div class="queue-size">
+            <span class="number">{{ queueStatus.admin_queue_size }}</span>
+            <span class="label">Pending</span>
+          </div>
+          <div class="queue-status">
+            <span class="status-badge active">Active</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="queue-card user-queue">
+        <div class="queue-header">
+          <i class="fas fa-users"></i>
+          <h4>User Queue (Normal Priority)</h4>
+        </div>
+        <div class="queue-info">
+          <div class="queue-size">
+            <span class="number">{{ queueStatus.user_queue_size }}</span>
+            <span class="label">Pending</span>
+          </div>
+          <div class="queue-status">
+            <span class="status-badge active">Active</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="queue-card processing">
+        <div class="queue-header">
+          <i class="fas fa-play-circle"></i>
+          <h4>Currently Processing</h4>
+        </div>
+        <div class="queue-info">
+          <div class="queue-size">
+            <span class="number">{{ queueStatus.processing_count }}</span>
+            <span class="label">Active</span>
+          </div>
+          <div class="queue-status">
+            <span class="status-badge processing">Processing</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Processes -->
+  <div class="active-processes-section">
+    <div class="section-header">
+      <h3><i class="fas fa-tasks"></i> Active Processes</h3>
+      <div class="header-actions">
+        <button class="refresh-btn" (click)="loadActiveProcesses()" [disabled]="loading">
+          <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
+          Refresh
+        </button>
+        <button class="quota-refresh-btn" (click)="triggerQuotaRefresh()" [disabled]="loading">
+          <i class="fas fa-database"></i>
+          Trigger Quota Refresh
+        </button>
+      </div>
+    </div>
+
+    <div class="processes-list" *ngIf="activeProcesses.length > 0; else noProcesses">
+      <div class="process-item" *ngFor="let process of activeProcesses" [class]="process.status.toLowerCase()">
+        <div class="process-header">
+          <div class="process-info">
+            <h4>{{ process.description }}</h4>
+            <span class="process-id">ID: {{ process.process_id }}</span>
+          </div>
+          <div class="process-status">
+            <span class="status-badge" [class]="process.status.toLowerCase()">
+              {{ process.status }}
+            </span>
+            <span class="priority-badge" [class]="process.priority.toLowerCase()">
+              {{ process.priority }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="process-details">
+          <div class="detail-row">
+            <span class="label">Type:</span>
+            <span class="value">{{ process.process_type }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Created:</span>
+            <span class="value">{{ formatDateTime(process.created_at) }}</span>
+          </div>
+          <div class="detail-row" *ngIf="process.started_at">
+            <span class="label">Started:</span>
+            <span class="value">{{ formatDateTime(process.started_at) }}</span>
+          </div>
+          <div class="detail-row" *ngIf="process.progress > 0">
+            <span class="label">Progress:</span>
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="process.progress"></div>
+            </div>
+            <span class="progress-text">{{ process.progress.toFixed(1) }}%</span>
+          </div>
+        </div>
+
+        <div class="process-actions">
+          <button class="cancel-btn" 
+                  (click)="cancelProcess(process.process_id)"
+                  [disabled]="process.status === 'COMPLETED' || process.status === 'FAILED'">
+            <i class="fas fa-times"></i>
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noProcesses>
+      <div class="no-processes">
+        <i class="fas fa-check-circle"></i>
+        <p>No active processes at the moment</p>
+        <small>All queues are empty and ready for new requests</small>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Error Display -->
+  <div class="error-message" *ngIf="error">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span>{{ error }}</span>
+    <button class="dismiss-btn" (click)="error = null">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading process information...</p>
+  </div>
+</div>
