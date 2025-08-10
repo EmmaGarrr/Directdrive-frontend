@@ -354,6 +354,84 @@ export class HetznerFileManagementComponent implements OnInit {
         });
     }
   }
+
+  deleteAllFiles(): void {
+    // Get current file count for confirmation
+    const currentFileCount = this.hetznerStats?.total_files || 0;
+    
+    if (currentFileCount === 0) {
+      alert('No files found in Hetzner storage to delete.');
+      return;
+    }
+
+    // Show detailed confirmation dialog
+    const confirmationMessage = 
+      `🚨 DANGEROUS OPERATION: Delete ALL files from Hetzner storage!\n\n` +
+      `This will permanently remove:\n` +
+      `• ${currentFileCount} files from Hetzner backup storage\n` +
+      `• ${this.hetznerStats?.total_storage_formatted || 'Unknown'} of data\n` +
+      `• This action CANNOT be undone!\n\n` +
+      `Type "DELETE ALL FILES" to confirm:`;
+
+    const confirmation = prompt(confirmationMessage);
+    
+    if (confirmation !== 'DELETE ALL FILES') {
+      alert('Operation cancelled. No files were deleted.');
+      return;
+    }
+
+    // Get optional reason
+    const reason = prompt('Reason for bulk deletion (optional):');
+    
+    // Show loading state
+    this.loading = true;
+    
+    // Prepare request parameters
+    let params = new HttpParams();
+    if (reason) {
+      params = params.set('reason', reason);
+    }
+    
+    // Call the bulk delete endpoint
+    this.http.post(`${environment.apiUrl}/api/v1/admin/hetzner/delete-all-files`, {}, { 
+      params,
+      headers: this.getAuthHeaders()
+    })
+      .subscribe({
+        next: (response: any) => {
+          this.loading = false;
+          
+          // Show success message with details
+          const successMessage = 
+            `✅ All Hetzner files deleted successfully!\n\n` +
+            `Results:\n` +
+            `• Hetzner Storage: ${response.deleted_files || 0} files, ${response.deleted_dirs || 0} directories\n` +
+            `• Database Records: ${response.database_records_updated || 0} updated\n` +
+            `• Errors: ${response.errors || 0}\n` +
+            `• Storage Cleaned: ${response.storage_cleaned || 'Unknown'}`;
+          
+          alert(successMessage);
+          
+          // Refresh data
+          this.loadFiles();
+          this.loadFileTypeAnalytics();
+          this.adminStatsService.triggerStatsUpdate();
+          
+          // Reset selections
+          this.selectedFiles = [];
+          this.showBulkActions = false;
+          
+          console.log('Bulk deletion completed:', response);
+        },
+        error: (error) => {
+          this.loading = false;
+          
+          const errorMessage = error.error?.detail || 'Unknown error occurred';
+          alert(`❌ Failed to delete all files: ${errorMessage}`);
+          console.error('Error deleting all files:', error);
+        }
+      });
+  }
   
   executeBulkAction(): void {
     if (!this.bulkActionType || this.selectedFiles.length === 0) {
