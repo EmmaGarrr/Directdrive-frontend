@@ -307,34 +307,7 @@
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
-}
-
-.status-completed {
-  background: #d4edda;
-  color: #155724;
-}
-
-.status-pending {
-  background: #fff3cd;
-  color: #856404;
-}
-
-.status-failed {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-.status-uploading {
-  background: #cce5ff;
-  color: #004085;
-}
-
-/* Storage Badges */
-.storage-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  position: relative;
   cursor: help;
 }
 
@@ -348,14 +321,31 @@
   color: #856404;
 }
 
+.status-uploading {
+  background: #cce5ff;
+  color: #004085;
+  animation: pulse 2s infinite;
+}
+
 .status-failed {
   background: #f8d7da;
   color: #721c24;
 }
 
-.status-gdrive {
-  background: #e3f2fd;
-  color: #0d47a1;
+.status-deleted {
+  background: #f8d7da;
+  color: #721c24;
+  text-decoration: line-through;
+}
+
+.status-quarantined {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-archived {
+  background: #e2e3e5;
+  color: #383d41;
 }
 
 .status-unknown {
@@ -363,41 +353,142 @@
   color: #6c757d;
 }
 
-/* NEW: Status badges for quarantined and archived */
-.status-quarantined {
-  background: #fff3e0;
-  color: #e65100;
+/* Storage Badges */
+.storage-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: help;
+  position: relative;
+  word-break: break-all;
+  max-width: 200px;
+  display: inline-block;
 }
 
-.status-archived {
-  background: #f3e5f5;
-  color: #7b1fa2;
+.storage-badge.clickable {
+  cursor: pointer;
+  text-decoration: underline;
+  color: #007bff;
 }
 
-/* NEW: Storage status badges */
-.storage-archived {
-  background: #f3e5f5;
-  color: #7b1fa2;
+.storage-badge.clickable:hover {
+  background: #e3f2fd;
+  color: #0056b3;
 }
 
-.storage-quarantined {
-  background: #fff3e0;
-  color: #e65100;
-}
-
-.storage-backed-up {
+.storage-completed {
   background: #d4edda;
   color: #155724;
 }
 
-.storage-backing-up {
+.storage-pending {
   background: #fff3cd;
   color: #856404;
 }
 
-.storage-not-backed-up {
+.storage-uploading {
+  background: #cce5ff;
+  color: #004085;
+  animation: pulse 2s infinite;
+}
+
+.storage-failed {
   background: #f8d7da;
   color: #721c24;
+}
+
+.storage-deleted {
+  background: #f8d7da;
+  color: #721c24;
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.storage-quarantined {
+  background: #fff3cd;
+  color: #856404;
+  opacity: 0.7;
+}
+
+.storage-archived {
+  background: #e2e3e5;
+  color: #383d41;
+  opacity: 0.7;
+}
+
+.storage-unknown {
+  background: #f5f5f5;
+  color: #6c757d;
+}
+
+/* Animation for uploading status */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Tooltip enhancements */
+.storage-badge[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: 5px;
+}
+
+.storage-badge[title]:hover::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #333;
+  margin-bottom: -5px;
+}
+
+/* Status badge tooltips */
+.status-badge[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: 5px;
+}
+
+.status-badge[title]:hover::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #333;
+  margin-bottom: -5px;
 }
 
 /* Actions Cell */

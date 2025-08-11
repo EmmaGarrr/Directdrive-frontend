@@ -32,6 +32,12 @@ interface HetznerFile {
   last_integrity_check?: string;
   // NEW: Action history
   action_history?: any[];
+  // NEW: Enhanced status and storage fields
+  backup_error?: string;
+  backup_error_details?: string;
+  deleted_at?: string;
+  deleted_by?: string;
+  deletion_reason?: string;
 }
 
 interface HetznerFileListResponse {
@@ -312,7 +318,7 @@ export class HetznerManagementComponent implements OnInit {
       this.selectedFileActionHistory = response.action_history || [];
       this.selectedFileName = file.filename;
       this.showActionHistoryModal = true;
-
+      
     } catch (error: any) {
       console.error('Error loading action history:', error);
       alert(`Failed to load action history: ${error.error?.detail || 'Unknown error'}`);
@@ -367,6 +373,163 @@ export class HetznerManagementComponent implements OnInit {
       return { text: 'Backing Up', class: 'storage-backing-up', tooltip: 'File backup in progress' };
     } else {
       return { text: 'Not Backed Up', class: 'storage-not-backed-up', tooltip: 'File not backed up to Hetzner' };
+    }
+  }
+
+  // NEW: Enhanced status display method for Hetzner
+  getFileStatus(file: HetznerFile): { text: string; class: string; tooltip: string } {
+    // Handle deleted status
+    if (file.deleted_at) {
+      const reason = file.deletion_reason || 'Unknown reason';
+      return { 
+        text: 'Deleted', 
+        class: 'status-deleted', 
+        tooltip: `Deleted on ${new Date(file.deleted_at).toLocaleString()}. Reason: ${reason}` 
+      };
+    }
+    
+    // Handle quarantined status
+    if (file.quarantined) {
+      const reason = file.quarantine_reason || 'Unknown reason';
+      return { 
+        text: 'Quarantined', 
+        class: 'status-quarantined', 
+        tooltip: `Quarantined on ${new Date(file.quarantined_at!).toLocaleString()}. Reason: ${reason}` 
+      };
+    }
+    
+    // Handle archived status
+    if (file.archived) {
+      const reason = file.archive_reason || 'Unknown reason';
+      return { 
+        text: 'Archived', 
+        class: 'status-archived', 
+        tooltip: `Archived on ${new Date(file.archived_at!).toLocaleString()}. Reason: ${reason}` 
+      };
+    }
+    
+    // Handle backup status
+    switch (file.backup_status) {
+      case 'completed':
+        return { text: 'Completed', class: 'status-completed', tooltip: 'File successfully backed up to Hetzner' };
+      case 'in_progress':
+        return { text: 'Backing Up', class: 'status-uploading', tooltip: 'File is currently being backed up to Hetzner' };
+      case 'failed':
+        const errorMsg = file.backup_error || 'Unknown error';
+        const errorDetails = file.backup_error_details || '';
+        const tooltip = errorDetails ? `${errorMsg}: ${errorDetails}` : errorMsg;
+        return { text: 'Failed', class: 'status-failed', tooltip: tooltip };
+      case 'none':
+        return { text: 'Not Started', class: 'status-pending', tooltip: 'Backup to Hetzner has not started yet' };
+      default:
+        return { text: file.backup_status || 'Unknown', class: 'status-unknown', tooltip: 'Unknown backup status' };
+    }
+  }
+
+  // NEW: Enhanced storage display method for Hetzner
+  getFileStorage(file: HetznerFile): { text: string; class: string; tooltip: string; clickable: boolean } {
+    // Handle deleted files
+    if (file.deleted_at) {
+      if (file.hetzner_remote_path) {
+        return { 
+          text: file.hetzner_remote_path, 
+          class: 'storage-deleted', 
+          tooltip: `File was deleted but path was: ${file.hetzner_remote_path}`, 
+          clickable: false 
+        };
+      }
+      return { 
+        text: 'Deleted', 
+        class: 'storage-deleted', 
+        tooltip: 'File has been deleted from Hetzner', 
+        clickable: false 
+      };
+    }
+    
+    // Handle quarantined files
+    if (file.quarantined) {
+      if (file.hetzner_remote_path) {
+        return { 
+          text: file.hetzner_remote_path, 
+          class: 'storage-quarantined', 
+          tooltip: `File is quarantined. Path: ${file.hetzner_remote_path}`, 
+          clickable: false 
+        };
+      }
+      return { 
+        text: 'Quarantined', 
+        class: 'storage-quarantined', 
+        tooltip: 'File is quarantined and not accessible', 
+        clickable: false 
+      };
+    }
+    
+    // Handle archived files
+    if (file.archived) {
+      if (file.hetzner_remote_path) {
+        return { 
+          text: file.hetzner_remote_path, 
+          class: 'storage-archived', 
+          tooltip: `File is archived. Path: ${file.hetzner_remote_path}`, 
+          clickable: false 
+        };
+      }
+      return { 
+        text: 'Archived', 
+        class: 'storage-archived', 
+        tooltip: 'File is archived and not accessible', 
+        clickable: false 
+      };
+    }
+    
+    // Handle backup status
+    switch (file.backup_status) {
+      case 'completed':
+        if (file.hetzner_remote_path) {
+          return { 
+            text: file.hetzner_remote_path, 
+            class: 'storage-completed', 
+            tooltip: `Click to download from: ${file.hetzner_remote_path}`, 
+            clickable: true 
+          };
+        }
+        return { 
+          text: 'Completed (No Path)', 
+          class: 'storage-completed', 
+          tooltip: 'File backed up but path not available', 
+          clickable: false 
+        };
+      case 'in_progress':
+        return { 
+          text: '', 
+          class: 'storage-uploading', 
+          tooltip: 'File is currently being backed up - no storage path yet', 
+          clickable: false 
+        };
+      case 'failed':
+        const errorMsg = file.backup_error || 'Unknown error';
+        const errorDetails = file.backup_error_details || '';
+        const tooltip = errorDetails ? `Failed to backup: ${errorMsg} - ${errorDetails}` : `Failed to backup: ${errorMsg}`;
+        return { 
+          text: 'Failed', 
+          class: 'storage-failed', 
+          tooltip: tooltip, 
+          clickable: false 
+        };
+      case 'none':
+        return { 
+          text: '', 
+          class: 'storage-pending', 
+          tooltip: 'Backup not started - no storage path yet', 
+          clickable: false 
+        };
+      default:
+        return { 
+          text: 'Unknown', 
+          class: 'storage-unknown', 
+          tooltip: 'Unknown storage status', 
+          clickable: false 
+        };
     }
   }
 

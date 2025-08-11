@@ -199,17 +199,21 @@
           <td>{{ file.owner_email || 'Anonymous' }}</td>
           <td>{{ formatDate(file.upload_date) }}</td>
           <td>
-            <span class="status-badge" [class]="'status-' + file.status">
-              {{ file.status }}
+            <span class="status-badge" 
+                  [class]="getFileStatus(file).class"
+                  [title]="getFileStatus(file).tooltip">
+              {{ getFileStatus(file).text }}
               <i *ngIf="file.quarantined" class="fas fa-ban quarantine-icon" title="Quarantined"></i>
               <i *ngIf="file.archived" class="fas fa-archive archive-icon" title="Archived"></i>
             </span>
           </td>
           <td>
             <span class="storage-badge" 
-                  [class]="getStorageStatus(file).class"
-                  [title]="getStorageStatus(file).tooltip">
-              {{ getStorageStatus(file).text }}
+                  [class]="getFileStorage(file).class"
+                  [title]="getFileStorage(file).tooltip"
+                  [class.clickable]="getFileStorage(file).clickable"
+                  (click)="getFileStorage(file).clickable ? downloadFile(file) : null">
+              {{ getFileStorage(file).text }}
             </span>
           </td>
           <td class="actions-cell">
@@ -235,8 +239,8 @@
               <button 
                 class="btn btn-sm btn-secondary" 
                 (click)="checkFileIntegrity(file)"
-                [disabled]="!canPerformAction(file, 'integrity')"
-                [title]="canPerformAction(file, 'integrity') ? 'Check Integrity' : getActionTooltip(file, 'integrity')">
+                [disabled]="!canPerformAction(file, 'integrity_check')"
+                [title]="canPerformAction(file, 'integrity_check') ? 'Check Integrity' : getActionTooltip(file, 'integrity_check')">
                 <i class="fas fa-shield-alt"></i>
               </button>
               <button 
@@ -249,8 +253,8 @@
               <button 
                 class="btn btn-sm btn-success" 
                 (click)="forceBackup(file)"
-                [disabled]="!canPerformAction(file, 'backup')"
-                [title]="canPerformAction(file, 'backup') ? 'Force Backup' : getActionTooltip(file, 'backup')">
+                [disabled]="!canPerformAction(file, 'force_backup')"
+                [title]="canPerformAction(file, 'force_backup') ? 'Force Backup' : getActionTooltip(file, 'force_backup')">
                 <i class="fas fa-cloud-upload-alt"></i>
               </button>
             </div>

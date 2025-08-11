@@ -33,6 +33,13 @@ interface GoogleDriveFile {
   last_integrity_check?: string;
   // NEW: Action history
   action_history?: any[];
+  // NEW: Enhanced status and storage fields
+  upload_error?: string;
+  upload_error_details?: string;
+  gdrive_file_path?: string;
+  deleted_at?: string;
+  deleted_by?: string;
+  deletion_reason?: string;
 }
 
 interface GoogleDriveFileListResponse {
@@ -371,6 +378,163 @@ export class GoogleDriveManagementComponent implements OnInit {
       return { text: 'Backing Up', class: 'storage-backing-up', tooltip: 'File backup in progress' };
     } else {
       return { text: 'Not Backed Up', class: 'storage-not-backed-up', tooltip: 'File not backed up to Hetzner' };
+    }
+  }
+
+  // NEW: Enhanced status display method
+  getFileStatus(file: GoogleDriveFile): { text: string; class: string; tooltip: string } {
+    // Handle deleted status
+    if (file.deleted_at) {
+      const reason = file.deletion_reason || 'Unknown reason';
+      return { 
+        text: 'Deleted', 
+        class: 'status-deleted', 
+        tooltip: `Deleted on ${new Date(file.deleted_at).toLocaleString()}. Reason: ${reason}` 
+      };
+    }
+    
+    // Handle quarantined status
+    if (file.quarantined) {
+      const reason = file.quarantine_reason || 'Unknown reason';
+      return { 
+        text: 'Quarantined', 
+        class: 'status-quarantined', 
+        tooltip: `Quarantined on ${new Date(file.quarantined_at!).toLocaleString()}. Reason: ${reason}` 
+      };
+    }
+    
+    // Handle archived status
+    if (file.archived) {
+      const reason = file.archive_reason || 'Unknown reason';
+      return { 
+        text: 'Archived', 
+        class: 'status-archived', 
+        tooltip: `Archived on ${new Date(file.archived_at!).toLocaleString()}. Reason: ${reason}` 
+      };
+    }
+    
+    // Handle upload status
+    switch (file.status) {
+      case 'completed':
+        return { text: 'Completed', class: 'status-completed', tooltip: 'File successfully uploaded to Google Drive' };
+      case 'pending':
+        return { text: 'Pending', class: 'status-pending', tooltip: 'File upload is pending' };
+      case 'uploading':
+        return { text: 'Uploading', class: 'status-uploading', tooltip: 'File is currently uploading to Google Drive' };
+      case 'failed':
+        const errorMsg = file.upload_error || 'Unknown error';
+        const errorDetails = file.upload_error_details || '';
+        const tooltip = errorDetails ? `${errorMsg}: ${errorDetails}` : errorMsg;
+        return { text: 'Failed', class: 'status-failed', tooltip: tooltip };
+      default:
+        return { text: file.status || 'Unknown', class: 'status-unknown', tooltip: 'Unknown status' };
+    }
+  }
+
+  // NEW: Enhanced storage display method
+  getFileStorage(file: GoogleDriveFile): { text: string; class: string; tooltip: string; clickable: boolean } {
+    // Handle deleted files
+    if (file.deleted_at) {
+      if (file.gdrive_file_path) {
+        return { 
+          text: file.gdrive_file_path, 
+          class: 'storage-deleted', 
+          tooltip: `File was deleted but path was: ${file.gdrive_file_path}`, 
+          clickable: false 
+        };
+      }
+      return { 
+        text: 'Deleted', 
+        class: 'storage-deleted', 
+        tooltip: 'File has been deleted from Google Drive', 
+        clickable: false 
+      };
+    }
+    
+    // Handle quarantined files
+    if (file.quarantined) {
+      if (file.gdrive_file_path) {
+        return { 
+          text: file.gdrive_file_path, 
+          class: 'storage-quarantined', 
+          tooltip: `File is quarantined. Path: ${file.gdrive_file_path}`, 
+          clickable: false 
+        };
+      }
+      return { 
+        text: 'Quarantined', 
+        class: 'storage-quarantined', 
+        tooltip: 'File is quarantined and not accessible', 
+        clickable: false 
+      };
+    }
+    
+    // Handle archived files
+    if (file.archived) {
+      if (file.gdrive_file_path) {
+        return { 
+          text: file.gdrive_file_path, 
+          class: 'storage-archived', 
+          tooltip: `File is archived. Path: ${file.gdrive_file_path}`, 
+          clickable: false 
+        };
+      }
+      return { 
+        text: 'Archived', 
+        class: 'storage-archived', 
+        tooltip: 'File is archived and not accessible', 
+        clickable: false 
+      };
+    }
+    
+    // Handle upload status
+    switch (file.status) {
+      case 'completed':
+        if (file.gdrive_file_path) {
+          return { 
+            text: file.gdrive_file_path, 
+            class: 'storage-completed', 
+            tooltip: `Click to download from: ${file.gdrive_file_path}`, 
+            clickable: true 
+          };
+        }
+        return { 
+          text: 'Completed (No Path)', 
+          class: 'storage-completed', 
+          tooltip: 'File uploaded but path not available', 
+          clickable: false 
+        };
+      case 'pending':
+        return { 
+          text: '', 
+          class: 'storage-pending', 
+          tooltip: 'File upload is pending - no storage path yet', 
+          clickable: false 
+        };
+      case 'uploading':
+        return { 
+          text: '', 
+          class: 'storage-uploading', 
+          tooltip: 'File is currently uploading - no storage path yet', 
+          clickable: false 
+        };
+      case 'failed':
+        const errorMsg = file.upload_error || 'Unknown error';
+        const errorDetails = file.upload_error_details || '';
+        const tooltip = errorDetails ? `Failed to upload: ${errorMsg} - ${errorDetails}` : `Failed to upload: ${errorMsg}`;
+        return { 
+          text: 'Failed', 
+          class: 'storage-failed', 
+          tooltip: tooltip, 
+          clickable: false 
+        };
+      default:
+        return { 
+          text: 'Unknown', 
+          class: 'storage-unknown', 
+          tooltip: 'Unknown storage status', 
+          clickable: false 
+        };
     }
   }
 
