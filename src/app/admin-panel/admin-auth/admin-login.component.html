@@ -1,16 +1,16 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 py-12 px-4 sm:px-6 lg:px-8">
   <div class="max-w-md w-full space-y-8">
     <div>
-      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-white">
         Admin Login
       </h2>
-      <p class="mt-2 text-center text-sm text-gray-600">
+      <p class="mt-2 text-center text-sm text-indigo-100">
         Access the DirectDrive administration panel
       </p>
     </div>
     
     <form class="mt-8 space-y-6" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <div class="rounded-md shadow-sm -space-y-px">
+      <div class="bg-white/95 backdrop-blur-md rounded-xl shadow-2xl p-8 space-y-6">
         <div>
           <label for="email" class="sr-only">Email address</label>
           <input
@@ -19,12 +19,15 @@
             type="email"
             formControlName="email"
             required
-            class="appearance-none rounded-none relative block w-full px-3 py-2 border"
+            class="appearance-none relative block w-full px-4 py-3 border rounded-lg transition-all duration-300 focus:transform focus:-translate-y-0.5 focus:shadow-lg"
             [class.border-red-300]="f['email'].invalid && f['email'].touched"
             [class.border-gray-300]="!(f['email'].invalid && f['email'].touched)"
+            [class.focus:ring-2]="true"
+            [class.focus:ring-indigo-500]="true"
+            [class.focus:border-indigo-500]="true"
             placeholder="Admin email address"
           />
-          <div *ngIf="f['email'].invalid && f['email'].touched" class="mt-1 text-sm text-red-600">
+          <div *ngIf="f['email'].invalid && f['email'].touched" class="mt-1 text-sm text-red-600 animate-pulse">
             <div *ngIf="f['email'].errors?.['required']">Email is required</div>
             <div *ngIf="f['email'].errors?.['email']">Please enter a valid email</div>
           </div>
@@ -38,19 +41,22 @@
             type="password"
             formControlName="password"
             required
-            class="appearance-none rounded-none relative block w-full px-3 py-2 border"
+            class="appearance-none relative block w-full px-4 py-3 border rounded-lg transition-all duration-300 focus:transform focus:-translate-y-0.5 focus:shadow-lg"
             [class.border-red-300]="f['password'].invalid && f['password'].touched"
             [class.border-gray-300]="!(f['password'].invalid && f['password'].touched)"
+            [class.focus:ring-2]="true"
+            [class.focus:ring-indigo-500]="true"
+            [class.focus:border-indigo-500]="true"
             placeholder="Admin password"
           />
-          <div *ngIf="f['password'].invalid && f['password'].touched" class="mt-1 text-sm text-red-600">
+          <div *ngIf="f['password'].invalid && f['password'].touched" class="mt-1 text-sm text-red-600 animate-pulse">
             <div *ngIf="f['password'].errors?.['required']">Password is required</div>
             <div *ngIf="f['password'].errors?.['minlength']">Password must be at least 6 characters</div>
           </div>
         </div>
       </div>
 
-      <div *ngIf="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+      <div *ngIf="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg animate-bounce">
         {{ error }}
       </div>
 
@@ -58,11 +64,16 @@
         <button
           type="submit"
           [disabled]="loading || loginForm.invalid"
-          class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white"
-          [class.bg-indigo-600]="!loading && loginForm.valid"
-          [class.hover:bg-indigo-700]="!loading && loginForm.valid"
+          class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          [class.bg-gradient-to-r]="!loading && loginForm.valid"
+          [class.from-indigo-500]="!loading && loginForm.valid"
+          [class.to-purple-600]="!loading && loginForm.valid"
+          [class.hover:from-indigo-600]="!loading && loginForm.valid"
+          [class.hover:to-purple-700]="!loading && loginForm.valid"
+          [class.hover:transform]="!loading && loginForm.valid"
+          [class.hover:-translate-y-0.5]="!loading && loginForm.valid"
+          [class.hover:shadow-xl]="!loading && loginForm.valid"
           [class.bg-gray-400]="loading || loginForm.invalid"
-          [class.cursor-not-allowed]="loading || loginForm.invalid"
         >
           <span *ngIf="loading" class="absolute left-0 inset-y-0 flex items-center pl-3">
             <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -75,7 +86,7 @@
         <button
           type="button"
           (click)="goToUserLogin()"
-          class="text-indigo-600 hover:text-indigo-500 text-sm font-medium"
+          class="text-indigo-100 hover:text-white text-sm font-medium transition-all duration-200 hover:underline"
         >
           Switch to User Login
         </button>

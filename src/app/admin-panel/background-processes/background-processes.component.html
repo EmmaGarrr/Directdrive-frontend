@@ -1,16 +1,18 @@
-<div class="background-processes-container">
-  <div class="header">
-    <div class="header-content">
-      <div class="header-text">
-        <h2><i class="fas fa-cogs"></i> Background Process Management</h2>
-        <p>Monitor and manage background processes with priority queuing</p>
+<div class="p-6 max-w-6xl mx-auto">
+  <div class="text-center mb-8 p-6 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl text-white">
+    <div class="flex flex-col gap-5">
+      <div class="text-center">
+        <h2 class="m-0 mb-2 text-3xl font-semibold flex items-center justify-center gap-3">
+          <i class="fas fa-cogs"></i> Background Process Management
+        </h2>
+        <p class="m-0 opacity-90 text-base">Monitor and manage background processes with priority queuing</p>
       </div>
-      <div class="header-actions">
-        <div class="refresh-status">
-          <span class="status-text">{{ getRefreshStatusText() }}</span>
-          <span class="auto-refresh-info">Auto-refresh: {{ activeProcesses && activeProcesses.length > 0 ? '30s' : '1m' }}</span>
+      <div class="flex flex-col items-center gap-4">
+        <div class="flex flex-col items-center gap-2 bg-white/10 p-3 rounded-lg backdrop-blur-md">
+          <span class="text-sm opacity-90 font-medium">{{ getRefreshStatusText() }}</span>
+          <span class="text-xs opacity-70 italic">Auto-refresh: {{ activeProcesses && activeProcesses.length > 0 ? '30s' : '1m' }}</span>
         </div>
-        <button class="manual-refresh-btn" (click)="manualRefresh()" [disabled]="isRefreshing">
+        <button class="bg-white/20 text-white border border-white/30 px-5 py-2.5 rounded-md cursor-pointer text-sm font-medium transition-all duration-200 flex items-center gap-2 hover:bg-white/30 hover:border-white/50 hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none" (click)="manualRefresh()" [disabled]="isRefreshing">
           <i class="fas fa-sync-alt" [class.fa-spin]="isRefreshing"></i>
           {{ isRefreshing ? 'Refreshing...' : 'Manual Refresh' }}
         </button>
@@ -19,81 +21,85 @@
   </div>
 
   <!-- Priority System Overview -->
-  <div class="priority-overview" *ngIf="priorityInfo">
-    <div class="overview-card">
-      <h3><i class="fas fa-layer-group"></i> Priority System Status</h3>
-      <div class="priority-stats">
-        <div class="stat-item">
-          <span class="label">Admin Workers:</span>
-          <span class="value admin">{{ priorityInfo.admin_workers }}</span>
+  <div class="mb-8" *ngIf="priorityInfo">
+    <div class="bg-white rounded-xl p-6 shadow-md border border-gray-200">
+      <h3 class="m-0 mb-5 text-xl text-gray-800 flex items-center gap-3">
+        <i class="fas fa-layer-group"></i> Priority System Status
+      </h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <span class="font-medium text-gray-600">Admin Workers:</span>
+          <span class="font-semibold text-lg text-red-600">{{ priorityInfo.admin_workers }}</span>
         </div>
-        <div class="stat-item">
-          <span class="label">User Workers:</span>
-          <span class="value user">{{ priorityInfo.user_workers }}</span>
+        <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <span class="font-medium text-gray-600">User Workers:</span>
+          <span class="font-semibold text-lg text-green-600">{{ priorityInfo.user_workers }}</span>
         </div>
-        <div class="stat-item">
-          <span class="label">Total Requests:</span>
-          <span class="value">{{ priorityInfo.total_requests_processed }}</span>
+        <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <span class="font-medium text-gray-600">Total Requests:</span>
+          <span class="font-semibold text-lg">{{ priorityInfo.total_requests_processed }}</span>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Queue Status -->
-  <div class="queue-status-section" *ngIf="queueStatus">
-    <div class="section-header">
-      <h3><i class="fas fa-list-ol"></i> Queue Status</h3>
-      <button class="refresh-btn" (click)="loadQueueStatus()" [disabled]="loading">
+  <div class="mb-8" *ngIf="queueStatus">
+    <div class="flex justify-between items-center mb-6 pb-4 border-b-2 border-gray-200">
+      <h3 class="m-0 text-2xl text-gray-800 flex items-center gap-3">
+        <i class="fas fa-list-ol"></i> Queue Status
+      </h3>
+      <button class="px-4 py-2.5 border-none rounded-md font-medium cursor-pointer flex items-center gap-2 transition-all duration-200 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed" (click)="loadQueueStatus()" [disabled]="loading">
         <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
         Refresh
       </button>
     </div>
     
-    <div class="queue-cards">
-      <div class="queue-card admin-queue">
-        <div class="queue-header">
-          <i class="fas fa-crown"></i>
-          <h4>Admin Queue (High Priority)</h4>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div class="bg-white rounded-xl p-6 shadow-md border border-gray-200 border-l-4 border-l-red-600 transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+        <div class="flex items-center gap-3 mb-5">
+          <i class="fas fa-crown text-xl text-gray-600"></i>
+          <h4 class="m-0 text-gray-800 text-lg">Admin Queue (High Priority)</h4>
         </div>
-        <div class="queue-info">
-          <div class="queue-size">
-            <span class="number">{{ queueStatus.admin_queue_size }}</span>
-            <span class="label">Pending</span>
+        <div class="flex justify-between items-center">
+          <div class="text-center">
+            <span class="block text-3xl font-bold text-gray-800">{{ queueStatus.admin_queue_size }}</span>
+            <span class="text-gray-600 text-sm">Pending</span>
           </div>
-          <div class="queue-status">
-            <span class="status-badge active">Active</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="queue-card user-queue">
-        <div class="queue-header">
-          <i class="fas fa-users"></i>
-          <h4>User Queue (Normal Priority)</h4>
-        </div>
-        <div class="queue-info">
-          <div class="queue-size">
-            <span class="number">{{ queueStatus.user_queue_size }}</span>
-            <span class="label">Pending</span>
-          </div>
-          <div class="queue-status">
-            <span class="status-badge active">Active</span>
+          <div>
+            <span class="px-3 py-1.5 rounded-full text-xs font-semibold uppercase bg-green-100 text-green-800">Active</span>
           </div>
         </div>
       </div>
 
-      <div class="queue-card processing">
-        <div class="queue-header">
-          <i class="fas fa-play-circle"></i>
-          <h4>Currently Processing</h4>
+      <div class="bg-white rounded-xl p-6 shadow-md border border-gray-200 border-l-4 border-l-green-600 transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+        <div class="flex items-center gap-3 mb-5">
+          <i class="fas fa-users text-xl text-gray-600"></i>
+          <h4 class="m-0 text-gray-800 text-lg">User Queue (Normal Priority)</h4>
         </div>
-        <div class="queue-info">
-          <div class="queue-size">
-            <span class="number">{{ queueStatus.processing_count }}</span>
-            <span class="label">Active</span>
+        <div class="flex justify-between items-center">
+          <div class="text-center">
+            <span class="block text-3xl font-bold text-gray-800">{{ queueStatus.user_queue_size }}</span>
+            <span class="text-gray-600 text-sm">Pending</span>
           </div>
-          <div class="queue-status">
-            <span class="status-badge processing">Processing</span>
+          <div>
+            <span class="px-3 py-1.5 rounded-full text-xs font-semibold uppercase bg-green-100 text-green-800">Active</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl p-6 shadow-md border border-gray-200 border-l-4 border-l-yellow-500 transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+        <div class="flex items-center gap-3 mb-5">
+          <i class="fas fa-play-circle text-xl text-gray-600"></i>
+          <h4 class="m-0 text-gray-800 text-lg">Currently Processing</h4>
+        </div>
+        <div class="flex justify-between items-center">
+          <div class="text-center">
+            <span class="block text-3xl font-bold text-gray-800">{{ queueStatus.processing_count }}</span>
+            <span class="text-gray-600 text-sm">Active</span>
+          </div>
+          <div>
+            <span class="px-3 py-1.5 rounded-full text-xs font-semibold uppercase bg-yellow-100 text-yellow-800">Processing</span>
           </div>
         </div>
       </div>
@@ -101,62 +107,84 @@
   </div>
 
   <!-- Active Processes -->
-  <div class="active-processes-section">
-    <div class="section-header">
-      <h3><i class="fas fa-tasks"></i> Active Processes</h3>
-      <div class="header-actions">
-        <button class="refresh-btn" (click)="loadActiveProcesses()" [disabled]="loading">
+  <div class="mb-8">
+    <div class="flex justify-between items-center mb-6 pb-4 border-b-2 border-gray-200">
+      <h3 class="m-0 text-2xl text-gray-800 flex items-center gap-3">
+        <i class="fas fa-tasks"></i> Active Processes
+      </h3>
+      <div class="flex gap-3">
+        <button class="px-4 py-2.5 border-none rounded-md font-medium cursor-pointer flex items-center gap-2 transition-all duration-200 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed" (click)="loadActiveProcesses()" [disabled]="loading">
           <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
           Refresh
         </button>
-        <button class="quota-refresh-btn" (click)="triggerQuotaRefresh()" [disabled]="loading">
+        <button class="px-4 py-2.5 border-none rounded-md font-medium cursor-pointer flex items-center gap-2 transition-all duration-200 bg-green-600 text-white hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed" (click)="triggerQuotaRefresh()" [disabled]="loading">
           <i class="fas fa-database"></i>
           Trigger Quota Refresh
         </button>
       </div>
     </div>
 
-    <div class="processes-list" *ngIf="activeProcesses.length > 0; else noProcesses">
-      <div class="process-item" *ngFor="let process of activeProcesses" [class]="process.status.toLowerCase()">
-        <div class="process-header">
+    <div class="flex flex-col gap-4" *ngIf="activeProcesses.length > 0; else noProcesses">
+      <div class="bg-white rounded-xl p-6 shadow-md border border-gray-200 border-l-4 transition-all duration-200" 
+           [class.border-l-yellow-500]="process.status.toLowerCase() === 'pending'"
+           [class.border-l-blue-600]="process.status.toLowerCase() === 'running'"
+           [class.border-l-green-600]="process.status.toLowerCase() === 'completed'"
+           [class.border-l-red-600]="process.status.toLowerCase() === 'failed'"
+           [class.border-l-gray-500]="!['pending', 'running', 'completed', 'failed'].includes(process.status.toLowerCase())"
+           *ngFor="let process of activeProcesses">
+        <div class="flex justify-between items-start mb-5">
           <div class="process-info">
-            <h4>{{ process.description }}</h4>
-            <span class="process-id">ID: {{ process.process_id }}</span>
+            <h4 class="m-0 mb-2 text-gray-800 text-lg">{{ process.description }}</h4>
+            <span class="text-gray-600 text-sm font-mono">ID: {{ process.process_id }}</span>
           </div>
-          <div class="process-status">
-            <span class="status-badge" [class]="process.status.toLowerCase()">
+          <div class="flex gap-2 items-center">
+            <span class="px-2 py-1 rounded-full text-xs font-semibold uppercase"
+                  [class.bg-yellow-100]="process.status.toLowerCase() === 'pending'"
+                  [class.text-yellow-800]="process.status.toLowerCase() === 'pending'"
+                  [class.bg-blue-100]="process.status.toLowerCase() === 'running'"
+                  [class.text-blue-800]="process.status.toLowerCase() === 'running'"
+                  [class.bg-green-100]="process.status.toLowerCase() === 'completed'"
+                  [class.text-green-800]="process.status.toLowerCase() === 'completed'"
+                  [class.bg-red-100]="process.status.toLowerCase() === 'failed'"
+                  [class.text-red-800]="process.status.toLowerCase() === 'failed'"
+                  [class.bg-gray-100]="!['pending', 'running', 'completed', 'failed'].includes(process.status.toLowerCase())"
+                  [class.text-gray-800]="!['pending', 'running', 'completed', 'failed'].includes(process.status.toLowerCase())">
               {{ process.status }}
             </span>
-            <span class="priority-badge" [class]="process.priority.toLowerCase()">
+            <span class="px-2 py-1 rounded-xl text-xs font-semibold uppercase"
+                  [class.bg-red-100]="process.priority.toLowerCase() === 'high'"
+                  [class.text-red-800]="process.priority.toLowerCase() === 'high'"
+                  [class.bg-blue-100]="process.priority.toLowerCase() === 'normal'"
+                  [class.text-blue-800]="process.priority.toLowerCase() === 'normal'">
               {{ process.priority }}
             </span>
           </div>
         </div>
         
-        <div class="process-details">
-          <div class="detail-row">
-            <span class="label">Type:</span>
-            <span class="value">{{ process.process_type }}</span>
+        <div class="mb-5">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="font-medium text-gray-600 min-w-20">Type:</span>
+            <span class="text-gray-800">{{ process.process_type }}</span>
           </div>
-          <div class="detail-row">
-            <span class="label">Created:</span>
-            <span class="value">{{ formatDateTime(process.created_at) }}</span>
+          <div class="flex items-center gap-3 mb-3">
+            <span class="font-medium text-gray-600 min-w-20">Created:</span>
+            <span class="text-gray-800">{{ formatDateTime(process.created_at) }}</span>
           </div>
-          <div class="detail-row" *ngIf="process.started_at">
-            <span class="label">Started:</span>
-            <span class="value">{{ formatDateTime(process.started_at) }}</span>
+          <div class="flex items-center gap-3 mb-3" *ngIf="process.started_at">
+            <span class="font-medium text-gray-600 min-w-20">Started:</span>
+            <span class="text-gray-800">{{ formatDateTime(process.started_at) }}</span>
           </div>
-          <div class="detail-row" *ngIf="process.progress > 0">
-            <span class="label">Progress:</span>
-            <div class="progress-bar">
-              <div class="progress-fill" [style.width.%]="process.progress"></div>
+          <div class="flex items-center gap-3 mb-3" *ngIf="process.progress > 0">
+            <span class="font-medium text-gray-600 min-w-20">Progress:</span>
+            <div class="flex-1 h-2 bg-gray-200 rounded overflow-hidden mx-3">
+              <div class="h-full bg-gradient-to-r from-blue-600 to-green-600 transition-all duration-300" [style.width.%]="process.progress"></div>
             </div>
-            <span class="progress-text">{{ process.progress.toFixed(1) }}%</span>
+            <span class="font-semibold text-gray-800 min-w-12 text-right">{{ process.progress.toFixed(1) }}%</span>
           </div>
         </div>
 
-        <div class="process-actions">
-          <button class="cancel-btn" 
+        <div class="flex justify-end">
+          <button class="px-4 py-2 bg-red-600 text-white border-none rounded-md cursor-pointer font-medium flex items-center gap-2 transition-all duration-200 hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed" 
                   (click)="cancelProcess(process.process_id)"
                   [disabled]="process.status === 'COMPLETED' || process.status === 'FAILED'">
             <i class="fas fa-times"></i>
@@ -167,26 +195,26 @@
     </div>
 
     <ng-template #noProcesses>
-      <div class="no-processes">
-        <i class="fas fa-check-circle"></i>
-        <p>No active processes at the moment</p>
-        <small>All queues are empty and ready for new requests</small>
+      <div class="text-center py-12 px-6 bg-white rounded-xl shadow-md border border-gray-200">
+        <i class="fas fa-check-circle text-5xl text-green-600 mb-4"></i>
+        <p class="m-0 mb-2 text-gray-800 text-lg font-medium">No active processes at the moment</p>
+        <small class="text-gray-600 text-sm">All queues are empty and ready for new requests</small>
       </div>
     </ng-template>
   </div>
 
   <!-- Error Display -->
-  <div class="error-message" *ngIf="error">
-    <i class="fas fa-exclamation-triangle"></i>
+  <div class="bg-red-50 text-red-800 p-4 rounded-lg border border-red-200 flex items-center gap-3 mb-6" *ngIf="error">
+    <i class="fas fa-exclamation-triangle text-lg"></i>
     <span>{{ error }}</span>
-    <button class="dismiss-btn" (click)="error = null">
+    <button class="bg-none border-none text-red-800 cursor-pointer p-1 ml-auto hover:opacity-70" (click)="error = null">
       <i class="fas fa-times"></i>
     </button>
   </div>
 
   <!-- Loading Overlay -->
-  <div class="loading-overlay" *ngIf="loading">
-    <div class="spinner"></div>
-    <p>Loading process information...</p>
+  <div class="fixed inset-0 bg-white/90 flex flex-col items-center justify-center z-50" *ngIf="loading">
+    <div class="w-10 h-10 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+    <p class="text-gray-600 text-base m-0">Loading process information...</p>
   </div>
 </div>

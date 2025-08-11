@@ -1,41 +1,46 @@
 <!-- File: src/app/admin-panel/admin-panel.component.html -->
-<div class="admin-dashboard" [class.dark-theme]="isDarkTheme">
+<div class="min-h-screen flex flex-col relative" [class.dark]="isDarkTheme">
   <!-- Admin Header -->
-  <div class="admin-header">
-    <div class="admin-header-left">
-      <button class="sidebar-toggle" (click)="toggleSidebar()">
+  <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg px-8 py-4 flex justify-between items-center shadow-md border-b border-white/20 dark:border-gray-700 z-[1000] fixed top-0 left-0 right-0 h-20 lg:px-8 md:flex-col md:gap-4 md:text-center md:px-4">
+    <div class="flex items-center gap-4">
+      <button class="p-2 rounded-md transition-colors hover:bg-gray-100 dark:hover:bg-gray-700" (click)="toggleSidebar()">
         <i class="fas fa-bars"></i>
       </button>
-      <h1>DirectDrive Admin Panel</h1>
-      <p class="admin-subtitle">Welcome, {{ currentAdmin?.email || 'Admin' }}</p>
+      <h1 class="text-gray-800 dark:text-gray-200 text-2xl font-bold">DirectDrive Admin Panel</h1>
+      <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Welcome, {{ currentAdmin?.email || 'Admin' }}</p>
     </div>
-    <div class="admin-header-right">
+    <div class="flex items-center gap-4">
       <!-- Notification Bell -->
-      <div class="notification-bell" (click)="toggleNotifications()">
+      <div class="relative cursor-pointer p-2 rounded-full transition-colors hover:bg-gray-100 dark:hover:bg-gray-700" (click)="toggleNotifications()">
         <i class="fas fa-bell"></i>
-        <span class="notification-count" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
+        <span class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center font-semibold" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
         
         <!-- Notification Dropdown -->
-        <div class="notification-dropdown" *ngIf="showNotifications">
-          <div class="notification-header">
-            <h4>Notifications</h4>
-            <button (click)="clearNotifications()" class="btn-clear">Clear All</button>
+        <div class="absolute top-full right-0 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-[1001] max-h-96 overflow-hidden mt-2 md:w-72 md:right-1" *ngIf="showNotifications">
+          <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <h4 class="m-0 text-lg font-semibold text-gray-800 dark:text-gray-200">Notifications</h4>
+            <button (click)="clearNotifications()" class="bg-red-500 text-white border-none px-3 py-1 rounded text-sm cursor-pointer">Clear All</button>
           </div>
-          <div class="notification-list">
-            <div *ngIf="notifications.length === 0" class="no-notifications">
-              <i class="fas fa-check-circle"></i>
+          <div class="max-h-80 overflow-y-auto">
+            <div *ngIf="notifications.length === 0" class="p-8 text-center text-gray-500 dark:text-gray-400">
+              <i class="fas fa-check-circle text-5xl mb-4 opacity-50"></i>
               <p>No new notifications</p>
             </div>
-            <div *ngFor="let notification of notifications" class="notification-item" [class]="'type-' + notification.type">
-              <div class="notification-icon">
+            <div *ngFor="let notification of notifications" class="p-4 border-b border-gray-200 dark:border-gray-700 flex gap-4 items-start" [class]="'type-' + notification.type">
+              <div class="w-6 h-6 rounded-full flex items-center justify-center text-sm flex-shrink-0" [ngClass]="{
+                'bg-blue-100 text-blue-800': notification.type === 'info',
+                'bg-green-100 text-green-800': notification.type === 'success',
+                'bg-yellow-100 text-yellow-800': notification.type === 'warning',
+                'bg-red-100 text-red-800': notification.type === 'error'
+              }">
                 <i class="fas" [class]="getNotificationIcon(notification.type)"></i>
               </div>
-              <div class="notification-content">
-                <h5>{{ notification.title }}</h5>
-                <p>{{ notification.message }}</p>
-                <small>{{ formatTime(notification.timestamp) }}</small>
+              <div class="flex-1">
+                <h5 class="m-0 mb-1 text-sm font-semibold text-gray-800 dark:text-gray-200">{{ notification.title }}</h5>
+                <p class="m-0 mb-2 text-sm text-gray-500 dark:text-gray-400">{{ notification.message }}</p>
+                <small class="text-xs text-gray-400 dark:text-gray-500">{{ formatTime(notification.timestamp) }}</small>
               </div>
-              <button class="btn-dismiss" (click)="dismissNotification(notification.id)">
+              <button class="bg-none border-none cursor-pointer text-gray-400 dark:text-gray-500 p-1" (click)="dismissNotification(notification.id)">
                 <i class="fas fa-times"></i>
               </button>
             </div>
@@ -44,14 +49,17 @@
       </div>
       
       <!-- Theme Toggle -->
-      <button class="theme-toggle" (click)="toggleTheme()" [title]="isDarkTheme ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+      <button class="bg-none border border-gray-300 dark:border-gray-600 p-2 rounded-md cursor-pointer transition-all hover:bg-gray-100 dark:hover:bg-gray-700" (click)="toggleTheme()" [title]="isDarkTheme ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
         <i class="fas" [class.fa-moon]="!isDarkTheme" [class.fa-sun]="isDarkTheme"></i>
       </button>
       
-      <span class="admin-role-badge" [class]="'role-' + (currentAdmin?.role || 'admin')">
+      <span class="px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider" [ngClass]="{
+        'bg-blue-500 text-white': (currentAdmin?.role || 'admin') === 'admin',
+        'bg-red-500 text-white': (currentAdmin?.role || 'admin') === 'superadmin'
+      }">
         {{ getRoleDisplayName(currentAdmin?.role) }}
       </span>
-      <button class="btn-logout" (click)="logout()">
+      <button class="bg-red-500 text-white border-none px-4 py-2 rounded-md cursor-pointer text-sm flex items-center gap-2 transition-colors hover:bg-red-600" (click)="logout()">
         <i class="fas fa-sign-out-alt"></i> Logout
       </button>
     </div>
@@ -69,130 +77,161 @@
     <p><strong>Token:</strong> {{ adminAuthService.getAdminToken() ? 'Present' : 'Missing' }}</p>
   </div> -->
 
+  <!-- Mobile Sidebar Overlay -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 z-[998] transition-opacity duration-300 md:hidden"
+       *ngIf="!sidebarCollapsed && isMobileView"
+       (click)="toggleSidebar()"></div>
+
   <!-- Sidebar Navigation -->
-  <div class="admin-sidebar" [class.collapsed]="sidebarCollapsed">
-    <div class="sidebar-content">
+  <div class="fixed left-0 top-20 h-[calc(100vh-5rem)] bg-white dark:bg-gray-800 shadow-xl z-[999] transition-all duration-300 ease-in-out overflow-y-auto border-r border-gray-200 dark:border-gray-700" 
+       [ngClass]="{
+         'w-70 translate-x-0': !sidebarCollapsed,
+         'w-15 translate-x-0': sidebarCollapsed && !isMobileView,
+         'w-70 -translate-x-full': isMobileView && sidebarCollapsed
+       }">
+    <div class="p-6" [class]="sidebarCollapsed ? 'p-4 px-2' : ''">
       <!-- Dashboard Section -->
-      <div class="nav-section">
-        <h3><i class="fas fa-tachometer-alt"></i> Dashboard</h3>
-        <div class="nav-links">
-          <a routerLink="/admin-panel" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+      <div class="mb-8">
+        <h3 class="text-gray-800 dark:text-gray-200 text-base font-semibold mb-4 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
+          <i class="fas fa-tachometer-alt"></i> 
+          <span [class.hidden]="sidebarCollapsed">Dashboard</span>
+        </h3>
+        <div class="flex flex-col gap-2">
+          <a routerLink="/admin-panel" class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-decoration-none text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:translate-x-1 hover:shadow-md" routerLinkActive="bg-blue-500 text-white border-blue-500" [routerLinkActiveOptions]="{exact: true}">
             <i class="fas fa-home"></i>
-            <span class="nav-text">Home</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">Home</span>
           </a>
-          <a routerLink="/admin-panel/analytics" class="nav-link" routerLinkActive="active">
+          <a routerLink="/admin-panel/analytics" class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-decoration-none text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:translate-x-1 hover:shadow-md" routerLinkActive="bg-blue-500 text-white border-blue-500">
             <i class="fas fa-chart-bar"></i>
-            <span class="nav-text">User Analytics</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">User Analytics</span>
           </a>
         </div>
       </div>
 
       <!-- User Management Section -->
-      <div class="nav-section">
-        <h3><i class="fas fa-users"></i> User Management</h3>
-        <div class="nav-links">
-          <a routerLink="/admin-panel/users" class="nav-link" routerLinkActive="active">
+      <div class="mb-8">
+        <h3 class="text-gray-800 dark:text-gray-200 text-base font-semibold mb-4 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
+          <i class="fas fa-users"></i> 
+          <span [class.hidden]="sidebarCollapsed">User Management</span>
+        </h3>
+        <div class="flex flex-col gap-2">
+          <a routerLink="/admin-panel/users" class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-decoration-none text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:translate-x-1 hover:shadow-md" routerLinkActive="bg-blue-500 text-white border-blue-500">
             <i class="fas fa-users-cog"></i>
-            <span class="nav-text">Manage Users</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">Manage Users</span>
           </a>
-          <a routerLink="/admin-panel/logs" class="nav-link" routerLinkActive="active">
+          <a routerLink="/admin-panel/logs" class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-decoration-none text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:translate-x-1 hover:shadow-md" routerLinkActive="bg-blue-500 text-white border-blue-500">
             <i class="fas fa-list-alt"></i>
-            <span class="nav-text">Activity Logs</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">Activity Logs</span>
           </a>
-          <a *ngIf="isSuperAdmin" routerLink="/admin-panel/create-admin" class="nav-link" routerLinkActive="active">
+          <a *ngIf="isSuperAdmin" routerLink="/admin-panel/create-admin" class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-decoration-none text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:translate-x-1 hover:shadow-md" routerLinkActive="bg-blue-500 text-white border-blue-500">
             <i class="fas fa-user-plus"></i>
-            <span class="nav-text">Create Admin</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">Create Admin</span>
           </a>
         </div>
       </div>
 
       <!-- File Management Section -->
-      <div class="nav-section">
-        <h3><i class="fas fa-folder-open"></i> File Management</h3>
-        <div class="nav-links">
-          <a routerLink="/admin-panel/files" class="nav-link" routerLinkActive="active">
+      <div class="mb-8">
+        <h3 class="text-gray-800 dark:text-gray-200 text-base font-semibold mb-4 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
+          <i class="fas fa-folder-open"></i> 
+          <span [class.hidden]="sidebarCollapsed">File Management</span>
+        </h3>
+        <div class="flex flex-col gap-2">
+          <a routerLink="/admin-panel/files" class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-decoration-none text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:translate-x-1 hover:shadow-md" routerLinkActive="bg-blue-500 text-white border-blue-500">
             <i class="fas fa-files-o"></i>
-            <span class="nav-text">File Browser</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">File Browser</span>
           </a>
-          <a routerLink="/admin-panel/drive-files" class="nav-link" routerLinkActive="active">
+          <a routerLink="/admin-panel/drive-files" class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-decoration-none text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:translate-x-1 hover:shadow-md" routerLinkActive="bg-blue-500 text-white border-blue-500">
             <i class="fab fa-google-drive"></i>
-            <span class="nav-text">Drive File Management</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">Drive File Management</span>
           </a>
-          <a routerLink="/admin-panel/hetzner-files" class="nav-link" routerLinkActive="active">
+          <a routerLink="/admin-panel/hetzner-files" class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-decoration-none text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:translate-x-1 hover:shadow-md" routerLinkActive="bg-blue-500 text-white border-blue-500">
             <i class="fas fa-server"></i>
-            <span class="nav-text">Hetzner File Management</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">Hetzner File Management</span>
           </a>
         </div>
       </div>
 
       <!-- Storage Management Section -->
-      <div class="nav-section">
-        <h3><i class="fas fa-hdd"></i> Storage</h3>
-        <div class="nav-links">
-          <a routerLink="/admin-panel/storage" class="nav-link" routerLinkActive="active">
+      <div class="mb-8">
+        <h3 class="text-gray-800 dark:text-gray-200 text-base font-semibold mb-4 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
+          <i class="fas fa-hdd"></i> 
+          <span [class.hidden]="sidebarCollapsed">Storage</span>
+        </h3>
+        <div class="flex flex-col gap-2">
+          <a routerLink="/admin-panel/storage" class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-decoration-none text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:translate-x-1 hover:shadow-md" routerLinkActive="bg-blue-500 text-white border-blue-500">
             <i class="fas fa-cloud"></i>
-            <span class="nav-text">Google Drive</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">Google Drive</span>
           </a>
-          <a routerLink="/admin-panel/storage-cleanup" class="nav-link" routerLinkActive="active">
+          <a routerLink="/admin-panel/storage-cleanup" class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-decoration-none text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:translate-x-1 hover:shadow-md" routerLinkActive="bg-blue-500 text-white border-blue-500">
             <i class="fas fa-broom"></i>
-            <span class="nav-text">Storage Cleanup</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">Storage Cleanup</span>
           </a>
-          <a routerLink="/admin-panel/backup" class="nav-link" routerLinkActive="active">
+          <a routerLink="/admin-panel/backup" class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-decoration-none text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:translate-x-1 hover:shadow-md" routerLinkActive="bg-blue-500 text-white border-blue-500">
             <i class="fas fa-shield-alt"></i>
-            <span class="nav-text">Backup Management</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">Backup Management</span>
           </a>
         </div>
       </div>
 
       <!-- System Monitoring Section -->
-      <div class="nav-section">
-        <h3><i class="fas fa-server"></i> System</h3>
-        <div class="nav-links">
-          <a routerLink="/admin-panel/monitoring" class="nav-link" routerLinkActive="active">
+      <div class="mb-8">
+        <h3 class="text-gray-800 dark:text-gray-200 text-base font-semibold mb-4 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
+          <i class="fas fa-server"></i> 
+          <span [class.hidden]="sidebarCollapsed">System</span>
+        </h3>
+        <div class="flex flex-col gap-2">
+          <a routerLink="/admin-panel/monitoring" class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-decoration-none text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:translate-x-1 hover:shadow-md" routerLinkActive="bg-blue-500 text-white border-blue-500">
             <i class="fas fa-chart-line"></i>
-            <span class="nav-text">Monitoring</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">Monitoring</span>
           </a>
-          <a routerLink="/admin-panel/background-processes" class="nav-link" routerLinkActive="active">
+          <a routerLink="/admin-panel/background-processes" class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-decoration-none text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:translate-x-1 hover:shadow-md" routerLinkActive="bg-blue-500 text-white border-blue-500">
             <i class="fas fa-cogs"></i>
-            <span class="nav-text">Background Processes</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">Background Processes</span>
           </a>
-          <a routerLink="/admin-panel/security" class="nav-link" routerLinkActive="active">
+          <a routerLink="/admin-panel/security" class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-decoration-none text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:translate-x-1 hover:shadow-md" routerLinkActive="bg-blue-500 text-white border-blue-500">
             <i class="fas fa-shield-alt"></i>
-            <span class="nav-text">Security Settings</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">Security Settings</span>
           </a>
-          <a routerLink="/admin-panel/logs" class="nav-link" routerLinkActive="active">
+          <a routerLink="/admin-panel/logs" class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-decoration-none text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:translate-x-1 hover:shadow-md" routerLinkActive="bg-blue-500 text-white border-blue-500">
             <i class="fas fa-file-alt"></i>
-            <span class="nav-text">System Logs</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">System Logs</span>
           </a>
         </div>
       </div>
 
       <!-- Communication Section -->
-      <div class="nav-section">
-        <h3><i class="fas fa-bullhorn"></i> Communication</h3>
-        <div class="nav-links">
-          <a routerLink="/admin-panel/notifications" class="nav-link" routerLinkActive="active">
+      <div class="mb-8">
+        <h3 class="text-gray-800 dark:text-gray-200 text-base font-semibold mb-4 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
+          <i class="fas fa-bullhorn"></i> 
+          <span [class.hidden]="sidebarCollapsed">Communication</span>
+        </h3>
+        <div class="flex flex-col gap-2">
+          <a routerLink="/admin-panel/notifications" class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-decoration-none text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:translate-x-1 hover:shadow-md" routerLinkActive="bg-blue-500 text-white border-blue-500">
             <i class="fas fa-bell"></i>
-            <span class="nav-text">Notifications</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">Notifications</span>
           </a>
-          <a routerLink="/admin-panel/reports" class="nav-link" routerLinkActive="active">
+          <a routerLink="/admin-panel/reports" class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-decoration-none text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:translate-x-1 hover:shadow-md" routerLinkActive="bg-blue-500 text-white border-blue-500">
             <i class="fas fa-chart-bar"></i>
-            <span class="nav-text">Reports & Export</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">Reports & Export</span>
           </a>
         </div>
       </div>
 
       <!-- Quick Actions -->
-      <div class="nav-section">
-        <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
-        <div class="nav-links">
-          <button class="nav-link btn-action" (click)="refreshStats()">
+      <div class="mb-8">
+        <h3 class="text-gray-800 dark:text-gray-200 text-base font-semibold mb-4 pb-2 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
+          <i class="fas fa-bolt"></i> 
+          <span [class.hidden]="sidebarCollapsed">Quick Actions</span>
+        </h3>
+        <div class="flex flex-col gap-2">
+          <button class="flex items-center gap-3 px-4 py-3 bg-green-500 dark:bg-green-600 text-white border border-green-500 dark:border-green-600 rounded-lg font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-green-600 dark:hover:bg-green-700 hover:border-green-600 dark:hover:border-green-700 hover:translate-x-1 hover:shadow-md" (click)="refreshStats()">
             <i class="fas fa-sync-alt"></i>
-            <span class="nav-text">Refresh Stats</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">Refresh Stats</span>
           </button>
-          <button class="nav-link btn-action" (click)="clearEvents()">
+          <button class="flex items-center gap-3 px-4 py-3 bg-green-500 dark:bg-green-600 text-white border border-green-500 dark:border-green-600 rounded-lg font-medium transition-all duration-200 cursor-pointer text-sm relative hover:bg-green-600 dark:hover:bg-green-700 hover:border-green-600 dark:hover:border-green-700 hover:translate-x-1 hover:shadow-md" (click)="clearEvents()">
             <i class="fas fa-trash"></i>
-            <span class="nav-text">Clear Events</span>
+            <span class="nav-text" [class.hidden]="sidebarCollapsed">Clear Events</span>
           </button>
         </div>
       </div>
@@ -200,83 +239,189 @@
   </div>
 
   <!-- Main Content Area -->
-  <div class="admin-content" [class.sidebar-collapsed]="sidebarCollapsed">
+  <div class="mt-20 p-6 transition-all duration-300 ease-in-out min-h-[calc(100vh-5rem)]"
+       [ngClass]="{
+         'ml-70': !sidebarCollapsed && !isMobileView,
+         'ml-15': sidebarCollapsed && !isMobileView,
+         'ml-0': isMobileView
+       }">
     <!-- Router Outlet for Child Components -->
     <router-outlet></router-outlet>
     
     <!-- Dashboard Home (shown when no child route is active) -->
-    <div class="dashboard-home" *ngIf="!shouldShowChildRoute()">
+    <div class="bg-white/95 dark:bg-gray-800/90 rounded-2xl p-8 shadow-lg backdrop-blur-lg" *ngIf="!shouldShowChildRoute()">
       <!-- Stats Overview -->
-      <div class="stats-overview">
-        <h2>System Overview</h2>
-        <div class="stats-grid">
-          <!-- Users Stats -->
-          <div class="stat-card">
-            <div class="stat-icon users">
-              <i class="fas fa-users"></i>
+      <div class="mb-16">
+        <h2 class="m-0 mb-8 text-gray-800 dark:text-gray-200 text-3xl font-bold">System Overview</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8">
+          <!-- Users Stats Card -->
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl group">
+            <!-- Icon and Trend -->
+            <div class="flex items-start justify-between mb-6">
+              <div class="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300">
+                <i class="fas fa-users text-2xl text-white"></i>
+              </div>
+              <div class="flex items-center gap-1 px-3 py-1 bg-green-100 dark:bg-green-900/30 rounded-full" *ngIf="systemStats.userGrowth > 0">
+                <i class="fas fa-arrow-up text-xs text-green-600 dark:text-green-400"></i>
+                <span class="text-xs font-semibold text-green-600 dark:text-green-400">+{{ systemStats.userGrowth }}%</span>
+              </div>
             </div>
-            <div class="stat-content">
-              <h3>{{ systemStats.totalUsers || 0 }}</h3>
-              <p>Total Users</p>
-              <span class="stat-change positive" *ngIf="systemStats.userGrowth > 0">
-                +{{ systemStats.userGrowth }}% this month
-              </span>
-            </div>
-          </div>
-
-          <!-- Files Stats -->
-          <div class="stat-card">
-            <div class="stat-icon files">
-              <i class="fas fa-file"></i>
-            </div>
-            <div class="stat-content">
-              <h3>{{ formatNumber(systemStats.totalFiles) || 0 }}</h3>
-              <p>Total Files</p>
-              <span class="stat-change">
-                {{ formatSize(systemStats.totalStorage) }}
-              </span>
-            </div>
-          </div>
-
-          <!-- System Health -->
-          <div class="stat-card">
-            <div class="stat-icon health" [class]="'status-' + systemStats.systemHealth">
-              <i class="fas fa-heartbeat"></i>
-            </div>
-            <div class="stat-content">
-              <h3>{{ getHealthStatus(systemStats.systemHealth) }}</h3>
-              <p>System Health</p>
-              <div class="connection-status" [class]="'status-' + (isConnected ? 'connected' : 'disconnected')">
-                <i class="fas fa-circle"></i>
-                {{ isConnected ? 'Connected' : 'Checking...' }}
+            
+            <!-- Main Content -->
+            <div class="space-y-3">
+              <!-- Primary Metric -->
+              <div>
+                <h3 class="text-4xl font-bold text-gray-900 dark:text-white mb-1">{{ systemStats.totalUsers || 0 }}</h3>
+                <p class="text-lg font-medium text-gray-600 dark:text-gray-300">Total Users</p>
+              </div>
+              
+              <!-- Secondary Info -->
+              <div class="pt-3 border-t border-gray-100 dark:border-gray-700">
+                <p class="text-sm text-gray-500 dark:text-gray-400">Active this month</p>
               </div>
             </div>
           </div>
 
-          <!-- Google Drive Storage -->
-          <div class="stat-card">
-            <div class="stat-icon gdrive" [class]="'status-' + gdriveStorageStats.health_status">
-              <i class="fab fa-google-drive"></i>
+          <!-- Files Stats Card -->
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl group">
+            <div class="flex items-start justify-between mb-6">
+              <div class="p-4 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg group-hover:shadow-green-500/25 transition-all duration-300">
+                <i class="fas fa-file text-2xl text-white"></i>
+              </div>
             </div>
-            <div class="stat-content">
-              <h3>{{ gdriveStorageStats.total_storage_quota_formatted }}</h3>
-              <p>Google Drive Storage</p>
-              <div class="gdrive-breakdown">
-                <div class="breakdown-item">
-                  <span class="breakdown-label">Used:</span>
-                  <span class="breakdown-value">{{ gdriveStorageStats.total_storage_used_formatted }}</span>
+            
+            <div class="space-y-3">
+              <div>
+                <h3 class="text-4xl font-bold text-gray-900 dark:text-white mb-1">{{ formatNumber(systemStats.totalFiles) || 0 }}</h3>
+                <p class="text-lg font-medium text-gray-600 dark:text-gray-300">Total Files</p>
+              </div>
+              
+              <div class="pt-3 border-t border-gray-100 dark:border-gray-700">
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{ formatSize(systemStats.totalStorage) }} total size</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- System Health Card -->
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl group">
+            <!-- Header -->
+            <div class="flex items-start justify-between mb-6">
+              <div class="p-4 rounded-2xl shadow-lg group-hover:shadow-lg transition-all duration-300" [ngClass]="{
+                'bg-gradient-to-br from-green-500 to-green-600 group-hover:shadow-green-500/25': systemStats.systemHealth === 'good',
+                'bg-gradient-to-br from-yellow-500 to-yellow-600 group-hover:shadow-yellow-500/25': systemStats.systemHealth === 'warning',
+                'bg-gradient-to-br from-red-500 to-red-600 group-hover:shadow-red-500/25': systemStats.systemHealth === 'critical'
+              }">
+                <i class="fas fa-heartbeat text-2xl text-white"></i>
+              </div>
+              
+              <!-- Connection Status -->
+              <div class="flex items-center gap-2 px-3 py-1 rounded-full" [ngClass]="{
+                'bg-green-100 dark:bg-green-900/30': isConnected,
+                'bg-red-100 dark:bg-red-900/30': !isConnected
+              }">
+                <div class="w-2 h-2 rounded-full" [ngClass]="{
+                  'bg-green-500 animate-pulse': isConnected,
+                  'bg-red-500': !isConnected
+                }"></div>
+                <span class="text-xs font-semibold" [ngClass]="{
+                  'text-green-600 dark:text-green-400': isConnected,
+                  'text-red-600 dark:text-red-400': !isConnected
+                }">{{ isConnected ? 'Connected' : 'Disconnected' }}</span>
+              </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="space-y-3">
+              <!-- Primary Metric -->
+              <div>
+                <h3 class="text-3xl font-bold mb-1" [ngClass]="{
+                  'text-green-600 dark:text-green-400': systemStats.systemHealth === 'good',
+                  'text-yellow-600 dark:text-yellow-400': systemStats.systemHealth === 'warning',
+                  'text-red-600 dark:text-red-400': systemStats.systemHealth === 'critical'
+                }">{{ getHealthStatus(systemStats.systemHealth) }}</h3>
+                <p class="text-lg font-medium text-gray-600 dark:text-gray-300">System Health</p>
+              </div>
+              
+              <!-- Additional Info -->
+              <div class="pt-3 border-t border-gray-100 dark:border-gray-700">
+                <p class="text-sm text-gray-500 dark:text-gray-400">All systems operational</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Google Drive Storage Card -->
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl group">
+            <!-- Header -->
+            <div class="flex items-start justify-between mb-6">
+              <div class="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300">
+                <i class="fab fa-google-drive text-2xl text-white"></i>
+              </div>
+              <div class="flex items-center gap-1 px-3 py-1 rounded-full" [ngClass]="{
+                'bg-green-100 dark:bg-green-900/30': gdriveStorageStats.health_status === 'good',
+                'bg-yellow-100 dark:bg-yellow-900/30': gdriveStorageStats.health_status === 'warning',
+                'bg-red-100 dark:bg-red-900/30': gdriveStorageStats.health_status === 'critical'
+              }">
+                <i class="fas fa-circle text-xs" [ngClass]="{
+                  'text-green-500': gdriveStorageStats.health_status === 'good',
+                  'text-yellow-500': gdriveStorageStats.health_status === 'warning',
+                  'text-red-500': gdriveStorageStats.health_status === 'critical'
+                }"></i>
+                <span class="text-xs font-semibold" [ngClass]="{
+                  'text-green-600 dark:text-green-400': gdriveStorageStats.health_status === 'good',
+                  'text-yellow-600 dark:text-yellow-400': gdriveStorageStats.health_status === 'warning',
+                  'text-red-600 dark:text-red-400': gdriveStorageStats.health_status === 'critical'
+                }">{{ getHealthStatus(gdriveStorageStats.health_status) }}</span>
+              </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="space-y-4">
+              <!-- Primary Metric -->
+              <div>
+                <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-1">{{ gdriveStorageStats.total_storage_quota_formatted }}</h3>
+                <p class="text-lg font-medium text-gray-600 dark:text-gray-300">Total Storage</p>
+              </div>
+              
+              <!-- Usage Progress -->
+              <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                  <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Usage</span>
+                  <span class="text-sm font-bold" [ngClass]="{
+                    'text-gray-900 dark:text-white': gdriveStorageStats.health_status === 'good',
+                    'text-yellow-600 dark:text-yellow-400': gdriveStorageStats.health_status === 'warning',
+                    'text-red-600 dark:text-red-400': gdriveStorageStats.health_status === 'critical'
+                  }">{{ gdriveStorageStats.usage_percentage }}%</span>
                 </div>
-                <div class="breakdown-item">
-                  <span class="breakdown-label">Available:</span>
-                  <span class="breakdown-value">{{ gdriveStorageStats.available_storage_formatted }}</span>
+                
+                <!-- Progress Bar -->
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                  <div class="h-3 rounded-full transition-all duration-500" 
+                       [style.width.%]="gdriveStorageStats.usage_percentage"
+                       [ngClass]="{
+                         'bg-gradient-to-r from-green-500 to-green-600': gdriveStorageStats.health_status === 'good',
+                         'bg-gradient-to-r from-yellow-500 to-yellow-600': gdriveStorageStats.health_status === 'warning',
+                         'bg-gradient-to-r from-red-500 to-red-600': gdriveStorageStats.health_status === 'critical'
+                       }"></div>
                 </div>
-                <div class="breakdown-item">
-                  <span class="breakdown-label">Usage:</span>
-                  <span class="breakdown-value" [class]="'usage-' + gdriveStorageStats.health_status">{{ gdriveStorageStats.usage_percentage }}%</span>
+              </div>
+              
+              <!-- Additional Info -->
+              <div class="pt-3 border-t border-gray-100 dark:border-gray-700 grid grid-cols-2 gap-4">
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Used</p>
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ gdriveStorageStats.total_storage_used_formatted }}</p>
                 </div>
-                <div class="breakdown-accounts">
-                  <span class="accounts-info">{{ gdriveStorageStats.active_accounts }}/{{ gdriveStorageStats.total_accounts }} accounts active</span>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Available</p>
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ gdriveStorageStats.available_storage_formatted }}</p>
                 </div>
+              </div>
+              
+              <!-- Account Status -->
+              <div class="pt-2">
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                  {{ gdriveStorageStats.active_accounts }}/{{ gdriveStorageStats.total_accounts }} accounts active
+                </p>
               </div>
             </div>
           </div>
@@ -284,55 +429,170 @@
       </div>
 
       <!-- Charts Section -->
-      <div class="charts-section">
-        <div class="chart-container">
-          <h3>Upload Activity (Last 7 days)</h3>
-          <div class="chart-placeholder">
-            <div class="chart-bars">
-              <div *ngFor="let day of chartData.uploads; let i = index" class="chart-bar">
-                <div class="bar-fill" [style.height.%]="day.percentage"></div>
-                <span class="bar-label">{{ day.label }}</span>
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-16">
+        <!-- Upload Activity Chart -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700">
+          <!-- Chart Header -->
+          <div class="flex items-center justify-between mb-8">
+            <div>
+              <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Upload Activity</h3>
+              <p class="text-gray-500 dark:text-gray-400">Last 7 days performance</p>
+            </div>
+            <div class="flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div class="w-3 h-3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"></div>
+              <span class="text-sm font-medium text-blue-600 dark:text-blue-400">Uploads</span>
+            </div>
+          </div>
+          
+          <!-- Chart Container -->
+          <div class="relative">
+            <!-- Chart Area -->
+            <div class="h-64 flex items-end justify-between px-4 pb-4 bg-gradient-to-t from-gray-50/50 to-transparent dark:from-gray-900/20 rounded-xl">
+              <div *ngFor="let day of chartData.uploads; let i = index" class="flex flex-col items-center flex-1 group">
+                <!-- Bar -->
+                <div class="w-full max-w-12 bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-lg mb-3 transition-all duration-500 hover:from-blue-600 hover:to-blue-500 cursor-pointer shadow-lg hover:shadow-blue-500/25" 
+                     [style.height.%]="day.percentage"
+                     [style.min-height]="'8px'"
+                     [title]="day.label + ': ' + day.value + ' uploads'">
+                </div>
+                
+                <!-- Label -->
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  {{ day.label }}
+                </span>
+                
+                <!-- Value on hover -->
+                <span class="text-xs text-gray-400 dark:text-gray-500 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {{ day.value }}
+                </span>
+              </div>
+            </div>
+            
+            <!-- Chart Grid Lines (Optional) -->
+            <div class="absolute inset-0 pointer-events-none">
+              <div class="h-full flex flex-col justify-between py-4">
+                <div class="border-t border-gray-200 dark:border-gray-700 opacity-50"></div>
+                <div class="border-t border-gray-200 dark:border-gray-700 opacity-50"></div>
+                <div class="border-t border-gray-200 dark:border-gray-700 opacity-50"></div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="chart-container">
-          <h3>Storage Growth</h3>
-          <div class="chart-placeholder">
-            <div class="storage-chart">
-              <div class="storage-segment google-drive" [style.width.%]="storageDistribution.googleDrive">
-                <span>Google Drive ({{ storageDistribution.googleDrive }}%)</span>
+        <!-- Storage Distribution Chart -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700">
+          <!-- Chart Header -->
+          <div class="flex items-center justify-between mb-8">
+            <div>
+              <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Storage Distribution</h3>
+              <p class="text-gray-500 dark:text-gray-400">Current storage allocation</p>
+            </div>
+          </div>
+          
+          <!-- Chart Container -->
+          <div class="space-y-6">
+            <!-- Progress Bar -->
+            <div class="relative">
+              <div class="flex w-full h-16 rounded-2xl overflow-hidden shadow-inner bg-gray-100 dark:bg-gray-700">
+                <!-- Google Drive Segment -->
+                <div class="flex items-center justify-center text-white font-semibold transition-all duration-700 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 cursor-pointer" 
+                     [style.width.%]="storageDistribution.googleDrive"
+                     [title]="'Google Drive: ' + storageDistribution.googleDrive + '%'">
+                  <span class="text-sm font-bold" *ngIf="storageDistribution.googleDrive > 20">{{ storageDistribution.googleDrive }}%</span>
+                </div>
+                
+                <!-- Hetzner Segment -->
+                <div class="flex items-center justify-center text-white font-semibold transition-all duration-700 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 cursor-pointer" 
+                     [style.width.%]="storageDistribution.hetzner"
+                     [title]="'Hetzner: ' + storageDistribution.hetzner + '%'">
+                  <span class="text-sm font-bold" *ngIf="storageDistribution.hetzner > 20">{{ storageDistribution.hetzner }}%</span>
+                </div>
               </div>
-              <div class="storage-segment hetzner" [style.width.%]="storageDistribution.hetzner">
-                <span>Hetzner ({{ storageDistribution.hetzner }}%)</span>
+            </div>
+            
+            <!-- Legend -->
+            <div class="flex items-center justify-center gap-8">
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg"></div>
+                <div class="text-center">
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">Google Drive</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ storageDistribution.googleDrive }}% of total</p>
+                </div>
+              </div>
+              
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-gradient-to-r from-red-500 to-red-600 rounded-full shadow-lg"></div>
+                <div class="text-center">
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">Hetzner</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ storageDistribution.hetzner }}% of total</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Real-time Events -->
-      <div class="events-container">
-        <div class="events-header">
-          <h3><i class="fas fa-stream"></i> Live Event Stream</h3>
-          <div class="events-controls">
-            <span class="event-count">{{ events.length }} events</span>
-            <button class="btn-refresh" (click)="refreshEvents()">
-              <i class="fas fa-sync-alt"></i>
-            </button>
+      <!-- Live Event Stream -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 p-8 border-b border-gray-200 dark:border-gray-600">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-4">
+              <div class="p-3 bg-blue-500 rounded-xl shadow-lg">
+                <i class="fas fa-stream text-xl text-white"></i>
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Live Event Stream</h3>
+                <p class="text-gray-500 dark:text-gray-400">Real-time system activity</p>
+              </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+              <div class="flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <span class="text-sm font-semibold text-blue-600 dark:text-blue-400">{{ events.length }} events</span>
+              </div>
+              
+              <button class="p-3 bg-green-500 hover:bg-green-600 text-white rounded-xl shadow-lg transition-all duration-200 hover:shadow-green-500/25" 
+                      (click)="refreshEvents()"
+                      [title]="'Refresh events'">
+                <i class="fas fa-sync-alt"></i>
+              </button>
+            </div>
           </div>
         </div>
         
-        <div class="log-container">
-          <div *ngIf="events.length === 0" class="no-events">
-            <i class="fas fa-info-circle"></i>
-            <p>No events yet. System events will appear here in real-time.</p>
+        <!-- Events List -->
+        <div class="max-h-96 overflow-y-auto">
+          <!-- Empty State -->
+          <div *ngIf="events.length === 0" class="text-center py-16">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-2xl mb-6">
+              <i class="fas fa-info-circle text-2xl text-gray-400"></i>
+            </div>
+            <h4 class="text-lg font-semibold text-gray-600 dark:text-gray-300 mb-2">No events yet</h4>
+            <p class="text-gray-500 dark:text-gray-400">System events will appear here in real-time</p>
           </div>
           
-          <div *ngFor="let event of events.slice(0, 10); trackBy: trackEvent" class="log-entry">
-            <div class="event-time">{{ getEventTime(event) }}</div>
-            <div class="event-message">{{ event }}</div>
+          <!-- Event Items -->
+          <div class="p-6 space-y-4">
+            <div *ngFor="let event of events.slice(0, 10); trackBy: trackEvent" 
+                 class="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-md group">
+              
+              <!-- Event Icon -->
+              <div class="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center group-hover:bg-blue-200 dark:group-hover:bg-blue-900/50 transition-colors">
+                <i class="fas fa-info-circle text-sm text-blue-600 dark:text-blue-400"></i>
+              </div>
+              
+              <!-- Event Content -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-4">
+                  <p class="text-sm text-gray-800 dark:text-gray-200 leading-relaxed font-medium">{{ event }}</p>
+                  <div class="flex-shrink-0 px-3 py-1 bg-gray-200 dark:bg-gray-600 rounded-full">
+                    <span class="text-xs font-medium text-gray-600 dark:text-gray-300">{{ getEventTime(event) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

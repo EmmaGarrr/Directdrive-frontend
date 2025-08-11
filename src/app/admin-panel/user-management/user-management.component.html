@@ -1,17 +1,19 @@
 <!-- User Management Component -->
-<div class="user-management">
+<div class="p-8 bg-white rounded-xl shadow-lg">
   <!-- Header -->
-  <div class="management-header">
-    <h2><i class="fas fa-users"></i> User Management</h2>
-    <div class="header-actions">
-      <button class="btn btn-primary" (click)="exportUsers('csv')">
+  <div class="flex justify-between items-center mb-8 pb-4 border-b-2 border-gray-200">
+    <h2 class="m-0 text-gray-800 text-2xl font-bold flex items-center gap-2">
+      <i class="fas fa-users"></i> User Management
+    </h2>
+    <div class="flex gap-4">
+      <button class="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium flex items-center gap-2 hover:bg-blue-600 transition-colors" (click)="exportUsers('csv')">
         <i class="fas fa-download"></i> Export CSV
       </button>
-      <button class="btn btn-secondary" (click)="exportUsers('json')">
+      <button class="px-4 py-2 bg-gray-500 text-white rounded-lg font-medium flex items-center gap-2 hover:bg-gray-600 transition-colors" (click)="exportUsers('json')">
         <i class="fas fa-download"></i> Export JSON
       </button>
       <button 
-        class="btn btn-warning" 
+        class="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium flex items-center gap-2 hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
         (click)="openBulkActions()" 
         [disabled]="selectedUsers.size === 0">
         <i class="fas fa-tasks"></i> Bulk Actions ({{ selectedUsers.size }})
@@ -20,34 +22,34 @@
   </div>
 
   <!-- Filters -->
-  <div class="filters-section">
-    <div class="search-box">
-      <i class="fas fa-search"></i>
+  <div class="bg-gray-50 p-6 rounded-lg mb-8">
+    <div class="flex items-center gap-4 mb-4">
+      <i class="fas fa-search text-gray-500 text-lg"></i>
       <input 
         type="text" 
         placeholder="Search users by email..." 
         [(ngModel)]="searchTerm"
         (keyup.enter)="onSearch()"
-        class="search-input">
-      <button class="btn-search" (click)="onSearch()">Search</button>
+        class="flex-1 px-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+      <button class="px-6 py-3 bg-blue-500 text-white border-none rounded-lg cursor-pointer font-medium hover:bg-blue-600 transition-colors" (click)="onSearch()">Search</button>
     </div>
     
-    <div class="filters">
-      <select [(ngModel)]="selectedRole" (change)="onFilterChange()" class="filter-select">
+    <div class="flex gap-4 flex-wrap">
+      <select [(ngModel)]="selectedRole" (change)="onFilterChange()" class="px-3 py-2 border border-gray-300 rounded-lg bg-white min-w-[150px]">
         <option value="">All Roles</option>
         <option value="regular">Regular</option>
         <option value="admin">Admin</option>
         <option value="superadmin">Super Admin</option>
       </select>
       
-      <select [(ngModel)]="selectedStatus" (change)="onFilterChange()" class="filter-select">
+      <select [(ngModel)]="selectedStatus" (change)="onFilterChange()" class="px-3 py-2 border border-gray-300 rounded-lg bg-white min-w-[150px]">
         <option value="">All Status</option>
         <option value="active">Active</option>
         <option value="suspended">Suspended</option>
         <option value="banned">Banned</option>
       </select>
       
-      <select [(ngModel)]="pageSize" (change)="onFilterChange()" class="filter-select">
+      <select [(ngModel)]="pageSize" (change)="onFilterChange()" class="px-3 py-2 border border-gray-300 rounded-lg bg-white min-w-[150px]">
         <option value="10">10 per page</option>
         <option value="20">20 per page</option>
         <option value="50">50 per page</option>
@@ -57,125 +59,125 @@
   </div>
 
   <!-- Error Display -->
-  <div *ngIf="error" class="error-message">
+  <div *ngIf="error" class="bg-red-100 text-red-800 p-4 rounded-lg mb-4 flex items-center gap-2">
     <i class="fas fa-exclamation-triangle"></i>
     {{ error }}
-    <button class="btn-close" (click)="error = ''">×</button>
+    <button class="bg-none border-none text-xl cursor-pointer ml-auto text-inherit" (click)="error = ''">×</button>
   </div>
 
   <!-- Loading -->
-  <div *ngIf="loading" class="loading">
-    <i class="fas fa-spinner fa-spin"></i>
+  <div *ngIf="loading" class="text-center py-12 text-gray-500 text-lg">
+    <i class="fas fa-spinner fa-spin mr-2 text-xl"></i>
     Loading users...
   </div>
 
   <!-- Users Table -->
-  <div class="table-container" *ngIf="!loading">
-    <table class="users-table">
+  <div class="overflow-x-auto rounded-lg border border-gray-200" *ngIf="!loading">
+    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
       <thead>
         <tr>
-          <th>
+          <th class="px-4 py-4 bg-gray-50 font-semibold text-gray-800 whitespace-nowrap">
             <input 
               type="checkbox" 
               [checked]="selectAll" 
               (change)="toggleSelectAll()"
-              class="checkbox">
+              class="w-4 h-4 cursor-pointer">
           </th>
-          <th (click)="onSort('email')" class="sortable">
+          <th (click)="onSort('email')" class="px-4 py-4 bg-gray-50 font-semibold text-gray-800 whitespace-nowrap cursor-pointer select-none relative hover:bg-gray-100">
             Email 
-            <i class="fas fa-sort" *ngIf="sortBy !== 'email'"></i>
-            <i class="fas fa-sort-up" *ngIf="sortBy === 'email' && sortOrder === 'asc'"></i>
-            <i class="fas fa-sort-down" *ngIf="sortBy === 'email' && sortOrder === 'desc'"></i>
+            <i class="fas fa-sort ml-2 text-xs text-gray-500" *ngIf="sortBy !== 'email'"></i>
+            <i class="fas fa-sort-up ml-2 text-xs text-gray-500" *ngIf="sortBy === 'email' && sortOrder === 'asc'"></i>
+            <i class="fas fa-sort-down ml-2 text-xs text-gray-500" *ngIf="sortBy === 'email' && sortOrder === 'desc'"></i>
           </th>
-          <th (click)="onSort('role')" class="sortable">
+          <th (click)="onSort('role')" class="px-4 py-4 bg-gray-50 font-semibold text-gray-800 whitespace-nowrap cursor-pointer select-none relative hover:bg-gray-100">
             Role
-            <i class="fas fa-sort" *ngIf="sortBy !== 'role'"></i>
-            <i class="fas fa-sort-up" *ngIf="sortBy === 'role' && sortOrder === 'asc'"></i>
-            <i class="fas fa-sort-down" *ngIf="sortBy === 'role' && sortOrder === 'desc'"></i>
+            <i class="fas fa-sort ml-2 text-xs text-gray-500" *ngIf="sortBy !== 'role'"></i>
+            <i class="fas fa-sort-up ml-2 text-xs text-gray-500" *ngIf="sortBy === 'role' && sortOrder === 'asc'"></i>
+            <i class="fas fa-sort-down ml-2 text-xs text-gray-500" *ngIf="sortBy === 'role' && sortOrder === 'desc'"></i>
           </th>
-          <th>Status</th>
-          <th>Files</th>
-          <th>Storage Used</th>
-          <th (click)="onSort('created_at')" class="sortable">
+          <th class="px-4 py-4 bg-gray-50 font-semibold text-gray-800">Status</th>
+          <th class="px-4 py-4 bg-gray-50 font-semibold text-gray-800">Files</th>
+          <th class="px-4 py-4 bg-gray-50 font-semibold text-gray-800">Storage Used</th>
+          <th (click)="onSort('created_at')" class="px-4 py-4 bg-gray-50 font-semibold text-gray-800 whitespace-nowrap cursor-pointer select-none relative hover:bg-gray-100">
             Created
-            <i class="fas fa-sort" *ngIf="sortBy !== 'created_at'"></i>
-            <i class="fas fa-sort-up" *ngIf="sortBy === 'created_at' && sortOrder === 'asc'"></i>
-            <i class="fas fa-sort-down" *ngIf="sortBy === 'created_at' && sortOrder === 'desc'"></i>
+            <i class="fas fa-sort ml-2 text-xs text-gray-500" *ngIf="sortBy !== 'created_at'"></i>
+            <i class="fas fa-sort-up ml-2 text-xs text-gray-500" *ngIf="sortBy === 'created_at' && sortOrder === 'asc'"></i>
+            <i class="fas fa-sort-down ml-2 text-xs text-gray-500" *ngIf="sortBy === 'created_at' && sortOrder === 'desc'"></i>
           </th>
-          <th>Last Login</th>
-          <th>Actions</th>
+          <th class="px-4 py-4 bg-gray-50 font-semibold text-gray-800">Last Login</th>
+          <th class="px-4 py-4 bg-gray-50 font-semibold text-gray-800">Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let user of users" class="user-row">
-          <td>
+        <tr *ngFor="let user of users" class="hover:bg-gray-50">
+          <td class="px-4 py-4">
             <input 
               type="checkbox" 
               [checked]="selectedUsers.has(user.email)"
               (change)="toggleUserSelection(user.email)"
-              class="checkbox">
+              class="w-4 h-4 cursor-pointer">
           </td>
-          <td class="email-cell">
-            <div class="user-email">{{ user.email }}</div>
-            <div class="user-id">ID: {{ user._id }}</div>
+          <td class="px-4 py-4 min-w-[200px]">
+            <div class="font-medium text-gray-800">{{ user.email }}</div>
+            <div class="text-xs text-gray-500 mt-1">ID: {{ user._id }}</div>
           </td>
-          <td>
-            <span class="role-badge" [class]="getRoleClass(user.role || 'regular')">
+          <td class="px-4 py-4">
+            <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider" [class]="getRoleClass(user.role || 'regular')">
               {{ user.role || 'regular' }}
             </span>
           </td>
-          <td>
-            <span class="status-badge" [class]="getStatusClass(user.status)">
+          <td class="px-4 py-4">
+            <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider" [class]="getStatusClass(user.status)">
               {{ user.status }}
             </span>
           </td>
-          <td>{{ user.files_count }}</td>
-          <td>{{ formatBytes(user.storage_used) }}</td>
-          <td>{{ formatDate(user.created_at || '') }}</td>
-          <td>{{ formatDate(user.last_login || '') }}</td>
-          <td class="actions-cell">
-            <div class="action-buttons">
+          <td class="px-4 py-4">{{ user.files_count }}</td>
+          <td class="px-4 py-4">{{ formatBytes(user.storage_used) }}</td>
+          <td class="px-4 py-4">{{ formatDate(user.created_at || '') }}</td>
+          <td class="px-4 py-4">{{ formatDate(user.last_login || '') }}</td>
+          <td class="px-4 py-4 min-w-[200px]">
+            <div class="flex gap-2 flex-wrap">
               <button 
-                class="btn-action btn-info" 
+                class="px-2 py-1 text-xs font-medium text-center text-white bg-blue-500 rounded hover:bg-blue-600 transition-colors" 
                 (click)="viewUserDetail(user)"
                 title="View Details">
                 <i class="fas fa-eye"></i>
               </button>
               <button 
-                class="btn-action btn-files" 
+                class="px-2 py-1 text-xs font-medium text-center text-white bg-green-500 rounded hover:bg-green-600 transition-colors" 
                 (click)="viewUserFiles(user)"
                 title="View Files">
                 <i class="fas fa-file-alt"></i>
               </button>
               <button 
-                class="btn-action btn-edit" 
+                class="px-2 py-1 text-xs font-medium text-center text-white bg-orange-500 rounded hover:bg-orange-600 transition-colors" 
                 (click)="editUser(user)"
                 title="Edit User">
                 <i class="fas fa-edit"></i>
               </button>
               <button 
-                class="btn-action btn-warning" 
+                class="px-2 py-1 text-xs font-medium text-center text-white bg-orange-500 rounded hover:bg-orange-600 transition-colors" 
                 (click)="updateUserStatus(user, 'suspend', 'Admin action')"
                 *ngIf="user.status === 'active'"
                 title="Suspend User">
                 <i class="fas fa-pause"></i>
               </button>
               <button 
-                class="btn-action btn-danger" 
+                class="px-2 py-1 text-xs font-medium text-center text-white bg-red-500 rounded hover:bg-red-600 transition-colors" 
                 (click)="updateUserStatus(user, 'ban', 'Admin action')"
                 *ngIf="user.status !== 'banned'"
                 title="Ban User">
                 <i class="fas fa-ban"></i>
               </button>
               <button 
-                class="btn-action btn-success" 
+                class="px-2 py-1 text-xs font-medium text-center text-white bg-green-500 rounded hover:bg-green-600 transition-colors" 
                 (click)="updateUserStatus(user, 'activate')"
                 *ngIf="user.status !== 'active'"
                 title="Activate User">
                 <i class="fas fa-check"></i>
               </button>
               <button 
-                class="btn-action btn-secondary" 
+                class="px-2 py-1 text-xs font-medium text-center text-white bg-gray-500 rounded hover:bg-gray-600 transition-colors" 
                 (click)="resetUserPassword(user)"
                 title="Reset Password">
                 <i class="fas fa-key"></i>
@@ -187,27 +189,27 @@
     </table>
 
     <!-- Empty State -->
-    <div *ngIf="users.length === 0" class="empty-state">
-      <i class="fas fa-users"></i>
-      <h3>No users found</h3>
-      <p>Try adjusting your search or filter criteria</p>
+    <div *ngIf="users.length === 0" class="text-center py-16 px-8 text-gray-500">
+      <i class="fas fa-users text-6xl mb-4 opacity-50"></i>
+      <h3 class="m-0 mb-2 text-2xl text-gray-800">No users found</h3>
+      <p class="m-0 text-base">Try adjusting your search or filter criteria</p>
     </div>
   </div>
 
   <!-- Pagination -->
-  <div class="pagination" *ngIf="totalPages > 1">
-    <div class="pagination-info">
+  <div class="flex justify-between items-center mt-8 pt-4 border-t border-gray-200" *ngIf="totalPages > 1">
+    <div class="text-gray-500 text-sm">
       Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, totalUsers) }} of {{ totalUsers }} users
     </div>
-    <div class="pagination-controls">
+    <div class="flex gap-2">
       <button 
-        class="btn-page" 
+        class="px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded cursor-pointer transition-colors min-w-[40px] text-center hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed" 
         (click)="goToPage(1)" 
         [disabled]="currentPage === 1">
         <i class="fas fa-angle-double-left"></i>
       </button>
       <button 
-        class="btn-page" 
+        class="px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded cursor-pointer transition-colors min-w-[40px] text-center hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed" 
         (click)="goToPage(currentPage - 1)" 
         [disabled]="currentPage === 1">
         <i class="fas fa-angle-left"></i>
@@ -215,20 +217,20 @@
       
       <button 
         *ngFor="let page of getPaginationPages()" 
-        class="btn-page" 
-        [class.active]="page === currentPage"
+        class="px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded cursor-pointer transition-colors min-w-[40px] text-center hover:bg-gray-50 hover:border-gray-400" 
+        [class]="page === currentPage ? 'bg-blue-500 text-white border-blue-500' : ''"
         (click)="goToPage(page)">
         {{ page }}
       </button>
       
       <button 
-        class="btn-page" 
+        class="px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded cursor-pointer transition-colors min-w-[40px] text-center hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed" 
         (click)="goToPage(currentPage + 1)" 
         [disabled]="currentPage === totalPages">
         <i class="fas fa-angle-right"></i>
       </button>
       <button 
-        class="btn-page" 
+        class="px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded cursor-pointer transition-colors min-w-[40px] text-center hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed" 
         (click)="goToPage(totalPages)" 
         [disabled]="currentPage === totalPages">
         <i class="fas fa-angle-double-right"></i>
@@ -238,45 +240,45 @@
 </div>
 
 <!-- User Detail Modal -->
-<div class="modal-overlay" *ngIf="showUserDetail" (click)="closeUserDetail()">
-  <div class="modal user-detail-modal" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3><i class="fas fa-user"></i> User Details</h3>
-      <button class="btn-close" (click)="closeUserDetail()">×</button>
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" *ngIf="showUserDetail" (click)="closeUserDetail()">
+  <div class="bg-white rounded-lg shadow-2xl max-w-[90vw] max-h-[90vh] overflow-y-auto min-w-[500px]" (click)="$event.stopPropagation()">
+    <div class="px-6 py-6 border-b border-gray-200 flex justify-between items-center">
+      <h3 class="m-0 text-xl font-semibold text-gray-800 flex items-center gap-2"><i class="fas fa-user"></i> User Details</h3>
+      <button class="bg-none border-none text-2xl cursor-pointer" (click)="closeUserDetail()">×</button>
     </div>
-    <div class="modal-body" *ngIf="selectedUser">
-      <div class="user-info-grid">
-        <div class="info-item">
-          <label>Email:</label>
-          <span>{{ selectedUser.email }}</span>
+    <div class="p-6" *ngIf="selectedUser">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="flex flex-col gap-1">
+          <label class="font-semibold text-gray-600 text-sm">Email:</label>
+          <span class="text-gray-800">{{ selectedUser.email }}</span>
         </div>
-        <div class="info-item">
-          <label>Role:</label>
-          <span class="role-badge" [class]="getRoleClass(selectedUser.role || 'regular')">
+        <div class="flex flex-col gap-1">
+          <label class="font-semibold text-gray-600 text-sm">Role:</label>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider" [class]="getRoleClass(selectedUser.role || 'regular')">
             {{ selectedUser.role || 'regular' }}
           </span>
         </div>
-        <div class="info-item">
-          <label>Status:</label>
-          <span class="status-badge" [class]="getStatusClass(selectedUser.status)">
+        <div class="flex flex-col gap-1">
+          <label class="font-semibold text-gray-600 text-sm">Status:</label>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider" [class]="getStatusClass(selectedUser.status)">
             {{ selectedUser.status }}
           </span>
         </div>
-        <div class="info-item">
-          <label>Files Count:</label>
-          <span>{{ selectedUser.files_count }}</span>
+        <div class="flex flex-col gap-1">
+          <label class="font-semibold text-gray-600 text-sm">Files Count:</label>
+          <span class="text-gray-800">{{ selectedUser.files_count }}</span>
         </div>
-        <div class="info-item">
-          <label>Storage Used:</label>
-          <span>{{ formatBytes(selectedUser.storage_used) }}</span>
+        <div class="flex flex-col gap-1">
+          <label class="font-semibold text-gray-600 text-sm">Storage Used:</label>
+          <span class="text-gray-800">{{ formatBytes(selectedUser.storage_used) }}</span>
         </div>
-        <div class="info-item">
-          <label>Created:</label>
-          <span>{{ formatDate(selectedUser.created_at || '') }}</span>
+        <div class="flex flex-col gap-1">
+          <label class="font-semibold text-gray-600 text-sm">Created:</label>
+          <span class="text-gray-800">{{ formatDate(selectedUser.created_at || '') }}</span>
         </div>
-        <div class="info-item">
-          <label>Last Login:</label>
-          <span>{{ formatDate(selectedUser.last_login || '') }}</span>
+        <div class="flex flex-col gap-1">
+          <label class="font-semibold text-gray-600 text-sm">Last Login:</label>
+          <span class="text-gray-800">{{ formatDate(selectedUser.last_login || '') }}</span>
         </div>
       </div>
     </div>
@@ -284,45 +286,45 @@
 </div>
 
 <!-- Edit User Modal -->
-<div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
-  <div class="modal edit-user-modal" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3><i class="fas fa-edit"></i> Edit User</h3>
-      <button class="btn-close" (click)="closeEditModal()">×</button>
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" *ngIf="showEditModal" (click)="closeEditModal()">
+  <div class="bg-white rounded-lg shadow-2xl max-w-[90vw] max-h-[90vh] overflow-y-auto min-w-[400px]" (click)="$event.stopPropagation()">
+    <div class="px-6 py-6 border-b border-gray-200 flex justify-between items-center">
+      <h3 class="m-0 text-xl font-semibold text-gray-800 flex items-center gap-2"><i class="fas fa-edit"></i> Edit User</h3>
+      <button class="bg-none border-none text-2xl cursor-pointer" (click)="closeEditModal()">×</button>
     </div>
-    <div class="modal-body" *ngIf="editingUser">
-      <div class="form-group">
-        <label>Email:</label>
-        <input type="text" [value]="editingUser.email" readonly class="form-input readonly">
+    <div class="p-6" *ngIf="editingUser">
+      <div class="mb-4">
+        <label class="block mb-2 font-semibold text-gray-600">Email:</label>
+        <input type="text" [value]="editingUser.email" readonly class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-500">
       </div>
-      <div class="form-group">
-        <label>Role:</label>
-        <select [(ngModel)]="editingUser.role" class="form-select">
+      <div class="mb-4">
+        <label class="block mb-2 font-semibold text-gray-600">Role:</label>
+        <select [(ngModel)]="editingUser.role" class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
           <option value="regular">Regular</option>
           <option value="admin">Admin</option>
           <option value="superadmin">Super Admin</option>
         </select>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
-      <button class="btn btn-primary" (click)="saveUserChanges()">Save Changes</button>
+    <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-4">
+      <button class="px-4 py-2 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors" (click)="closeEditModal()">Cancel</button>
+      <button class="px-4 py-2 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors" (click)="saveUserChanges()">Save Changes</button>
     </div>
   </div>
 </div>
 
 <!-- Bulk Actions Modal -->
-<div class="modal-overlay" *ngIf="showBulkActions" (click)="closeBulkActions()">
-  <div class="modal bulk-actions-modal" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3><i class="fas fa-tasks"></i> Bulk Actions</h3>
-      <button class="btn-close" (click)="closeBulkActions()">×</button>
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" *ngIf="showBulkActions" (click)="closeBulkActions()">
+  <div class="bg-white rounded-lg shadow-2xl max-w-[90vw] max-h-[90vh] overflow-y-auto min-w-[400px]" (click)="$event.stopPropagation()">
+    <div class="px-6 py-6 border-b border-gray-200 flex justify-between items-center">
+      <h3 class="m-0 text-xl font-semibold text-gray-800 flex items-center gap-2"><i class="fas fa-tasks"></i> Bulk Actions</h3>
+      <button class="bg-none border-none text-2xl cursor-pointer" (click)="closeBulkActions()">×</button>
     </div>
-    <div class="modal-body">
-      <p>Selected {{ selectedUsers.size }} user(s)</p>
-      <div class="form-group">
-        <label>Action:</label>
-        <select [(ngModel)]="bulkAction" class="form-select">
+    <div class="p-6">
+      <p class="mb-4">Selected {{ selectedUsers.size }} user(s)</p>
+      <div class="mb-4">
+        <label class="block mb-2 font-semibold text-gray-600">Action:</label>
+        <select [(ngModel)]="bulkAction" class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
           <option value="">Select Action</option>
           <option value="suspend">Suspend Users</option>
           <option value="ban">Ban Users</option>
@@ -330,18 +332,18 @@
           <option value="delete">Delete Users</option>
         </select>
       </div>
-      <div class="form-group" *ngIf="bulkAction">
-        <label>Reason (optional):</label>
+      <div class="mb-4" *ngIf="bulkAction">
+        <label class="block mb-2 font-semibold text-gray-600">Reason (optional):</label>
         <textarea 
           [(ngModel)]="bulkReason" 
           placeholder="Enter reason for this action..."
-          class="form-textarea"></textarea>
+          class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm resize-y min-h-[80px] focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"></textarea>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" (click)="closeBulkActions()">Cancel</button>
+    <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-4">
+      <button class="px-4 py-2 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors" (click)="closeBulkActions()">Cancel</button>
       <button 
-        class="btn btn-danger" 
+        class="px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         (click)="performBulkAction()"
         [disabled]="!bulkAction">
         Perform Action
@@ -351,59 +353,59 @@
 </div>
 
 <!-- User Files Modal -->
-<div class="modal-overlay" *ngIf="showUserFiles" (click)="closeUserFiles()">
-  <div class="modal user-files-modal" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3><i class="fas fa-file-alt"></i> Files for {{ selectedUser?.email }}</h3>
-      <button class="btn-close" (click)="closeUserFiles()">×</button>
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" *ngIf="showUserFiles" (click)="closeUserFiles()">
+  <div class="bg-white rounded-lg shadow-2xl max-w-[90vw] max-h-[90vh] overflow-y-auto w-[90vw] max-w-[900px]" (click)="$event.stopPropagation()">
+    <div class="px-6 py-6 border-b border-gray-200 flex justify-between items-center">
+      <h3 class="m-0 text-xl font-semibold text-gray-800 flex items-center gap-2"><i class="fas fa-file-alt"></i> Files for {{ selectedUser?.email }}</h3>
+      <button class="bg-none border-none text-2xl cursor-pointer" (click)="closeUserFiles()">×</button>
     </div>
-    <div class="modal-body">
-      <div class="files-summary" *ngIf="userFiles.length > 0">
-        <p><strong>{{ userFilesPagination.total }}</strong> files found ({{ formatBytes(userFilesTotalSize) }} total)</p>
+    <div class="p-6">
+      <div class="mb-4 p-3 bg-blue-50 rounded border-l-4 border-blue-500" *ngIf="userFiles.length > 0">
+        <p class="m-0"><strong>{{ userFilesPagination.total }}</strong> files found ({{ formatBytes(userFilesTotalSize) }} total)</p>
       </div>
       
-      <div class="loading-state" *ngIf="loadingUserFiles">
-        <i class="fas fa-spinner fa-spin"></i> Loading files...
+      <div class="text-center py-8 text-gray-500" *ngIf="loadingUserFiles">
+        <i class="fas fa-spinner fa-spin text-3xl mb-2"></i> Loading files...
       </div>
       
-      <div class="files-table-container" *ngIf="!loadingUserFiles && userFiles.length > 0">
-        <table class="files-table">
+      <div class="max-h-[400px] overflow-y-auto" *ngIf="!loadingUserFiles && userFiles.length > 0">
+        <table class="w-full border-collapse text-sm">
           <thead>
             <tr>
-              <th>Filename</th>
-              <th>Type</th>
-              <th>Size</th>
-              <th>Upload Date</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th class="px-3 py-3 bg-gray-50 font-semibold text-gray-800 text-left border-b border-gray-200 sticky top-0">Filename</th>
+              <th class="px-3 py-3 bg-gray-50 font-semibold text-gray-800 text-left border-b border-gray-200 sticky top-0">Type</th>
+              <th class="px-3 py-3 bg-gray-50 font-semibold text-gray-800 text-left border-b border-gray-200 sticky top-0">Size</th>
+              <th class="px-3 py-3 bg-gray-50 font-semibold text-gray-800 text-left border-b border-gray-200 sticky top-0">Upload Date</th>
+              <th class="px-3 py-3 bg-gray-50 font-semibold text-gray-800 text-left border-b border-gray-200 sticky top-0">Status</th>
+              <th class="px-3 py-3 bg-gray-50 font-semibold text-gray-800 text-left border-b border-gray-200 sticky top-0">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let file of userFiles">
-              <td class="filename-cell">
-                <div class="file-info">
+            <tr *ngFor="let file of userFiles" class="hover:bg-gray-50">
+              <td class="px-3 py-3 max-w-[250px]">
+                <div class="flex items-center gap-2">
                   <i [class]="getFileIcon(file.file_type)"></i>
-                  <span class="filename" [title]="file.filename">{{ file.filename }}</span>
+                  <span class="whitespace-nowrap overflow-hidden text-ellipsis" [title]="file.filename">{{ file.filename }}</span>
                 </div>
               </td>
-              <td>
-                <span class="file-type-badge" [class]="'type-' + file.file_type">
+              <td class="px-3 py-3">
+                <span class="px-2 py-1 rounded text-xs font-medium uppercase" [class]="'type-' + file.file_type">
                   {{ file.file_type | titlecase }}
                 </span>
               </td>
-              <td>{{ file.size_formatted }}</td>
-              <td>{{ file.upload_date_formatted }}</td>
-              <td>
-                <span class="status-badge" [class]="'status-' + file.status">
+              <td class="px-3 py-3">{{ file.size_formatted }}</td>
+              <td class="px-3 py-3">{{ file.upload_date_formatted }}</td>
+              <td class="px-3 py-3">
+                <span class="px-2 py-1 rounded text-xs font-medium uppercase" [class]="'status-' + file.status">
                   {{ file.status | titlecase }}
                 </span>
               </td>
-              <td class="file-actions-cell">
-                <div class="file-action-buttons">
+              <td class="px-3 py-3 min-w-[120px] text-center">
+                <div class="flex gap-2 justify-center flex-wrap">
                   <!-- View button for completed files -->
                   <button 
                     *ngIf="file.status === 'completed'" 
-                    class="btn-file-action btn-view" 
+                    class="px-2 py-1 text-xs border-none rounded cursor-pointer transition-colors text-white bg-blue-500 hover:bg-blue-600 flex items-center gap-1" 
                     (click)="viewFile(file)"
                     title="View File">
                     <i class="fas fa-eye"></i> View
@@ -412,7 +414,7 @@
                   <!-- Check Storage button for failed/uploading files -->
                   <button 
                     *ngIf="file.status === 'failed' || file.status === 'uploading'" 
-                    class="btn-file-action btn-storage" 
+                    class="px-2 py-1 text-xs border-none rounded cursor-pointer transition-colors text-white bg-orange-500 hover:bg-orange-600 flex items-center gap-1" 
                     (click)="checkFileStorage(file)"
                     title="Check Storage">
                     <i class="fas fa-search"></i> Check Storage
@@ -421,7 +423,7 @@
                   <!-- Info button for pending files -->
                   <button 
                     *ngIf="file.status === 'pending'" 
-                    class="btn-file-action btn-pending" 
+                    class="px-2 py-1 text-xs border-none rounded cursor-not-allowed opacity-70 text-white bg-gray-500 flex items-center gap-1" 
                     disabled
                     title="File is pending upload">
                     <i class="fas fa-clock"></i> Pending
@@ -433,37 +435,37 @@
         </table>
       </div>
       
-      <div class="empty-files-state" *ngIf="!loadingUserFiles && userFiles.length === 0">
-        <i class="fas fa-folder-open"></i>
-        <h4>No files found</h4>
-        <p>This user hasn't uploaded any files yet.</p>
+      <div class="text-center py-12 px-8 text-gray-500" *ngIf="!loadingUserFiles && userFiles.length === 0">
+        <i class="fas fa-folder-open text-6xl mb-4 opacity-50"></i>
+        <h4 class="m-0 mb-2 text-gray-800">No files found</h4>
+        <p class="m-0">This user hasn't uploaded any files yet.</p>
       </div>
       
       <!-- Pagination for files -->
-      <div class="files-pagination" *ngIf="userFilesPagination.total_pages > 1">
-        <div class="pagination-info">
+      <div class="mt-6 pt-4 border-t border-gray-200" *ngIf="userFilesPagination.total_pages > 1">
+        <div class="text-gray-500 text-sm mb-4">
           Showing {{ ((userFilesPagination.page - 1) * userFilesPagination.limit) + 1 }} to 
           {{ Math.min(userFilesPagination.page * userFilesPagination.limit, userFilesPagination.total) }} 
           of {{ userFilesPagination.total }} files
         </div>
-        <div class="pagination-controls">
+        <div class="flex gap-2">
           <button 
-            class="btn-page" 
+            class="px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded cursor-pointer transition-colors hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed" 
             (click)="loadUserFiles(userFilesPagination.page - 1)"
             [disabled]="userFilesPagination.page <= 1">
             Previous
           </button>
-          <span class="page-numbers">
+          <span class="flex gap-2">
             <button 
               *ngFor="let page of getFilesPaginationPages()" 
-              class="btn-page"
-              [class.active]="page === userFilesPagination.page"
+              class="px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded cursor-pointer transition-colors hover:bg-gray-50 hover:border-gray-400 min-w-[40px] text-center"
+              [class]="page === userFilesPagination.page ? 'bg-blue-500 text-white border-blue-500' : ''"
               (click)="loadUserFiles(page)">
               {{ page }}
             </button>
           </span>
           <button 
-            class="btn-page" 
+            class="px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded cursor-pointer transition-colors hover:bg-gray-50 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed" 
             (click)="loadUserFiles(userFilesPagination.page + 1)"
             [disabled]="userFilesPagination.page >= userFilesPagination.total_pages">
             Next
@@ -475,50 +477,50 @@
 </div>
 
 <!-- Storage Insights Modal -->
-<div class="modal-overlay" *ngIf="showStorageInsights" (click)="closeStorageInsights()">
-  <div class="modal storage-insights-modal" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3><i class="fas fa-database"></i> Storage Insights - {{ selectedFileForInsights?.filename }}</h3>
-      <button class="btn-close" (click)="closeStorageInsights()">×</button>
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" *ngIf="showStorageInsights" (click)="closeStorageInsights()">
+  <div class="bg-white rounded-lg shadow-2xl max-w-[90vw] max-h-[90vh] overflow-y-auto w-[90vw] max-w-[800px]" (click)="$event.stopPropagation()">
+    <div class="px-6 py-6 border-b border-gray-200 flex justify-between items-center">
+      <h3 class="m-0 text-xl font-semibold text-gray-800 flex items-center gap-2"><i class="fas fa-database"></i> Storage Insights - {{ selectedFileForInsights?.filename }}</h3>
+      <button class="bg-none border-none text-2xl cursor-pointer" (click)="closeStorageInsights()">×</button>
     </div>
-    <div class="modal-body" *ngIf="selectedFileForInsights">
-      <div class="loading-state" *ngIf="loadingStorageInsights">
-        <i class="fas fa-spinner fa-spin"></i> Checking storage locations...
+    <div class="p-6" *ngIf="selectedFileForInsights">
+      <div class="text-center py-8 text-gray-500" *ngIf="loadingStorageInsights">
+        <i class="fas fa-spinner fa-spin text-3xl mb-2"></i> Checking storage locations...
       </div>
       
-      <div class="storage-insights-content" *ngIf="!loadingStorageInsights && storageInsights">
+      <div class="max-h-[500px] overflow-y-auto" *ngIf="!loadingStorageInsights && storageInsights">
         <!-- File Information -->
-        <div class="file-info-section">
-          <h4><i class="fas fa-file"></i> File Information</h4>
-          <div class="info-grid">
-            <div class="info-item">
-              <label>Status:</label>
-              <span class="status-badge" [class]="'status-' + storageInsights.status">
+        <div class="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+          <h4 class="m-0 mb-3 text-gray-800 flex items-center gap-2"><i class="fas fa-file"></i> File Information</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="flex flex-col gap-1">
+              <label class="font-semibold text-gray-600 text-sm">Status:</label>
+              <span class="px-2 py-1 rounded text-xs font-medium uppercase" [class]="'status-' + storageInsights.status">
                 {{ storageInsights.status | titlecase }}
               </span>
             </div>
-            <div class="info-item">
-              <label>Storage Location:</label>
+            <div class="flex flex-col gap-1">
+              <label class="font-semibold text-gray-600 text-sm">Storage Location:</label>
               <span>{{ storageInsights.storage_location || 'Not specified' }}</span>
             </div>
           </div>
         </div>
 
         <!-- Google Drive Status -->
-        <div class="storage-section">
-          <h4><i class="fab fa-google-drive"></i> Google Drive Status</h4>
-          <div class="storage-status-card" [class]="getStorageStatusClass(storageInsights.google_drive)">
-            <div class="status-indicator">
+        <div class="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+          <h4 class="m-0 mb-3 text-gray-800 flex items-center gap-2"><i class="fab fa-google-drive"></i> Google Drive Status</h4>
+          <div class="p-4 rounded-lg border-2 mt-2" [class]="getStorageStatusClass(storageInsights.google_drive)">
+            <div class="flex items-center gap-2 mb-2">
               <i [class]="getStorageStatusIcon(storageInsights.google_drive)"></i>
-              <span class="status-text">
+              <span class="font-semibold text-gray-800">
                 {{ storageInsights.google_drive.exists ? 'File Found' : 'File Not Found' }}
               </span>
             </div>
-            <div class="status-details">
-              <p>{{ storageInsights.google_drive.details }}</p>
-              <div class="storage-metadata" *ngIf="storageInsights.google_drive.account_id">
-                <small><strong>Account:</strong> {{ storageInsights.google_drive.account_id }}</small>
-                <small *ngIf="storageInsights.google_drive.file_size">
+            <div>
+              <p class="m-0 mb-2 text-gray-600 text-sm">{{ storageInsights.google_drive.details }}</p>
+              <div class="flex flex-col gap-1" *ngIf="storageInsights.google_drive.account_id">
+                <small class="text-gray-500 text-xs"><strong>Account:</strong> {{ storageInsights.google_drive.account_id }}</small>
+                <small class="text-gray-500 text-xs" *ngIf="storageInsights.google_drive.file_size">
                   <strong>Size:</strong> {{ formatBytes(storageInsights.google_drive.file_size) }}
                 </small>
               </div>
@@ -527,20 +529,20 @@
         </div>
 
         <!-- Hetzner Storage Status -->
-        <div class="storage-section">
-          <h4><i class="fas fa-server"></i> Hetzner Backup Storage</h4>
-          <div class="storage-status-card" [class]="getStorageStatusClass(storageInsights.hetzner_storage)">
-            <div class="status-indicator">
+        <div class="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+          <h4 class="m-0 mb-3 text-gray-800 flex items-center gap-2"><i class="fas fa-server"></i> Hetzner Backup Storage</h4>
+          <div class="p-4 rounded-lg border-2 mt-2" [class]="getStorageStatusClass(storageInsights.hetzner_storage)">
+            <div class="flex items-center gap-2 mb-2">
               <i [class]="getStorageStatusIcon(storageInsights.hetzner_storage)"></i>
-              <span class="status-text">
+              <span class="font-semibold text-gray-800">
                 {{ storageInsights.hetzner_storage.exists ? 'Backup Found' : 'Backup Not Found' }}
               </span>
             </div>
-            <div class="status-details">
-              <p>{{ storageInsights.hetzner_storage.details }}</p>
-              <div class="storage-metadata" *ngIf="storageInsights.hetzner_storage.path">
-                <small><strong>Path:</strong> {{ storageInsights.hetzner_storage.path }}</small>
-                <small *ngIf="storageInsights.hetzner_storage.file_size">
+            <div>
+              <p class="m-0 mb-2 text-gray-600 text-sm">{{ storageInsights.hetzner_storage.details }}</p>
+              <div class="flex flex-col gap-1" *ngIf="storageInsights.hetzner_storage.path">
+                <small class="text-gray-500 text-xs"><strong>Path:</strong> {{ storageInsights.hetzner_storage.path }}</small>
+                <small class="text-gray-500 text-xs" *ngIf="storageInsights.hetzner_storage.file_size">
                   <strong>Size:</strong> {{ formatBytes(storageInsights.hetzner_storage.file_size) }}
                 </small>
               </div>
@@ -549,20 +551,20 @@
         </div>
 
         <!-- Recommendations -->
-        <div class="recommendations-section" *ngIf="storageInsights.recommendations.length > 0">
-          <h4><i class="fas fa-lightbulb"></i> Recommendations</h4>
-          <ul class="recommendations-list">
-            <li *ngFor="let recommendation of storageInsights.recommendations">
-              <i class="fas fa-arrow-right"></i> {{ recommendation }}
+        <div class="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50" *ngIf="storageInsights.recommendations.length > 0">
+          <h4 class="m-0 mb-3 text-gray-800 flex items-center gap-2"><i class="fas fa-lightbulb"></i> Recommendations</h4>
+          <ul class="m-0 p-0 list-none">
+            <li *ngFor="let recommendation of storageInsights.recommendations" class="flex items-start gap-2 py-2 border-b border-gray-200 text-gray-600 last:border-b-0">
+              <i class="text-blue-500 mt-1 text-xs fa-arrow-right"></i> {{ recommendation }}
             </li>
           </ul>
         </div>
       </div>
       
-      <div class="error-state" *ngIf="!loadingStorageInsights && storageInsightsError">
-        <i class="fas fa-exclamation-triangle"></i>
-        <h4>Error Loading Storage Insights</h4>
-        <p>{{ storageInsightsError }}</p>
+      <div class="text-center py-8 text-red-500" *ngIf="!loadingStorageInsights && storageInsightsError">
+        <i class="fas fa-exclamation-triangle text-5xl mb-4"></i>
+        <h4 class="m-0 mb-2 text-red-700">Error Loading Storage Insights</h4>
+        <p class="m-0">{{ storageInsightsError }}</p>
       </div>
     </div>
   </div>

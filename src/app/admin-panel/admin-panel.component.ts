@@ -105,6 +105,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
   // New properties for enhanced dashboard
   public isDarkTheme: boolean = false;
   public sidebarCollapsed: boolean = false;
+  public isMobileView: boolean = false;
   public showNotifications: boolean = false;
   public notificationCount: number = 0;
   public notifications: Notification[] = [];
@@ -159,6 +160,7 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     this.loadGoogleDriveStats();
     this.initializeNotifications();
     this.generateMockChartData();
+    this.checkMobileView();
     
     // Listen for stats updates from other components
     this.adminStatsService.statsUpdate$.subscribe(() => {
@@ -186,6 +188,15 @@ export class AdminPanelComponent implements OnInit, OnDestroy {
     this.statsInterval = setInterval(() => {
       this.loadSystemStats();
     }, 30000);
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.checkMobileView();
+  }
+
+  private checkMobileView(): void {
+    this.isMobileView = window.innerWidth < 768; // md breakpoint
   }
 
   ngOnDestroy(): void {

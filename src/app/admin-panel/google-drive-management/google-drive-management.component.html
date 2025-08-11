@@ -1,25 +1,32 @@
 <!-- Google Drive Management Component -->
-<div class="google-drive-management">
+<div class="p-8 bg-white rounded-xl shadow-lg">
   <!-- Header -->
-  <div class="management-header">
-    <div class="header-left">
-      <h2><i class="fab fa-google-drive"></i> Google Drive Management</h2>
+  <div class="flex justify-between items-start mb-8 pb-4 border-b-2 border-gray-200">
+    <div class="flex flex-col gap-2">
+      <h2 class="m-0 text-3xl font-bold text-gray-800 flex items-center gap-2">
+        <i class="fab fa-google-drive"></i> Google Drive Management
+      </h2>
       <!-- Cache Status Indicator -->
-      <div class="cache-status" *ngIf="lastUpdated">
-        <span class="cache-badge" [class]="'cache-' + cacheStatus">
+      <div class="flex items-center gap-4 text-sm" *ngIf="lastUpdated">
+        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full font-medium text-xs uppercase tracking-wider"
+              [ngClass]="{
+                'bg-green-100 text-green-800': cacheStatus === 'fresh',
+                'bg-yellow-100 text-yellow-800': cacheStatus === 'stale',
+                'bg-red-100 text-red-800': cacheStatus === 'error'
+              }">
           <i class="fas" [class]="getCacheIcon(cacheStatus)"></i>
           {{ getCacheStatusText(cacheStatus) }}
         </span>
-        <span class="last-updated" *ngIf="lastUpdated">
+        <span class="text-gray-500 italic" *ngIf="lastUpdated">
           Last updated: {{ formatDateTime(lastUpdated) }}
         </span>
       </div>
     </div>
-    <div class="header-actions">
-      <button class="btn btn-success" (click)="showAddAccountModal = true" [disabled]="loading || isRefreshing">
+    <div class="flex gap-4">
+      <button class="px-4 py-2 bg-green-600 text-white rounded-md border border-green-600 hover:bg-green-700 hover:border-green-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" (click)="showAddAccountModal = true" [disabled]="loading || isRefreshing">
         <i class="fas fa-plus"></i> Add Account
       </button>
-      <button class="btn btn-secondary" (click)="refreshAllAccounts()" [disabled]="loading || isRefreshing">
+      <button class="px-4 py-2 bg-gray-600 text-white rounded-md border border-gray-600 hover:bg-gray-700 hover:border-gray-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" (click)="refreshAllAccounts()" [disabled]="loading || isRefreshing">
         <i class="fas fa-sync-alt" [class.fa-spin]="isRefreshing"></i> 
         {{ isRefreshing ? 'Refreshing...' : 'Refresh All from Google Drive' }}
       </button>
@@ -27,171 +34,197 @@
   </div>
 
   <!-- Error Display -->
-  <div class="error-message" *ngIf="error">
+  <div class="bg-red-100 border border-red-300 text-red-800 px-4 py-4 rounded-md mb-4 flex items-center gap-2 relative" *ngIf="error">
     <i class="fas fa-exclamation-triangle"></i>
     {{ error }}
-    <button class="btn-close" (click)="error = ''">×</button>
+    <button class="absolute right-4 bg-none border-none text-xl cursor-pointer text-red-800" (click)="error = ''">×</button>
   </div>
 
   <!-- Statistics Overview -->
-  <div class="stats-overview">
-    <div class="stat-card">
-      <div class="stat-icon total">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-gray-50 p-6 rounded-lg border-l-4 border-blue-600 flex items-center gap-4">
+      <div class="w-15 h-15 bg-blue-600 rounded-full flex items-center justify-center text-2xl text-white">
         <i class="fab fa-google-drive"></i>
       </div>
-      <div class="stat-content">
-        <h3>{{ totalAccounts }}</h3>
-        <p>Total Accounts</p>
-        <span class="stat-detail">{{ activeAccounts }} active</span>
+      <div>
+        <h3 class="m-0 text-2xl font-bold text-gray-800">{{ totalAccounts }}</h3>
+        <p class="m-0 mt-1 mb-1 text-gray-600 text-sm">Total Accounts</p>
+        <span class="text-xs text-gray-700">{{ activeAccounts }} active</span>
       </div>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-icon storage">
+    <div class="bg-gray-50 p-6 rounded-lg border-l-4 border-green-600 flex items-center gap-4">
+      <div class="w-15 h-15 bg-green-600 rounded-full flex items-center justify-center text-2xl text-white">
         <i class="fas fa-database"></i>
       </div>
-      <div class="stat-content">
-        <h3>{{ formatBytes(totalStorageUsed) }}</h3>
-        <p>Storage Used</p>
-        <span class="stat-detail">of {{ formatBytes(totalStorageQuota) }}</span>
+      <div>
+        <h3 class="m-0 text-2xl font-bold text-gray-800">{{ formatBytes(totalStorageUsed) }}</h3>
+        <p class="m-0 mt-1 mb-1 text-gray-600 text-sm">Storage Used</p>
+        <span class="text-xs text-gray-700">of {{ formatBytes(totalStorageQuota) }}</span>
       </div>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-icon performance">
+    <div class="bg-gray-50 p-6 rounded-lg border-l-4 border-yellow-600 flex items-center gap-4">
+      <div class="w-15 h-15 bg-yellow-600 rounded-full flex items-center justify-center text-2xl text-white">
         <i class="fas fa-tachometer-alt"></i>
       </div>
-      <div class="stat-content">
-        <h3>{{ (averagePerformance || 0).toFixed(1) }}%</h3>
-        <p>Avg Performance</p>
-        <span class="stat-detail" [class]="getPerformanceClass(averagePerformance || 0)">
+      <div>
+        <h3 class="m-0 text-2xl font-bold text-gray-800">{{ (averagePerformance || 0).toFixed(1) }}%</h3>
+        <p class="m-0 mt-1 mb-1 text-gray-600 text-sm">Avg Performance</p>
+        <span class="text-xs text-gray-700" [class]="getPerformanceClass(averagePerformance || 0)">
           {{ getPerformanceClass(averagePerformance || 0).replace('performance-', '') }}
         </span>
       </div>
     </div>
 
-    <div class="stat-card">
-      <div class="stat-icon quota">
+    <div class="bg-gray-50 p-6 rounded-lg border-l-4 border-purple-600 flex items-center gap-4">
+      <div class="w-15 h-15 bg-purple-600 rounded-full flex items-center justify-center text-2xl text-white">
         <i class="fas fa-chart-pie"></i>
       </div>
-      <div class="stat-content">
-        <h3>{{ ((totalStorageUsed / totalStorageQuota) * 100 || 0).toFixed(2) }}%</h3>
-        <p>Quota Usage</p>
-        <div class="progress-bar">
-          <div class="progress-fill" [style.width.%]="(totalStorageUsed / totalStorageQuota) * 100 || 0"></div>
+      <div>
+        <h3 class="m-0 text-2xl font-bold text-gray-800">{{ ((totalStorageUsed / totalStorageQuota) * 100 || 0).toFixed(2) }}%</h3>
+        <p class="m-0 mt-1 mb-1 text-gray-600 text-sm">Quota Usage</p>
+        <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+          <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" [style.width.%]="(totalStorageUsed / totalStorageQuota) * 100 || 0"></div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Loading Spinner -->
-  <div class="loading-spinner" *ngIf="loading">
-    <i class="fas fa-spinner fa-spin"></i>
+  <div class="text-center py-12 text-gray-600" *ngIf="loading">
+    <i class="fas fa-spinner fa-spin text-3xl mb-4 block"></i>
     <p>Loading accounts...</p>
   </div>
 
   <!-- Background Refresh Indicator -->
-  <div class="background-refresh-indicator" *ngIf="backgroundRefreshInProgress && !loading">
-    <i class="fas fa-sync-alt fa-spin"></i>
-    <p>Updating data in background...</p>
+  <div class="flex flex-col items-center py-4 px-4 my-4 bg-gray-50 border border-gray-200 rounded-lg text-gray-600" *ngIf="backgroundRefreshInProgress && !loading">
+    <i class="fas fa-sync-alt fa-spin text-2xl text-gray-600 mb-2"></i>
+    <p class="m-0 text-sm">Updating data in background...</p>
   </div>
 
   <!-- Accounts Grid -->
-  <div class="accounts-grid" *ngIf="!loading">
-    <div *ngFor="let account of accounts" class="account-card" [class.inactive]="!account.is_active">
+  <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6" *ngIf="!loading">
+    <div *ngFor="let account of accounts" class="bg-gray-50 border border-gray-200 rounded-lg p-6 transition-all duration-200 hover:shadow-lg hover:-translate-y-1" [class.opacity-70]="!account.is_active" [class.bg-gray-100]="!account.is_active">
       <!-- Account Header -->
-      <div class="account-header">
-        <div class="account-info">
-          <h3>{{ account.email }}</h3>
-          <span class="account-id">ID: {{ account.account_id }}</span>
+      <div class="flex justify-between items-start mb-4 pb-4 border-b border-gray-200">
+        <div>
+          <h3 class="m-0 text-lg font-semibold text-gray-800 break-all">{{ account.email }}</h3>
+          <span class="text-sm text-gray-600">ID: {{ account.account_id }}</span>
         </div>
-        <div class="account-status">
-          <span class="status-badge" [class]="account.is_active ? 'active' : 'inactive'">
+        <div class="flex flex-col gap-2 items-end">
+          <span class="px-2 py-1 rounded text-xs font-medium"
+                [ngClass]="{
+                  'bg-green-100 text-green-800': account.is_active,
+                  'bg-red-100 text-red-800': !account.is_active
+                }">
             {{ account.is_active ? 'Active' : 'Inactive' }}
           </span>
-          <span class="health-badge" [class]="getHealthStatusClass(account.health_status)">
+          <span class="px-2 py-1 rounded text-xs font-medium"
+                [ngClass]="{
+                  'bg-green-100 text-green-800': account.health_status === 'healthy',
+                  'bg-yellow-100 text-yellow-800': account.health_status === 'warning',
+                  'bg-red-100 text-red-800': account.health_status === 'quota-warning' || account.health_status === 'critical',
+                  'bg-gray-100 text-gray-800': account.health_status === 'unknown'
+                }">
             {{ getHealthStatusText(account.health_status) }}
           </span>
         </div>
       </div>
 
       <!-- Account Stats -->
-      <div class="account-stats">
-        <div class="stat-row">
-          <div class="stat-item">
-            <i class="fas fa-file"></i>
-            <span class="stat-label">Files</span>
-            <span class="stat-value">{{ account.files_count | number }}</span>
+      <div class="mb-4">
+        <div class="flex justify-between mb-4">
+          <div class="flex flex-col items-center gap-1">
+            <i class="fas fa-file text-blue-600 text-xl"></i>
+            <span class="text-sm text-gray-600">Files</span>
+            <span class="font-semibold text-gray-800">{{ account.files_count | number }}</span>
           </div>
-          <div class="stat-item">
-            <i class="fas fa-hdd"></i>
-            <span class="stat-label">Storage</span>
-            <span class="stat-value">{{ formatBytes(account.storage_used) }}</span>
+          <div class="flex flex-col items-center gap-1">
+            <i class="fas fa-hdd text-blue-600 text-xl"></i>
+            <span class="text-sm text-gray-600">Storage</span>
+            <span class="font-semibold text-gray-800">{{ formatBytes(account.storage_used) }}</span>
           </div>
         </div>
         
-        <div class="storage-progress">
-          <div class="progress-info">
+        <div class="mb-4">
+          <div class="flex justify-between mb-2 text-sm text-gray-700">
             <span>Storage Usage</span>
             <span>{{ (account.storage_percentage || 0).toFixed(2) }}%</span>
           </div>
-          <div class="progress-bar">
-            <div class="progress-fill" 
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="h-2 rounded-full transition-all duration-300"
                  [style.width.%]="account.storage_percentage || 0"
-                 [class]="(account.storage_percentage || 0) > 80 ? 'warning' : ''">
+                 [class.bg-yellow-500]="(account.storage_percentage || 0) > 80"
+                 [class.bg-blue-600]="(account.storage_percentage || 0) <= 80">
             </div>
           </div>
         </div>
 
-        <div class="performance-info">
-          <span class="performance-label">Performance Score</span>
-          <span class="performance-score" [class]="getPerformanceClass(account.performance_score || 0)">
+        <div class="flex justify-between items-center mb-4">
+          <span class="text-sm text-gray-700">Performance Score</span>
+          <span class="font-semibold px-2 py-1 rounded text-sm"
+                [ngClass]="{
+                  'bg-green-100 text-green-800': (account.performance_score || 0) >= 90,
+                  'bg-blue-100 text-blue-800': (account.performance_score || 0) >= 70 && (account.performance_score || 0) < 90,
+                  'bg-yellow-100 text-yellow-800': (account.performance_score || 0) >= 50 && (account.performance_score || 0) < 70,
+                  'bg-red-100 text-red-800': (account.performance_score || 0) < 50
+                }">
             {{ (account.performance_score || 0).toFixed(1) }}%
           </span>
         </div>
       </div>
 
       <!-- Folder Information -->
-      <div class="folder-info" *ngIf="account.folder_info">
-        <div class="folder-details">
-          <i class="fab fa-google-drive"></i>
-          <div class="folder-text">
-            <div class="folder-name">{{ account.folder_info.folder_name }}</div>
-            <div class="folder-path">{{ account.folder_info.folder_path }}</div>
+      <div class="mt-4 p-3 bg-gray-100 rounded-md border-l-3 border-blue-500" *ngIf="account.folder_info">
+        <div class="flex items-center gap-3 mb-2">
+          <i class="fab fa-google-drive text-blue-500 text-xl"></i>
+          <div class="flex-1">
+            <div class="font-semibold text-gray-800 text-sm">{{ account.folder_info.folder_name }}</div>
+            <div class="text-gray-600 text-xs font-mono">{{ account.folder_info.folder_path }}</div>
           </div>
         </div>
-        <div class="data-freshness" [class]="account.data_freshness">
-          <i class="fas" [class]="account.data_freshness === 'fresh' ? 'fa-check-circle' : 'fa-exclamation-triangle'"></i>
+        <div class="flex items-center gap-2 text-sm" [class.text-green-600]="account.data_freshness === 'fresh'" [class.text-yellow-600]="account.data_freshness === 'stale'">
+          <i class="fas" [class.fa-check-circle]="account.data_freshness === 'fresh'" [class.fa-exclamation-triangle]="account.data_freshness === 'stale'"></i>
           <span>{{ account.data_freshness === 'fresh' ? 'Data Fresh' : 'Data Stale' }}</span>
-          <small *ngIf="account.last_quota_check">Updated: {{ formatDateTime(account.last_quota_check) }}</small>
+          <small class="text-gray-500 ml-2" *ngIf="account.last_quota_check">Updated: {{ formatDateTime(account.last_quota_check) }}</small>
         </div>
       </div>
 
       <!-- Account Actions -->
-      <div class="account-actions">
-        <button class="btn btn-sm btn-info" (click)="viewAccountDetails(account.account_id)" [disabled]="loading">
+      <div class="flex gap-2 flex-wrap mb-4">
+        <button class="px-3 py-1.5 bg-blue-600 text-white rounded border border-blue-600 hover:bg-blue-700 hover:border-blue-700 transition-colors text-xs flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed" (click)="viewAccountDetails(account.account_id)" [disabled]="loading">
           <i class="fas fa-eye"></i> Details
         </button>
-        <button class="btn btn-sm btn-secondary" (click)="refreshAccountStats(account.account_id)" [disabled]="loading">
+        <button class="px-3 py-1.5 bg-gray-600 text-white rounded border border-gray-600 hover:bg-gray-700 hover:border-gray-700 transition-colors text-xs flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed" (click)="refreshAccountStats(account.account_id)" [disabled]="loading">
           <i class="fas fa-sync-alt"></i> Refresh
         </button>
-        <button class="btn btn-sm" 
-                [class]="account.is_active ? 'btn-warning' : 'btn-success'"
+        <button class="px-3 py-1.5 rounded border text-xs flex items-center gap-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                [class.bg-yellow-500]="account.is_active"
+                [class.text-gray-900]="account.is_active"
+                [class.border-yellow-500]="account.is_active"
+                [class.hover:bg-yellow-600]="account.is_active"
+                [class.hover:border-yellow-600]="account.is_active"
+                [class.bg-green-600]="!account.is_active"
+                [class.text-white]="!account.is_active"
+                [class.border-green-600]="!account.is_active"
+                [class.hover:bg-green-700]="!account.is_active"
+                [class.hover:border-green-700]="!account.is_active"
                 (click)="toggleAccount(account.account_id)" 
                 [disabled]="loading">
-          <i class="fas" [class]="account.is_active ? 'fa-pause' : 'fa-play'"></i>
+          <i class="fas" [class.fa-pause]="account.is_active" [class.fa-play]="!account.is_active"></i>
           {{ account.is_active ? 'Deactivate' : 'Activate' }}
         </button>
-        <button class="btn btn-sm btn-danger" (click)="deleteAllAccountFiles(account.account_id)" [disabled]="loading">
+        <button class="px-3 py-1.5 bg-red-600 text-white rounded border border-red-600 hover:bg-red-700 hover:border-red-700 transition-colors text-xs flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed" (click)="deleteAllAccountFiles(account.account_id)" [disabled]="loading">
           <i class="fas fa-trash-alt"></i> Delete All Files
         </button>
-        <button class="btn btn-sm btn-danger" (click)="removeAccount(account.account_id)" [disabled]="loading">
+        <button class="px-3 py-1.5 bg-red-600 text-white rounded border border-red-600 hover:bg-red-700 hover:border-red-700 transition-colors text-xs flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed" (click)="removeAccount(account.account_id)" [disabled]="loading">
           <i class="fas fa-user-times"></i> Remove Account
         </button>
       </div>
 
       <!-- Last Activity -->
-      <div class="last-activity">
+      <div class="text-sm text-gray-600 flex items-center gap-2">
         <i class="fas fa-clock"></i>
         <span>Last activity: {{ formatDate(account.last_activity) }}</span>
       </div>
@@ -199,68 +232,70 @@
   </div>
 
   <!-- Empty State -->
-  <div class="empty-state" *ngIf="!loading && accounts.length === 0">
-    <i class="fab fa-google-drive"></i>
-    <h3>No Google Drive Accounts</h3>
-    <p>Add your first Google Drive service account to get started.</p>
-    <button class="btn btn-primary" (click)="showAddAccountModal = true">
+  <div class="text-center py-12 text-gray-600" *ngIf="!loading && accounts.length === 0">
+    <i class="fab fa-google-drive text-6xl mb-4 text-gray-300"></i>
+    <h3 class="m-0 my-4 text-gray-700">No Google Drive Accounts</h3>
+    <p class="m-0 mb-4">Add your first Google Drive service account to get started.</p>
+    <button class="px-4 py-2 bg-blue-600 text-white rounded border border-blue-600 hover:bg-blue-700 hover:border-blue-700 transition-colors" (click)="showAddAccountModal = true">
       <i class="fas fa-plus"></i> Add Account
     </button>
   </div>
 </div>
 
 <!-- Add Account Modal -->
-<div class="modal-overlay" *ngIf="showAddAccountModal" (click)="closeAddAccountModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3><i class="fas fa-plus"></i> Add Google Drive Account</h3>
-      <button class="btn-close" (click)="closeAddAccountModal()">×</button>
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" *ngIf="showAddAccountModal" (click)="closeAddAccountModal()">
+  <div class="bg-white rounded-lg max-w-lg max-h-90vh overflow-y-auto shadow-2xl" (click)="$event.stopPropagation()">
+    <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+      <h3 class="m-0 text-gray-800 flex items-center gap-2">
+        <i class="fas fa-plus"></i> Add Google Drive Account
+      </h3>
+      <button class="bg-none border-none text-2xl cursor-pointer text-gray-600" (click)="closeAddAccountModal()">×</button>
     </div>
     
-    <div class="modal-body">
+    <div class="p-6">
       <form (ngSubmit)="addAccount()">
-        <div class="form-group">
-          <label for="account-email">Account Email *</label>
+        <div class="mb-6">
+          <label for="account-email" class="block mb-2 font-medium text-gray-800">Account Email *</label>
           <input 
             type="email" 
             id="account-email"
             [(ngModel)]="addAccountForm.account_email" 
             name="account_email"
-            class="form-control" 
+            class="w-full px-3 py-3 border border-gray-300 rounded-md text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-200" 
             placeholder="service-account@project.iam.gserviceaccount.com"
             required>
         </div>
 
-        <div class="form-group">
-          <label for="account-alias">Account Alias *</label>
+        <div class="mb-6">
+          <label for="account-alias" class="block mb-2 font-medium text-gray-800">Account Alias *</label>
           <input 
             type="text" 
             id="account-alias"
             [(ngModel)]="addAccountForm.account_alias" 
             name="account_alias"
-            class="form-control" 
+            class="w-full px-3 py-3 border border-gray-300 rounded-md text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-200" 
             placeholder="Primary Storage Account"
             required>
         </div>
 
-        <div class="form-group">
-          <label for="service-key">Service Account Key (JSON) *</label>
+        <div class="mb-6">
+          <label for="service-key" class="block mb-2 font-medium text-gray-800">Service Account Key (JSON) *</label>
           <textarea 
             id="service-key"
             [(ngModel)]="addAccountForm.service_account_key" 
             name="service_account_key"
-            class="form-control" 
+            class="w-full px-3 py-3 border border-gray-300 rounded-md text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-200" 
             rows="10"
             placeholder='{"type": "service_account", "project_id": "...", ...}'
             required></textarea>
-          <small class="form-help">
+          <small class="text-gray-600 text-sm mt-1 block">
             Paste the complete JSON service account key file content here.
           </small>
         </div>
 
-        <div class="modal-actions">
-          <button type="button" class="btn btn-secondary" (click)="closeAddAccountModal()">Cancel</button>
-          <button type="submit" class="btn btn-primary" [disabled]="loading">
+        <div class="flex gap-4 justify-end mt-6">
+          <button type="button" class="px-4 py-2 bg-gray-600 text-white rounded border border-gray-600 hover:bg-gray-700 hover:border-gray-700 transition-colors" (click)="closeAddAccountModal()">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded border border-blue-600 hover:bg-blue-700 hover:border-blue-700 transition-colors" [disabled]="loading">
             <i class="fas fa-plus"></i> Add Account
           </button>
         </div>
@@ -270,75 +305,93 @@
 </div>
 
 <!-- Account Details Modal -->
-<div class="modal-overlay" *ngIf="showAccountDetailsModal" (click)="closeAccountDetailsModal()">
-  <div class="modal-content large" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3><i class="fas fa-info-circle"></i> Account Details</h3>
-      <button class="btn-close" (click)="closeAccountDetailsModal()">×</button>
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" *ngIf="showAccountDetailsModal" (click)="closeAccountDetailsModal()">
+  <div class="bg-white rounded-lg max-w-4xl max-h-90vh overflow-y-auto shadow-2xl" (click)="$event.stopPropagation()">
+    <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+      <h3 class="m-0 text-gray-800 flex items-center gap-2">
+        <i class="fas fa-info-circle"></i> Account Details
+      </h3>
+      <button class="bg-none border-none text-2xl cursor-pointer text-gray-600" (click)="closeAccountDetailsModal()">×</button>
     </div>
     
-    <div class="modal-body" *ngIf="selectedAccount">
-      <div class="account-details">
-        <div class="detail-section">
-          <h4>Basic Information</h4>
-          <div class="detail-grid">
-            <div class="detail-item">
-              <label>Email:</label>
-              <span>{{ selectedAccount.email }}</span>
+    <div class="p-6" *ngIf="selectedAccount">
+      <div class="max-h-60vh overflow-y-auto">
+        <div class="mb-8">
+          <h4 class="m-0 mb-4 text-gray-800 text-lg font-semibold border-b border-gray-200 pb-2">Basic Information</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-gray-600 uppercase tracking-wider">Email:</label>
+              <span class="font-medium text-gray-800">{{ selectedAccount.email }}</span>
             </div>
-            <div class="detail-item">
-              <label>Account ID:</label>
-              <span>{{ selectedAccount.account_id }}</span>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-gray-600 uppercase tracking-wider">Account ID:</label>
+              <span class="font-medium text-gray-800">{{ selectedAccount.account_id }}</span>
             </div>
-            <div class="detail-item">
-              <label>Status:</label>
-              <span class="status-badge" [class]="selectedAccount.is_active ? 'active' : 'inactive'">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-gray-600 uppercase tracking-wider">Status:</label>
+              <span class="px-2 py-1 rounded text-xs font-medium inline-block"
+                    [ngClass]="{
+                      'bg-green-100 text-green-800': selectedAccount.is_active,
+                      'bg-red-100 text-red-800': !selectedAccount.is_active
+                    }">
                 {{ selectedAccount.is_active ? 'Active' : 'Inactive' }}
               </span>
             </div>
-            <div class="detail-item">
-              <label>Health:</label>
-              <span class="health-badge" [class]="getHealthStatusClass(selectedAccount.health_status || '')">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-gray-600 uppercase tracking-wider">Health:</label>
+              <span class="px-2 py-1 rounded text-xs font-medium inline-block"
+                    [ngClass]="{
+                      'bg-green-100 text-green-800': (selectedAccount.health_status || '') === 'healthy',
+                      'bg-yellow-100 text-yellow-800': (selectedAccount.health_status || '') === 'warning',
+                      'bg-red-100 text-red-800': (selectedAccount.health_status || '') === 'quota-warning' || (selectedAccount.health_status || '') === 'critical',
+                      'bg-gray-100 text-gray-800': (selectedAccount.health_status || '') === 'unknown'
+                    }">
                 {{ getHealthStatusText(selectedAccount.health_status || '') }}
               </span>
             </div>
           </div>
         </div>
 
-        <div class="detail-section">
-          <h4>Storage Information</h4>
-          <div class="detail-grid">
-            <div class="detail-item">
-              <label>Files Count:</label>
-              <span>{{ selectedAccount.files_count | number }}</span>
+        <div class="mb-8">
+          <h4 class="m-0 mb-4 text-gray-800 text-lg font-semibold border-b border-gray-200 pb-2">Storage Information</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-gray-600 uppercase tracking-wider">Files Count:</label>
+              <span class="font-medium text-gray-800">{{ selectedAccount.files_count | number }}</span>
             </div>
-            <div class="detail-item">
-              <label>Storage Used:</label>
-              <span>{{ formatBytes(selectedAccount.storage_used || 0) }}</span>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-gray-600 uppercase tracking-wider">Storage Used:</label>
+              <span class="font-medium text-gray-800">{{ formatBytes(selectedAccount.storage_used || 0) }}</span>
             </div>
-            <div class="detail-item">
-              <label>Storage Quota:</label>
-              <span>{{ formatBytes(selectedAccount.storage_quota || 0) }}</span>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-gray-600 uppercase tracking-wider">Storage Quota:</label>
+              <span class="font-medium text-gray-800">{{ formatBytes(selectedAccount.storage_quota || 0) }}</span>
             </div>
-            <div class="detail-item">
-              <label>Usage Percentage:</label>
-              <span>{{ (selectedAccount.storage_percentage || 0).toFixed(2) }}%</span>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-gray-600 uppercase tracking-wider">Usage Percentage:</label>
+              <span class="font-medium text-gray-800">{{ (selectedAccount.storage_percentage || 0).toFixed(2) }}%</span>
             </div>
           </div>
         </div>
 
-        <div class="detail-section">
-          <h4>Performance</h4>
-          <div class="detail-grid">
-            <div class="detail-item">
-              <label>Performance Score:</label>
-              <span class="performance-score" [class]="getPerformanceClass(selectedAccount.performance_score || 0)">
+        <div class="mb-8">
+          <h4 class="m-0 mb-4 text-gray-800 text-lg font-semibold border-b border-gray-200 pb-2">Performance</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-gray-600 uppercase tracking-wider">Performance Score:</label>
+              <span class="font-medium px-2 py-1 rounded text-sm inline-block"
+                    [ngClass]="{
+                      'bg-green-100 text-green-800': (selectedAccount.performance_score || 0) >= 90,
+                      'bg-blue-100 text-blue-800': (selectedAccount.performance_score || 0) >= 70 && (selectedAccount.performance_score || 0) < 90,
+                      'bg-yellow-100 text-yellow-800': (selectedAccount.performance_score || 0) >= 50 && (selectedAccount.performance_score || 0) < 70,
+                      'bg-red-100 text-red-800': (selectedAccount.performance_score || 0) < 50
+                    }">
                 {{ (selectedAccount.performance_score || 0).toFixed(1) }}%
               </span>
             </div>
-            <div class="detail-item">
-              <label>Last Activity:</label>
-              <span>{{ formatDate(selectedAccount.last_activity || '') }}</span>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-gray-600 uppercase tracking-wider">Last Activity:</label>
+              <span class="font-medium text-gray-800">{{ formatDate(selectedAccount.last_activity || '') }}</span>
             </div>
           </div>
         </div>

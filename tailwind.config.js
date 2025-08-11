@@ -1,9 +1,51 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./src/**/*.{html,ts}"],
+  content: [
+    "./src/**/*.{html,ts}",
+    "./src/app/admin-panel/**/*.{html,ts,scss}",
+    "./src/app/shared/**/*.{html,ts,scss}"
+  ],
   theme: {
     extend: {
+      spacing: {
+        '15': '3.75rem',    // 60px - for collapsed sidebar width
+        '70': '17.5rem',    // 280px - for expanded sidebar width
+        '72': '18rem',      // 288px - alternative width
+        '80': '20rem',      // 320px - for larger screens
+        '88': '22rem',      // 352px - for extra large screens
+      },
+      width: {
+        '15': '3.75rem',
+        '70': '17.5rem',
+        '72': '18rem',
+        '80': '20rem',
+        '88': '22rem',
+      },
+      height: {
+        '15': '3.75rem',
+        '18': '4.5rem',
+        '22': '5.5rem',
+      },
       colors: {
+        // Admin Color System
+        admin: {
+          'sidebar-bg': '#f8fafc',
+          'sidebar-bg-dark': '#1e293b',
+          'sidebar-border': '#e2e8f0',
+          'sidebar-border-dark': '#374151',
+          'content-bg': '#ffffff',
+          'content-bg-dark': '#111827',
+          'card-bg': '#ffffff',
+          'card-bg-dark': '#1f2937',
+          'text-primary': '#1e293b',
+          'text-primary-dark': '#f1f5f9',
+          'text-secondary': '#64748b',
+          'text-secondary-dark': '#94a3b8',
+          'accent-primary': '#3b82f6',
+          'accent-secondary': '#10b981',
+          'accent-warning': '#f59e0b',
+          'accent-danger': '#ef4444',
+        },
         // BOLT Color Palette
         'bolt-black': '#020A18',
         'bolt-medium-black': '#10103C',

@@ -10,7 +10,7 @@
               type="checkbox" 
               [(ngModel)]="autoRefresh" 
               (change)="toggleAutoRefresh()"
-              class="form-checkbox h-4 w-4 text-blue-600">
+              class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
             <span class="ml-2 text-sm text-gray-700">Auto-refresh ({{ refreshInterval }}s)</span>
           </label>
         </div>
@@ -30,7 +30,7 @@
       
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div *ngFor="let alert of systemAlerts.alerts" 
-             class="p-4 rounded-lg border"
+             class="p-4 rounded-lg border transition-all duration-200 hover:translate-x-1"
              [class]="alert.type === 'critical' ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'">
           <div class="flex items-start">
             <i [class]="getAlertIcon(alert.type)" class="text-lg mt-1 mr-3"></i>
@@ -54,7 +54,7 @@
     </div>
 
     <!-- System Health Overview -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6 transition-shadow hover:shadow-lg">
       <h2 class="text-xl font-semibold text-gray-800 mb-4">
         <i class="fas fa-heartbeat mr-2"></i>System Health Overview
       </h2>
@@ -70,7 +70,7 @@
 
       <div *ngIf="systemHealth && !loading.health" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- CPU Usage -->
-        <div class="bg-blue-50 rounded-lg p-4">
+        <div class="bg-blue-50 rounded-lg p-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-lg">
           <div class="flex items-center justify-between mb-2">
             <h3 class="text-sm font-medium text-blue-600">CPU Usage</h3>
             <i class="fas fa-microchip text-blue-600"></i>
@@ -83,7 +83,7 @@
         </div>
 
         <!-- Memory Usage -->
-        <div class="bg-green-50 rounded-lg p-4">
+        <div class="bg-green-50 rounded-lg p-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-lg">
           <div class="flex items-center justify-between mb-2">
             <h3 class="text-sm font-medium text-green-600">Memory Usage</h3>
             <i class="fas fa-memory text-green-600"></i>
@@ -98,7 +98,7 @@
         </div>
 
         <!-- Disk Usage -->
-        <div class="bg-yellow-50 rounded-lg p-4">
+        <div class="bg-yellow-50 rounded-lg p-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-lg">
           <div class="flex items-center justify-between mb-2">
             <h3 class="text-sm font-medium text-yellow-600">Disk Usage</h3>
             <i class="fas fa-hdd text-yellow-600"></i>
@@ -113,12 +113,12 @@
         </div>
 
         <!-- System Uptime -->
-        <div class="bg-purple-50 rounded-lg p-4">
+        <div class="bg-purple-50 rounded-lg p-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-lg">
           <div class="flex items-center justify-between mb-2">
             <h3 class="text-sm font-medium text-purple-600">System Uptime</h3>
             <i class="fas fa-clock text-purple-600"></i>
           </div>
-          <p class="text-lg font-bold text-purple-900">
+          <p class="text-lg font-bold text-purple-900 font-mono text-sm">
             {{ formatUptime(systemHealth.system.uptime) }}
           </p>
           <p class="text-xs text-purple-700">Since boot</p>
@@ -127,7 +127,7 @@
     </div>
 
     <!-- Database Performance -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6 transition-shadow hover:shadow-lg">
       <h2 class="text-xl font-semibold text-gray-800 mb-4">
         <i class="fas fa-database mr-2"></i>Database Performance
       </h2>
@@ -143,36 +143,36 @@
 
       <div *ngIf="databasePerformance && !loading.database">
         <!-- Database Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-          <div class="bg-indigo-50 rounded-lg p-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
+          <div class="bg-indigo-50 rounded-lg p-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-lg">
             <h4 class="text-sm font-medium text-indigo-600">Collections</h4>
             <p class="text-xl font-bold text-indigo-900">
               {{ databasePerformance.database_stats.collections }}
             </p>
           </div>
           
-          <div class="bg-indigo-50 rounded-lg p-4">
+          <div class="bg-indigo-50 rounded-lg p-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-lg">
             <h4 class="text-sm font-medium text-indigo-600">Total Objects</h4>
             <p class="text-xl font-bold text-indigo-900">
               {{ databasePerformance.database_stats.objects }}
             </p>
           </div>
           
-          <div class="bg-indigo-50 rounded-lg p-4">
+          <div class="bg-indigo-50 rounded-lg p-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-lg">
             <h4 class="text-sm font-medium text-indigo-600">Database Size</h4>
             <p class="text-xl font-bold text-indigo-900">
               {{ formatBytes(databasePerformance.database_stats.db_size) }}
             </p>
           </div>
           
-          <div class="bg-indigo-50 rounded-lg p-4">
+          <div class="bg-indigo-50 rounded-lg p-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-lg">
             <h4 class="text-sm font-medium text-indigo-600">Index Size</h4>
             <p class="text-xl font-bold text-indigo-900">
               {{ formatBytes(databasePerformance.database_stats.index_size) }}
             </p>
           </div>
           
-          <div class="bg-indigo-50 rounded-lg p-4">
+          <div class="bg-indigo-50 rounded-lg p-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-lg">
             <h4 class="text-sm font-medium text-indigo-600">Avg Object Size</h4>
             <p class="text-xl font-bold text-indigo-900">
               {{ formatBytes(databasePerformance.database_stats.avg_obj_size) }}
@@ -195,7 +195,7 @@
               <div class="flex justify-between">
                 <span class="text-sm text-gray-600">Users Query Time:</span>
                 <span class="text-sm font-medium"
-                      [class]="databasePerformance.query_performance.users_query_time_ms > 1000 ? 'text-red-600' : 'text-green-600'">
+                      [class]="databasePerformance.query_performance.users_query_time_ms > 1000 ? 'text-red-600' : 'text-yellow-600'">
                   {{ databasePerformance.query_performance.users_query_time_ms.toFixed(2) }}ms
                 </span>
               </div>
@@ -221,7 +221,7 @@
     </div>
 
     <!-- Application Metrics -->
-    <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="bg-white rounded-lg shadow-md p-6 transition-shadow hover:shadow-lg">
       <h2 class="text-xl font-semibold text-gray-800 mb-4">
         <i class="fas fa-chart-line mr-2"></i>Application Metrics
       </h2>
@@ -238,28 +238,28 @@
       <div *ngIf="apiMetrics && !loading.api">
         <!-- Application Stats -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div class="bg-cyan-50 rounded-lg p-4">
+          <div class="bg-cyan-50 rounded-lg p-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-lg">
             <h4 class="text-sm font-medium text-cyan-600">Total Files</h4>
             <p class="text-xl font-bold text-cyan-900">
               {{ systemHealth?.database?.total_files || 0 }}
             </p>
           </div>
           
-          <div class="bg-cyan-50 rounded-lg p-4">
+          <div class="bg-cyan-50 rounded-lg p-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-lg">
             <h4 class="text-sm font-medium text-cyan-600">Total Users</h4>
             <p class="text-xl font-bold text-cyan-900">
               {{ systemHealth?.database?.total_users || 0 }}
             </p>
           </div>
           
-          <div class="bg-cyan-50 rounded-lg p-4">
+          <div class="bg-cyan-50 rounded-lg p-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-lg">
             <h4 class="text-sm font-medium text-cyan-600">API Requests (24h)</h4>
             <p class="text-xl font-bold text-cyan-900">
               {{ apiMetrics.api_usage.total_requests }}
             </p>
           </div>
           
-          <div class="bg-cyan-50 rounded-lg p-4">
+          <div class="bg-cyan-50 rounded-lg p-4 transition-all duration-200 hover:scale-105 hover:-translate-y-1 hover:shadow-lg">
             <h4 class="text-sm font-medium text-cyan-600">API Errors (24h)</h4>
             <p class="text-xl font-bold text-cyan-900">
               {{ apiMetrics.error_analysis.total_errors }}
@@ -270,11 +270,11 @@
         <!-- Top Endpoints -->
         <div *ngIf="apiMetrics.api_usage.endpoint_stats.length > 0" class="bg-gray-50 rounded-lg p-4">
           <h4 class="font-medium text-gray-800 mb-3">Top API Endpoints (Last 24h)</h4>
-          <div class="space-y-2">
+          <div class="space-y-2 max-h-64 overflow-y-auto">
             <div *ngFor="let endpoint of apiMetrics.api_usage.endpoint_stats.slice(0, 10)" 
-                 class="flex justify-between items-center">
-              <span class="text-sm text-gray-600 truncate">{{ endpoint._id || 'Unknown' }}</span>
-              <span class="text-sm font-medium text-gray-900">{{ endpoint.count }} requests</span>
+                 class="flex justify-between items-center p-2 hover:bg-gray-100 rounded transition-colors">
+              <span class="text-sm text-gray-600 truncate flex-1 mr-4">{{ endpoint._id || 'Unknown' }}</span>
+              <span class="text-sm font-medium text-gray-900 whitespace-nowrap">{{ endpoint.count }} requests</span>
             </div>
           </div>
         </div>

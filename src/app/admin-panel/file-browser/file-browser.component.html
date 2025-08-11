@@ -1,63 +1,71 @@
-<div class="file-browser-container">
+<div class="p-5 bg-white rounded-lg shadow-md">
   <!-- Header with stats and controls -->
-  <div class="file-browser-header">
+  <div class="flex justify-between items-start mb-5 pb-5 border-b border-gray-200">
     <div class="header-stats">
-      <h2>File Browser</h2>
-      <div class="stats-grid" *ngIf="storageStats">
-        <div class="stat-card">
-          <i class="fas fa-file"></i>
+      <h2 class="m-0 mb-4 text-2xl font-semibold text-gray-800">File Browser</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" *ngIf="storageStats">
+        <div class="flex items-center p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500">
+          <i class="fas fa-file text-2xl text-blue-500 mr-3"></i>
           <div>
-            <span class="stat-value">{{ storageStats.total_files | number }}</span>
-            <span class="stat-label">Total Files</span>
+            <span class="block text-xl font-semibold text-gray-800">{{ storageStats.total_files | number }}</span>
+            <span class="block text-xs text-gray-500 uppercase tracking-wider">Total Files</span>
           </div>
         </div>
-        <div class="stat-card">
-          <i class="fas fa-hdd"></i>
+        <div class="flex items-center p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500">
+          <i class="fas fa-hdd text-2xl text-blue-500 mr-3"></i>
           <div>
-            <span class="stat-value">{{ storageStats.total_storage_formatted }}</span>
-            <span class="stat-label">Total Storage</span>
+            <span class="block text-xl font-semibold text-gray-800">{{ storageStats.total_storage_formatted }}</span>
+            <span class="block text-xs text-gray-500 uppercase tracking-wider">Total Storage</span>
           </div>
         </div>
-        <div class="stat-card">
-          <i class="fab fa-google-drive"></i>
+        <div class="flex items-center p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500">
+          <i class="fab fa-google-drive text-2xl text-blue-500 mr-3"></i>
           <div>
-            <span class="stat-value">{{ storageStats.gdrive_files | number }}</span>
-            <span class="stat-label">Google Drive</span>
+            <span class="block text-xl font-semibold text-gray-800">{{ storageStats.gdrive_files | number }}</span>
+            <span class="block text-xs text-gray-500 uppercase tracking-wider">Google Drive</span>
           </div>
         </div>
-        <div class="stat-card">
-          <i class="fas fa-server"></i>
+        <div class="flex items-center p-4 bg-gray-50 rounded-lg border-l-4 border-blue-500">
+          <i class="fas fa-server text-2xl text-blue-500 mr-3"></i>
           <div>
-            <span class="stat-value">{{ storageStats.hetzner_files | number }}</span>
-            <span class="stat-label">Hetzner</span>
+            <span class="block text-xl font-semibold text-gray-800">{{ storageStats.hetzner_files | number }}</span>
+            <span class="block text-xs text-gray-500 uppercase tracking-wider">Hetzner</span>
           </div>
         </div>
       </div>
     </div>
     
-    <div class="header-controls">
-      <button class="btn btn-secondary" (click)="showFilters = !showFilters">
+    <div class="flex items-center gap-4">
+      <button class="px-4 py-2 bg-gray-600 text-white rounded border border-gray-600 hover:bg-gray-700 hover:border-gray-700 transition-colors flex items-center gap-2" (click)="showFilters = !showFilters">
         <i class="fas fa-filter"></i> Filters
       </button>
       
-      <div class="system-tools">
-        <button class="btn btn-warning" (click)="viewOrphanedFiles()" title="View & Clean Orphaned Files">
+      <div class="flex gap-2">
+        <button class="px-4 py-2 bg-yellow-500 text-gray-900 rounded border border-yellow-500 hover:bg-yellow-600 hover:border-yellow-600 transition-colors flex items-center gap-2" (click)="viewOrphanedFiles()" title="View & Clean Orphaned Files">
           <i class="fas fa-broom"></i> Cleanup
         </button>
       </div>
       
-      <div class="view-mode-toggle">
+      <div class="flex rounded overflow-hidden">
         <button 
-          class="btn btn-sm" 
-          [class.btn-primary]="viewMode === 'list'"
-          [class.btn-secondary]="viewMode !== 'list'"
+          class="px-3 py-2 text-sm border border-gray-300 transition-colors flex items-center gap-2"
+          [class.bg-blue-500]="viewMode === 'list'"
+          [class.text-white]="viewMode === 'list'"
+          [class.bg-gray-600]="viewMode !== 'list'"
+          [class.text-white]="viewMode !== 'list'"
+          [class.border-blue-500]="viewMode === 'list'"
+          [class.border-gray-600]="viewMode !== 'list'"
           (click)="viewMode = 'list'">
           <i class="fas fa-list"></i>
         </button>
         <button 
-          class="btn btn-sm" 
-          [class.btn-primary]="viewMode === 'grid'"
-          [class.btn-secondary]="viewMode !== 'grid'"
+          class="px-3 py-2 text-sm border border-gray-300 transition-colors flex items-center gap-2"
+          [class.bg-blue-500]="viewMode === 'grid'"
+          [class.text-white]="viewMode === 'grid'"
+          [class.bg-gray-600]="viewMode !== 'grid'"
+          [class.text-white]="viewMode !== 'grid'"
+          [class.border-blue-500]="viewMode === 'grid'"
+          [class.border-gray-600]="viewMode !== 'grid'"
           (click)="viewMode = 'grid'">
           <i class="fas fa-th"></i>
         </button>
@@ -66,25 +74,25 @@
   </div>
 
   <!-- Search and filters -->
-  <div class="search-section">
-    <div class="search-bar">
-      <div class="search-input-group">
-        <i class="fas fa-search"></i>
+  <div class="mb-5">
+    <div class="mb-4">
+      <div class="flex items-center bg-gray-50 border border-gray-300 rounded px-3 py-2 max-w-lg">
+        <i class="fas fa-search text-gray-500 mr-3"></i>
         <input 
           type="text" 
           placeholder="Search files..." 
           [(ngModel)]="searchTerm"
           (keyup.enter)="onSearch()"
-          class="form-control">
-        <button class="btn btn-primary" (click)="onSearch()">Search</button>
+          class="flex-1 border-none bg-transparent outline-none text-sm">
+        <button class="ml-3 px-4 py-2 bg-blue-500 text-white rounded border border-blue-500 hover:bg-blue-600 hover:border-blue-600 transition-colors" (click)="onSearch()">Search</button>
       </div>
     </div>
     
-    <div class="filters-panel" [ngClass]="{'show': showFilters}">
-      <div class="filters-grid">
-        <div class="filter-group">
-          <label>File Type</label>
-          <select [(ngModel)]="fileTypeFilter" (change)="onFilterChange()" class="form-control">
+    <div class="overflow-hidden transition-all duration-300" [ngClass]="{'max-h-80': showFilters, 'max-h-0': !showFilters}">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 py-5">
+        <div class="flex flex-col">
+          <label class="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">File Type</label>
+          <select [(ngModel)]="fileTypeFilter" (change)="onFilterChange()" class="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
             <option value="">All Types</option>
             <option value="image">Images</option>
             <option value="video">Videos</option>
@@ -95,28 +103,28 @@
           </select>
         </div>
         
-        <div class="filter-group">
-          <label>Owner</label>
+        <div class="flex flex-col">
+          <label class="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Owner</label>
           <input 
             type="text" 
             placeholder="Owner email..." 
             [(ngModel)]="ownerFilter"
             (input)="onFilterChange()"
-            class="form-control">
+            class="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
         </div>
         
-        <div class="filter-group">
-          <label>Storage Location</label>
-          <select [(ngModel)]="storageLocationFilter" (change)="onFilterChange()" class="form-control">
+        <div class="flex flex-col">
+          <label class="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Storage Location</label>
+          <select [(ngModel)]="storageLocationFilter" (change)="onFilterChange()" class="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
             <option value="">All Locations</option>
             <option value="gdrive">Google Drive</option>
             <option value="hetzner">Hetzner</option>
           </select>
         </div>
         
-        <div class="filter-group">
-          <label>Status</label>
-          <select [(ngModel)]="statusFilter" (change)="onFilterChange()" class="form-control">
+        <div class="flex flex-col">
+          <label class="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Status</label>
+          <select [(ngModel)]="statusFilter" (change)="onFilterChange()" class="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
             <option value="">All Status</option>
             <option value="completed">Completed</option>
             <option value="pending">Pending</option>
@@ -125,55 +133,62 @@
           </select>
         </div>
         
-        <div class="filter-group">
-          <label>Min Size (bytes)</label>
+        <div class="flex flex-col">
+          <label class="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Min Size (bytes)</label>
           <input 
             type="number" 
             placeholder="Min size..." 
             [(ngModel)]="sizeMinFilter"
             (input)="onFilterChange()"
-            class="form-control">
+            class="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
         </div>
         
-        <div class="filter-group">
-          <label>Max Size (bytes)</label>
+        <div class="flex flex-col">
+          <label class="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Max Size (bytes)</label>
           <input 
             type="number" 
             placeholder="Max size..." 
             [(ngModel)]="sizeMaxFilter"
             (input)="onFilterChange()"
-            class="form-control">
+            class="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
         </div>
       </div>
       
-      <div class="filter-actions">
-        <button class="btn btn-secondary" (click)="clearFilters()">Clear Filters</button>
+      <div class="pt-4 border-t border-gray-200">
+        <button class="px-4 py-2 bg-gray-600 text-white rounded border border-gray-600 hover:bg-gray-700 hover:border-gray-700 transition-colors" (click)="clearFilters()">Clear Filters</button>
       </div>
     </div>
   </div>
 
   <!-- File type analytics -->
-  <div class="analytics-section" *ngIf="fileTypeAnalytics">
-    <h3>File Type Distribution</h3>
-    <div class="file-type-chart">
+  <div class="mb-5 p-5 bg-gray-50 rounded-lg" *ngIf="fileTypeAnalytics">
+    <h3 class="m-0 mb-4 text-lg text-gray-800">File Type Distribution</h3>
+    <div class="flex flex-col gap-2">
       <div 
-        class="file-type-item" 
-        *ngFor="let type of fileTypeAnalytics.file_types"
-        [style.width.%]="type.percentage">
-        <span class="type-label">{{ type._id | titlecase }}</span>
-        <span class="type-count">{{ type.count }} files ({{ type.percentage | number:'1.1-1' }}%)</span>
-        <span class="type-size">{{ type.size_formatted }}</span>
+        class="bg-blue-500 text-white p-2 rounded text-xs min-w-24 flex justify-between items-center"
+        *ngFor="let type of fileTypeAnalytics.file_types; let i = index"
+        [style.width.%]="type.percentage"
+        [ngClass]="{
+          'bg-green-500': i === 1,
+          'bg-yellow-500 text-gray-900': i === 2,
+          'bg-red-500': i === 3,
+          'bg-purple-500': i === 4,
+          'bg-orange-500': i === 5
+        }">
+        <span class="font-semibold">{{ type._id | titlecase }}</span>
+        <span class="text-xs opacity-90">{{ type.count }} files ({{ type.percentage | number:'1.1-1' }}%)</span>
+        <span class="text-xs opacity-80">{{ type.size_formatted }}</span>
       </div>
     </div>
   </div>
 
   <!-- Bulk actions bar -->
-  <div class="bulk-actions-bar" *ngIf="showBulkActions">
-    <div class="bulk-info">
+  <div class="flex justify-between items-center p-4 bg-yellow-50 border border-yellow-200 rounded mb-5" *ngIf="showBulkActions">
+    <div class="font-semibold text-yellow-800">
       <span>{{ selectedFiles.length }} file(s) selected</span>
     </div>
-    <div class="bulk-controls">
-      <select [(ngModel)]="bulkActionType" class="form-control">
+    <div class="flex items-center gap-2">
+      <select [(ngModel)]="bulkActionType" class="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
         <option value="">Choose action...</option>
         <option value="delete">Delete</option>
         <option value="quarantine">Quarantine</option>
@@ -183,15 +198,15 @@
         type="text" 
         placeholder="Reason (optional)" 
         [(ngModel)]="bulkActionReason"
-        class="form-control reason-input">
+        class="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 min-w-48">
       <button 
-        class="btn btn-warning" 
+        class="px-4 py-2 bg-yellow-500 text-gray-900 rounded border border-yellow-500 hover:bg-yellow-600 hover:border-yellow-600 transition-colors"
         (click)="executeBulkAction()"
         [disabled]="!bulkActionType">
         Execute
       </button>
       <button 
-        class="btn btn-secondary" 
+        class="px-4 py-2 bg-gray-600 text-white rounded border border-gray-600 hover:bg-gray-700 hover:border-gray-700 transition-colors"
         (click)="selectedFiles = []; showBulkActions = false">
         Cancel
       </button>
@@ -199,145 +214,168 @@
   </div>
 
   <!-- Loading indicator -->
-  <div class="loading-overlay" *ngIf="loading">
-    <div class="spinner">
-      <i class="fas fa-spinner fa-spin"></i>
+  <div class="flex justify-center items-center py-16 px-5 text-gray-500" *ngIf="loading">
+    <div class="flex flex-col items-center gap-2">
+      <i class="fas fa-spinner fa-spin text-2xl"></i>
       <span>Loading files...</span>
     </div>
   </div>
 
   <!-- Error message -->
-  <div class="error-message" *ngIf="error">
+  <div class="flex items-center gap-2 p-5 bg-red-50 border border-red-200 rounded text-red-800 mb-5" *ngIf="error">
     <i class="fas fa-exclamation-triangle"></i>
     <span>{{ error }}</span>
-    <button class="btn btn-sm btn-primary" (click)="loadFiles()">Retry</button>
+    <button class="px-3 py-1 bg-blue-500 text-white rounded border border-blue-500 hover:bg-blue-600 hover:border-blue-600 transition-colors text-sm" (click)="loadFiles()">Retry</button>
   </div>
 
   <!-- Files table/grid -->
-  <div class="files-container" *ngIf="!loading && !error">
+  <div *ngIf="!loading && !error">
     <!-- List view -->
-    <div class="files-table" *ngIf="viewMode === 'list'">
-      <table class="table">
+    <div class="overflow-x-auto" *ngIf="viewMode === 'list'">
+      <table class="w-full border-collapse mb-0">
         <thead>
           <tr>
-            <th>
+            <th class="p-3 text-left border-b border-gray-200 bg-gray-50 font-semibold text-gray-800 sticky top-0 z-10">
               <input 
                 type="checkbox" 
                 [checked]="selectedFiles.length === files.length && files.length > 0"
                 (change)="selectAllFiles()">
             </th>
-            <th (click)="onSortChange('filename')" class="sortable">
+            <th (click)="onSortChange('filename')" class="p-3 text-left border-b border-gray-200 bg-gray-50 font-semibold text-gray-800 sticky top-0 z-10 cursor-pointer select-none transition-colors hover:bg-gray-100">
               Filename
-              <i class="fas fa-sort" *ngIf="sortBy !== 'filename'"></i>
-              <i class="fas fa-sort-up" *ngIf="sortBy === 'filename' && sortOrder === 'asc'"></i>
-              <i class="fas fa-sort-down" *ngIf="sortBy === 'filename' && sortOrder === 'desc'"></i>
+              <i class="fas fa-sort ml-1 opacity-50" *ngIf="sortBy !== 'filename'"></i>
+              <i class="fas fa-sort-up ml-1 opacity-50" *ngIf="sortBy === 'filename' && sortOrder === 'asc'"></i>
+              <i class="fas fa-sort-down ml-1 opacity-50" *ngIf="sortBy === 'filename' && sortOrder === 'desc'"></i>
             </th>
-            <th (click)="onSortChange('size_bytes')" class="sortable">
+            <th (click)="onSortChange('size_bytes')" class="p-3 text-left border-b border-gray-200 bg-gray-50 font-semibold text-gray-800 sticky top-0 z-10 cursor-pointer select-none transition-colors hover:bg-gray-100">
               Size
-              <i class="fas fa-sort" *ngIf="sortBy !== 'size_bytes'"></i>
-              <i class="fas fa-sort-up" *ngIf="sortBy === 'size_bytes' && sortOrder === 'asc'"></i>
-              <i class="fas fa-sort-down" *ngIf="sortBy === 'size_bytes' && sortOrder === 'desc'"></i>
+              <i class="fas fa-sort ml-1 opacity-50" *ngIf="sortBy !== 'size_bytes'"></i>
+              <i class="fas fa-sort-up ml-1 opacity-50" *ngIf="sortBy === 'size_bytes' && sortOrder === 'asc'"></i>
+              <i class="fas fa-sort-down ml-1 opacity-50" *ngIf="sortBy === 'size_bytes' && sortOrder === 'desc'"></i>
             </th>
-            <th>Type</th>
-            <th>Owner</th>
-            <th (click)="onSortChange('upload_date')" class="sortable">
+            <th class="p-3 text-left border-b border-gray-200 bg-gray-50 font-semibold text-gray-800 sticky top-0 z-10">Type</th>
+            <th class="p-3 text-left border-b border-gray-200 bg-gray-50 font-semibold text-gray-800 sticky top-0 z-10">Owner</th>
+            <th (click)="onSortChange('upload_date')" class="p-3 text-left border-b border-gray-200 bg-gray-50 font-semibold text-gray-800 sticky top-0 z-10 cursor-pointer select-none transition-colors hover:bg-gray-100">
               Upload Date
-              <i class="fas fa-sort" *ngIf="sortBy !== 'upload_date'"></i>
-              <i class="fas fa-sort-up" *ngIf="sortBy === 'upload_date' && sortOrder === 'asc'"></i>
-              <i class="fas fa-sort-down" *ngIf="sortBy === 'upload_date' && sortOrder === 'desc'"></i>
+              <i class="fas fa-sort ml-1 opacity-50" *ngIf="sortBy !== 'upload_date'"></i>
+              <i class="fas fa-sort-up ml-1 opacity-50" *ngIf="sortBy === 'upload_date' && sortOrder === 'asc'"></i>
+              <i class="fas fa-sort-down ml-1 opacity-50" *ngIf="sortBy === 'upload_date' && sortOrder === 'desc'"></i>
             </th>
-            <th>Status</th>
-            <th>Storage</th>
-            <th>Actions</th>
+            <th class="p-3 text-left border-b border-gray-200 bg-gray-50 font-semibold text-gray-800 sticky top-0 z-10">Status</th>
+            <th class="p-3 text-left border-b border-gray-200 bg-gray-50 font-semibold text-gray-800 sticky top-0 z-10">Storage</th>
+            <th class="p-3 text-left border-b border-gray-200 bg-gray-50 font-semibold text-gray-800 sticky top-0 z-10">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let file of files" [class.selected]="selectedFiles.includes(file._id)">
-            <td>
+          <tr *ngFor="let file of files" [class.bg-blue-50]="selectedFiles.includes(file._id)" class="hover:bg-gray-50">
+            <td class="p-3 text-left border-b border-gray-200 align-middle">
               <input 
                 type="checkbox" 
                 [checked]="selectedFiles.includes(file._id)"
                 (change)="toggleFileSelection(file._id)">
             </td>
-            <td class="filename-cell">
-              <i [class]="getFileIcon(file.file_type)"></i>
-              <span class="filename" [title]="file.filename">{{ file.filename }}</span>
+            <td class="p-3 text-left border-b border-gray-200 align-middle">
+              <div class="flex items-center gap-2 max-w-64">
+                <i [class]="getFileIcon(file.file_type)"></i>
+                <span class="whitespace-nowrap overflow-hidden text-ellipsis flex-1" [title]="file.filename">{{ file.filename }}</span>
+              </div>
             </td>
-            <td>{{ file.size_formatted }}</td>
-            <td>
-              <span class="file-type-badge" [class]="'type-' + file.file_type">
+            <td class="p-3 text-left border-b border-gray-200 align-middle">{{ file.size_formatted }}</td>
+            <td class="p-3 text-left border-b border-gray-200 align-middle">
+              <span class="inline-block px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wider"
+                [ngClass]="{
+                  'bg-blue-100 text-blue-800': file.file_type === 'image',
+                  'bg-purple-100 text-purple-800': file.file_type === 'video',
+                  'bg-green-100 text-green-800': file.file_type === 'audio',
+                  'bg-orange-100 text-orange-800': file.file_type === 'document',
+                  'bg-pink-100 text-pink-800': file.file_type === 'archive',
+                  'bg-gray-100 text-gray-800': file.file_type === 'other'
+                }">
                 {{ file.file_type | titlecase }}
               </span>
             </td>
-            <td>{{ file.owner_email }}</td>
-            <td>{{ formatDate(file.upload_date) }}</td>
-            <td>
-              <span class="status-badge" [class]="'status-' + file.status">
+            <td class="p-3 text-left border-b border-gray-200 align-middle">{{ file.owner_email }}</td>
+            <td class="p-3 text-left border-b border-gray-200 align-middle">{{ formatDate(file.upload_date) }}</td>
+            <td class="p-3 text-left border-b border-gray-200 align-middle">
+              <span class="inline-block px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wider"
+                [ngClass]="{
+                  'bg-green-100 text-green-800': file.status === 'completed',
+                  'bg-orange-100 text-orange-800': file.status === 'pending',
+                  'bg-blue-100 text-blue-800': file.status === 'uploading',
+                  'bg-red-100 text-red-800': file.status === 'failed',
+                  'bg-gray-100 text-gray-800': file.status === 'deleted'
+                }">
                 {{ file.status | titlecase }}
               </span>
             </td>
-            <td>
-              <span class="storage-badge" [class]="'storage-' + file.storage_location">
+            <td class="p-3 text-left border-b border-gray-200 align-middle">
+              <span class="inline-block px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wider"
+                [ngClass]="{
+                  'bg-green-100 text-green-800': file.storage_location === 'gdrive',
+                  'bg-blue-100 text-blue-800': file.storage_location === 'hetzner'
+                }">
                 {{ file.storage_location | titlecase }}
               </span>
             </td>
-            <td class="actions-cell">
-              <div class="action-group">
-                <button 
-                  class="btn btn-sm btn-primary" 
-                  (click)="downloadFile(file)"
-                  title="Download">
-                  <i class="fas fa-download"></i>
-                </button>
-                <button 
-                  class="btn btn-sm btn-info" 
-                  (click)="previewFile(file)"
-                  *ngIf="file.preview_available"
-                  title="Preview">
-                  <i class="fas fa-eye"></i>
-                </button>
-              </div>
-              
-              <div class="action-group">
-                <button 
-                  class="btn btn-sm btn-secondary" 
-                  (click)="checkFileIntegrity(file)"
-                  title="Check Integrity">
-                  <i class="fas fa-shield-alt"></i>
-                </button>
-                <button 
-                  class="btn btn-sm btn-warning" 
-                  (click)="moveFile(file)"
-                  title="Move File">
-                  <i class="fas fa-arrows-alt"></i>
-                </button>
-                <button 
-                  class="btn btn-sm btn-success" 
-                  (click)="forceBackup(file)"
-                  title="Force Backup">
-                  <i class="fas fa-cloud-upload-alt"></i>
-                </button>
-              </div>
-              
-              <div class="action-group">
-                <button 
-                  class="btn btn-sm btn-warning" 
-                  (click)="quarantineFile(file)"
-                  title="Quarantine">
-                  <i class="fas fa-ban"></i>
-                </button>
-                <button 
-                  class="btn btn-sm btn-info" 
-                  (click)="recoverFile(file)"
-                  title="Recover from Backup">
-                  <i class="fas fa-undo"></i>
-                </button>
-                <button 
-                  class="btn btn-sm btn-danger" 
-                  (click)="deleteFile(file)"
-                  title="Delete">
-                  <i class="fas fa-trash"></i>
-                </button>
+            <td class="p-3 text-left border-b border-gray-200 align-middle">
+              <div class="flex flex-col gap-2 min-w-48">
+                <div class="flex gap-1 justify-start">
+                  <button 
+                    class="px-2 py-1 bg-blue-500 text-white rounded border border-blue-500 hover:bg-blue-600 hover:border-blue-600 transition-colors text-xs flex items-center gap-1"
+                    (click)="downloadFile(file)"
+                    title="Download">
+                    <i class="fas fa-download"></i>
+                  </button>
+                  <button 
+                    class="px-2 py-1 bg-blue-400 text-white rounded border border-blue-400 hover:bg-blue-500 hover:border-blue-500 transition-colors text-xs flex items-center gap-1"
+                    (click)="previewFile(file)"
+                    *ngIf="file.preview_available"
+                    title="Preview">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
+                
+                <div class="flex gap-1 justify-start">
+                  <button 
+                    class="px-2 py-1 bg-gray-600 text-white rounded border border-gray-600 hover:bg-gray-700 hover:border-gray-700 transition-colors text-xs flex items-center gap-1"
+                    (click)="checkFileIntegrity(file)"
+                    title="Check Integrity">
+                    <i class="fas fa-shield-alt"></i>
+                  </button>
+                  <button 
+                    class="px-2 py-1 bg-yellow-500 text-gray-900 rounded border border-yellow-500 hover:bg-yellow-600 hover:border-yellow-600 transition-colors text-xs flex items-center gap-1"
+                    (click)="moveFile(file)"
+                    title="Move File">
+                    <i class="fas fa-arrows-alt"></i>
+                  </button>
+                  <button 
+                    class="px-2 py-1 bg-green-500 text-white rounded border border-green-500 hover:bg-green-600 hover:border-green-600 transition-colors text-xs flex items-center gap-1"
+                    (click)="forceBackup(file)"
+                    title="Force Backup">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                  </button>
+                </div>
+                
+                <div class="flex gap-1 justify-start">
+                  <button 
+                    class="px-2 py-1 bg-yellow-500 text-gray-900 rounded border border-yellow-500 hover:bg-yellow-600 hover:border-yellow-600 transition-colors text-xs flex items-center gap-1"
+                    (click)="quarantineFile(file)"
+                    title="Quarantine">
+                    <i class="fas fa-ban"></i>
+                  </button>
+                  <button 
+                    class="px-2 py-1 bg-blue-400 text-white rounded border border-blue-400 hover:bg-blue-500 hover:border-blue-500 transition-colors text-xs flex items-center gap-1"
+                    (click)="recoverFile(file)"
+                    title="Recover from Backup">
+                    <i class="fas fa-undo"></i>
+                  </button>
+                  <button 
+                    class="px-2 py-1 bg-red-500 text-white rounded border border-red-500 hover:bg-red-600 hover:border-red-600 transition-colors text-xs flex items-center gap-1"
+                    (click)="deleteFile(file)"
+                    title="Delete">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
               </div>
             </td>
           </tr>
@@ -346,51 +384,63 @@
     </div>
 
     <!-- Grid view -->
-    <div class="files-grid" *ngIf="viewMode === 'grid'">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-5" *ngIf="viewMode === 'grid'">
       <div 
-        class="file-card" 
-        *ngFor="let file of files"
-        [class.selected]="selectedFiles.includes(file._id)">
-        <div class="file-card-header">
+        class="border border-gray-200 rounded-lg p-4 bg-white transition-all duration-200 cursor-pointer hover:shadow-md hover:-translate-y-0.5"
+        [class.border-blue-500]="selectedFiles.includes(file._id)"
+        [class.bg-blue-50]="selectedFiles.includes(file._id)"
+        *ngFor="let file of files">
+        <div class="flex justify-between items-center mb-4">
           <input 
             type="checkbox" 
             [checked]="selectedFiles.includes(file._id)"
             (change)="toggleFileSelection(file._id)">
-          <div class="file-actions">
-            <button class="btn btn-sm btn-primary" (click)="downloadFile(file)">
+          <div class="flex gap-1">
+            <button class="px-2 py-1 bg-blue-500 text-white rounded border border-blue-500 hover:bg-blue-600 hover:border-blue-600 transition-colors text-xs" (click)="downloadFile(file)">
               <i class="fas fa-download"></i>
             </button>
             <button 
-              class="btn btn-sm btn-info" 
+              class="px-2 py-1 bg-blue-400 text-white rounded border border-blue-400 hover:bg-blue-500 hover:border-blue-500 transition-colors text-xs"
               (click)="previewFile(file)"
               *ngIf="file.preview_available">
               <i class="fas fa-eye"></i>
             </button>
-            <button class="btn btn-sm btn-danger" (click)="deleteFile(file)">
+            <button class="px-2 py-1 bg-red-500 text-white rounded border border-red-500 hover:bg-red-600 hover:border-red-600 transition-colors text-xs" (click)="deleteFile(file)">
               <i class="fas fa-trash"></i>
             </button>
           </div>
         </div>
         
-        <div class="file-icon">
-          <i [class]="getFileIcon(file.file_type)"></i>
+        <div class="text-center mb-4">
+          <i [class]="getFileIcon(file.file_type)" class="text-5xl text-gray-500"></i>
         </div>
         
-        <div class="file-info">
-          <div class="filename" [title]="file.filename">{{ file.filename }}</div>
-          <div class="file-meta">
+        <div class="text-center">
+          <div class="font-semibold mb-2 whitespace-nowrap overflow-hidden text-ellipsis" [title]="file.filename">{{ file.filename }}</div>
+          <div class="flex justify-between mb-2 text-xs text-gray-500">
             <span class="file-size">{{ file.size_formatted }}</span>
             <span class="file-type">{{ file.file_type | titlecase }}</span>
           </div>
-          <div class="file-details">
-            <span class="owner">{{ file.owner_email }}</span>
-            <span class="upload-date">{{ formatDate(file.upload_date) }}</span>
+          <div class="mb-2 text-xs text-gray-400">
+            <span class="block mb-0.5">{{ file.owner_email }}</span>
+            <span class="block">{{ formatDate(file.upload_date) }}</span>
           </div>
-          <div class="file-badges">
-            <span class="status-badge" [class]="'status-' + file.status">
+          <div class="flex justify-center gap-1 flex-wrap">
+            <span class="inline-block px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wider"
+              [ngClass]="{
+                'bg-green-100 text-green-800': file.status === 'completed',
+                'bg-orange-100 text-orange-800': file.status === 'pending',
+                'bg-blue-100 text-blue-800': file.status === 'uploading',
+                'bg-red-100 text-red-800': file.status === 'failed',
+                'bg-gray-100 text-gray-800': file.status === 'deleted'
+              }">
               {{ file.status | titlecase }}
             </span>
-            <span class="storage-badge" [class]="'storage-' + file.storage_location">
+            <span class="inline-block px-2 py-1 rounded-full text-xs font-semibold uppercase tracking-wider"
+              [ngClass]="{
+                'bg-green-100 text-green-800': file.storage_location === 'gdrive',
+                'bg-blue-100 text-blue-800': file.storage_location === 'hetzner'
+              }">
               {{ file.storage_location | titlecase }}
             </span>
           </div>
@@ -399,39 +449,43 @@
     </div>
 
     <!-- Empty state -->
-    <div class="empty-state" *ngIf="files.length === 0">
-      <i class="fas fa-folder-open"></i>
-      <h3>No files found</h3>
-      <p>Try adjusting your search or filter criteria.</p>
+    <div class="text-center py-16 px-5 text-gray-500" *ngIf="files.length === 0">
+      <i class="fas fa-folder-open text-5xl mb-5 opacity-50"></i>
+      <h3 class="m-0 mb-2 text-2xl">No files found</h3>
+      <p class="m-0 text-sm">Try adjusting your search or filter criteria.</p>
     </div>
   </div>
 
   <!-- Pagination -->
-  <div class="pagination-container" *ngIf="totalPages > 1">
-    <div class="pagination-info">
+  <div class="flex justify-between items-center mt-5 pt-5 border-t border-gray-200" *ngIf="totalPages > 1">
+    <div class="text-sm text-gray-500">
       Showing {{ ((currentPage - 1) * pageSize) + 1 }} - {{ Math.min(currentPage * pageSize, totalFiles) }} of {{ totalFiles }} files
     </div>
-    <div class="pagination-controls">
+    <div class="flex items-center gap-2">
       <button 
-        class="btn btn-secondary" 
+        class="px-4 py-2 bg-gray-600 text-white rounded border border-gray-600 hover:bg-gray-700 hover:border-gray-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         (click)="onPageChange(currentPage - 1)"
         [disabled]="currentPage === 1">
         <i class="fas fa-chevron-left"></i>
       </button>
       
-      <span class="page-numbers">
+      <span class="flex gap-1">
         <button 
           *ngFor="let page of [].constructor(Math.min(totalPages, 10)); let i = index"
-          class="btn page-btn"
-          [class.btn-primary]="(i + 1) === currentPage"
-          [class.btn-secondary]="(i + 1) !== currentPage"
+          class="w-10 h-10 px-0 rounded border border-gray-300 text-sm transition-colors"
+          [class.bg-blue-500]="(i + 1) === currentPage"
+          [class.text-white]="(i + 1) === currentPage"
+          [class.border-blue-500]="(i + 1) === currentPage"
+          [class.bg-gray-600]="(i + 1) !== currentPage"
+          [class.text-white]="(i + 1) !== currentPage"
+          [class.border-gray-600]="(i + 1) !== currentPage"
           (click)="onPageChange(i + 1)">
           {{ i + 1 }}
         </button>
       </span>
       
       <button 
-        class="btn btn-secondary" 
+        class="px-4 py-2 bg-gray-600 text-white rounded border border-gray-600 hover:bg-gray-700 hover:border-gray-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         (click)="onPageChange(currentPage + 1)"
         [disabled]="currentPage === totalPages">
         <i class="fas fa-chevron-right"></i>
