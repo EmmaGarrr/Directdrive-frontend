@@ -92,6 +92,7 @@ export class GoogleDriveManagementComponent implements OnInit {
   error = '';
   showFilters = false;
   viewMode: 'list' | 'grid' = 'list';
+  viewingArchived = false; // NEW: Track if viewing archived files
   
   // Statistics
   driveStats: any = {};
@@ -151,8 +152,13 @@ export class GoogleDriveManagementComponent implements OnInit {
         params.set('size_max', this.sizeMaxFilter.toString());
       }
 
+      // Choose endpoint based on whether we're viewing archived files
+      const endpoint = this.viewingArchived 
+        ? `${environment.apiUrl}/api/v1/admin/drive/files/archived`
+        : `${environment.apiUrl}/api/v1/admin/drive/files`;
+
       const response = await this.http.get<GoogleDriveFileListResponse>(
-        `${environment.apiUrl}/api/v1/admin/drive/files`,
+        endpoint,
         { headers: this.getHeaders(), params }
       ).toPromise();
 
@@ -369,8 +375,42 @@ export class GoogleDriveManagementComponent implements OnInit {
   }
 
   canArchiveFile(file: GoogleDriveFile): boolean {
-    // Can archive if file is not already archived and has backup
-    return !file.archived && file.backup_status === 'completed';
+    // Can archive if file is not already archived
+    return !file.archived;
+  }
+
+  // NEW: Check if actions should be disabled for quarantined/archived files
+  canPerformAction(file: GoogleDriveFile, actionType: string): boolean {
+    // If file is quarantined, only allow archive and view action history
+    if (file.quarantined) {
+      return actionType === 'archive' || actionType === 'view_history';
+    }
+    
+    // If file is archived, only allow restore and view action history
+    if (file.archived) {
+      return actionType === 'restore' || actionType === 'view_history';
+    }
+    
+    // For normal files, all actions are available
+    return true;
+  }
+
+  getActionTooltip(file: GoogleDriveFile, actionType: string): string {
+    if (file.quarantined) {
+      if (actionType === 'archive' || actionType === 'view_history') {
+        return '';
+      }
+      return 'File is quarantined - only archive and view history actions available';
+    }
+    
+    if (file.archived) {
+      if (actionType === 'restore' || actionType === 'view_history') {
+        return '';
+      }
+      return 'File is archived - only restore and view history actions available';
+    }
+    
+    return '';
   }
 
   // IMPROVED: Real integrity checking
@@ -489,11 +529,33 @@ export class GoogleDriveManagementComponent implements OnInit {
     }
   }
 
+  // NEW: Restore file from archive
+  async restoreFile(file: GoogleDriveFile): Promise<void> {
+    const confirmed = confirm(`Restore ${file.filename} from archive?`);
+    if (!confirmed) return;
+
+    try {
+      const response = await this.http.post(
+        `${environment.apiUrl}/api/v1/admin/files/${file._id}/restore`,
+        { reason: 'Admin restore request' },
+        { headers: this.getHeaders() }
+      ).toPromise();
+
+      alert('File restored successfully');
+      this.loadFiles(); // Refresh to show updated status
+
+    } catch (error: any) {
+      console.error('Restore error:', error);
+      alert(`Restore failed: ${error.error?.detail || 'Unknown error'}`);
+    }
+  }
+
   // NEW: View archived files
   viewArchivedFiles(): void {
-    // Navigate to archived files view
-    // This could be a separate route or modal
-    alert('Archived files feature will be implemented in the next phase');
+    this.viewingArchived = !this.viewingArchived;
+    this.currentPage = 1;
+    this.selectedFiles = [];
+    this.loadFiles();
   }
 
   executeBulkAction(): void {

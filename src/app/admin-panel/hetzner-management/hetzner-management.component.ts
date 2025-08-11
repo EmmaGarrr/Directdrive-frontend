@@ -18,6 +18,20 @@ interface HetznerFile {
   hetzner_remote_path: string;
   download_url: string;
   preview_available?: boolean;
+  // NEW: Archive and quarantine fields
+  archived?: boolean;
+  archived_at?: string;
+  archived_by?: string;
+  archive_reason?: string;
+  quarantined?: boolean;
+  quarantined_at?: string;
+  quarantined_by?: string;
+  quarantine_reason?: string;
+  // NEW: Integrity checking fields
+  integrity_status?: string;
+  last_integrity_check?: string;
+  // NEW: Action history
+  action_history?: any[];
 }
 
 interface HetznerFileListResponse {
@@ -33,6 +47,15 @@ interface HetznerFileListResponse {
     recent_backups: number;
     failed_backups: number;
   };
+}
+
+interface ActionHistory {
+  action: string;
+  performed_by: string;
+  performed_at: string;
+  reason?: string;
+  details?: string;
+  ip_address?: string;
 }
 
 @Component({
@@ -67,15 +90,24 @@ export class HetznerManagementComponent implements OnInit {
   error = '';
   showFilters = false;
   viewMode: 'list' | 'grid' = 'list';
+  viewingArchived = false; // NEW: Track if viewing archived files
   
   // Statistics
   hetznerStats: any = {};
   
-  // Delete confirmation
-  showDeleteModal = false;
-  fileToDelete: HetznerFile | null = null;
-  deleteReason = '';
-  deleting = false;
+  // NEW: Archive confirmation
+  showArchiveModal = false;
+  fileToArchive: HetznerFile | null = null;
+  archiveReason = '';
+  archiving = false;
+  
+  // NEW: Action history modal
+  showActionHistoryModal = false;
+  selectedFileActionHistory: ActionHistory[] = [];
+  selectedFileName = '';
+  
+  // NEW: Download progress
+  downloadingFiles: Set<string> = new Set();
   
   constructor(
     private http: HttpClient,
@@ -99,44 +131,40 @@ export class HetznerManagementComponent implements OnInit {
     this.error = '';
 
     try {
-      let params = new HttpParams()
+      const params = new HttpParams()
         .set('page', this.currentPage.toString())
         .set('limit', this.pageSize.toString())
         .set('sort_by', this.sortBy)
-        .set('sort_order', this.sortOrder);
+        .set('sort_order', this.sortOrder)
+        .set('search', this.searchTerm || '')
+        .set('file_type', this.fileTypeFilter || '')
+        .set('owner_email', this.ownerFilter || '')
+        .set('backup_status', this.backupStatusFilter || '');
 
-      if (this.searchTerm) {
-        params = params.set('search', this.searchTerm);
+      if (this.sizeMinFilter !== null) {
+        params.set('size_min', this.sizeMinFilter.toString());
       }
-      if (this.fileTypeFilter) {
-        params = params.set('file_type', this.fileTypeFilter);
+      if (this.sizeMaxFilter !== null) {
+        params.set('size_max', this.sizeMaxFilter.toString());
       }
-      if (this.ownerFilter) {
-        params = params.set('owner_email', this.ownerFilter);
-      }
-      if (this.backupStatusFilter) {
-        params = params.set('backup_status', this.backupStatusFilter);
-      }
-      if (this.sizeMinFilter) {
-        params = params.set('size_min', this.sizeMinFilter.toString());
-      }
-      if (this.sizeMaxFilter) {
-        params = params.set('size_max', this.sizeMaxFilter.toString());
-      }
+
+      // Choose endpoint based on whether we're viewing archived files
+      const endpoint = this.viewingArchived 
+        ? `${environment.apiUrl}/api/v1/admin/hetzner/files/archived`
+        : `${environment.apiUrl}/api/v1/admin/hetzner/files`;
 
       const response = await this.http.get<HetznerFileListResponse>(
-        `${environment.apiUrl}/api/v1/admin/hetzner/files`,
+        endpoint,
         { headers: this.getHeaders(), params }
       ).toPromise();
 
-      if (response) {
-        this.files = response.files;
-        this.totalFiles = response.total;
-        this.totalPages = response.total_pages;
-        this.hetznerStats = response.hetzner_stats;
-      }
+      this.files = response!.files;
+      this.totalFiles = response!.total;
+      this.totalPages = response!.total_pages;
+      this.hetznerStats = response!.hetzner_stats;
+
     } catch (error: any) {
-      console.error('Error loading Hetzner files:', error);
+      console.error('Error loading files:', error);
       this.error = error.error?.detail || 'Failed to load files';
     } finally {
       this.loading = false;
@@ -181,62 +209,120 @@ export class HetznerManagementComponent implements OnInit {
     if (this.selectedFiles.length === this.files.length) {
       this.selectedFiles = [];
     } else {
-      this.selectedFiles = this.files.map(f => f._id);
+      this.selectedFiles = this.files.map(file => file._id);
     }
   }
 
-  downloadFile(file: HetznerFile): void {
-    if (file.download_url) {
-      window.open(file.download_url, '_blank');
+  // IMPROVED: Download with progress tracking and server optimization
+  async downloadFile(file: HetznerFile): Promise<void> {
+    if (this.downloadingFiles.has(file._id)) {
+      return; // Already downloading
+    }
+
+    this.downloadingFiles.add(file._id);
+
+    try {
+      // Use the optimized download endpoint
+      const downloadUrl = `${environment.apiUrl}/api/v1/download/stream/${file._id}`;
+      
+      // Create a temporary link and trigger download
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = file.filename;
+      link.style.display = 'none';
+      
+      // Add authorization header to the link
+      const token = this.adminAuthService.getAdminToken();
+      if (token) {
+        link.href += `?token=${encodeURIComponent(token)}`;
+      }
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Show success message
+      alert(`Download started for ${file.filename}`);
+      
+    } catch (error: any) {
+      console.error('Download error:', error);
+      alert(`Download failed: ${error.error?.detail || 'Unknown error'}`);
+    } finally {
+      this.downloadingFiles.delete(file._id);
     }
   }
 
   previewFile(file: HetznerFile): void {
     if (file.preview_available) {
-      window.open(`${environment.apiUrl}/api/v1/admin/files/${file._id}/preview`, '_blank');
+      const previewUrl = `${environment.apiUrl}/api/v1/admin/files/${file._id}/preview`;
+      window.open(previewUrl, '_blank');
     }
   }
 
-  confirmDeleteFile(file: HetznerFile): void {
-    this.fileToDelete = file;
-    this.deleteReason = '';
-    this.showDeleteModal = true;
+  // UPDATED: Archive instead of delete
+  confirmArchiveFile(file: HetznerFile): void {
+    this.fileToArchive = file;
+    this.archiveReason = '';
+    this.showArchiveModal = true;
   }
 
-  async deleteFile(): Promise<void> {
-    if (!this.fileToDelete) return;
+  async archiveFile(): Promise<void> {
+    if (!this.fileToArchive || !this.archiveReason.trim()) {
+      alert('Please provide a reason for archiving');
+      return;
+    }
 
-    this.deleting = true;
+    this.archiving = true;
+
     try {
-      let params = new HttpParams();
-      if (this.deleteReason) {
-        params = params.set('reason', this.deleteReason);
-      }
-
-      await this.http.delete(
-        `${environment.apiUrl}/api/v1/admin/hetzner/files/${this.fileToDelete._id}`,
-        { headers: this.getHeaders(), params }
+      const response = await this.http.post(
+        `${environment.apiUrl}/api/v1/admin/files/${this.fileToArchive._id}/archive`,
+        { reason: this.archiveReason },
+        { headers: this.getHeaders() }
       ).toPromise();
 
-      this.showDeleteModal = false;
-      this.fileToDelete = null;
-      this.deleteReason = '';
-      
-      // Reload files
-      this.loadFiles();
-      
+      alert('File archived successfully');
+      this.showArchiveModal = false;
+      this.fileToArchive = null;
+      this.archiveReason = '';
+      this.loadFiles(); // Refresh the list
+
     } catch (error: any) {
-      console.error('Error deleting file:', error);
-      this.error = error.error?.detail || 'Failed to delete file';
+      console.error('Archive error:', error);
+      alert(`Archive failed: ${error.error?.detail || 'Unknown error'}`);
     } finally {
-      this.deleting = false;
+      this.archiving = false;
     }
   }
 
-  cancelDelete(): void {
-    this.showDeleteModal = false;
-    this.fileToDelete = null;
-    this.deleteReason = '';
+  cancelArchive(): void {
+    this.showArchiveModal = false;
+    this.fileToArchive = null;
+    this.archiveReason = '';
+  }
+
+  // NEW: View action history
+  async viewActionHistory(file: HetznerFile): Promise<void> {
+    try {
+      const response: any = await this.http.get(
+        `${environment.apiUrl}/api/v1/admin/files/${file._id}/action-history`,
+        { headers: this.getHeaders() }
+      ).toPromise();
+
+      this.selectedFileActionHistory = response.action_history || [];
+      this.selectedFileName = file.filename;
+      this.showActionHistoryModal = true;
+
+    } catch (error: any) {
+      console.error('Error loading action history:', error);
+      alert(`Failed to load action history: ${error.error?.detail || 'Unknown error'}`);
+    }
+  }
+
+  closeActionHistoryModal(): void {
+    this.showActionHistoryModal = false;
+    this.selectedFileActionHistory = [];
+    this.selectedFileName = '';
   }
 
   clearFilters(): void {
@@ -256,7 +342,7 @@ export class HetznerManagementComponent implements OnInit {
       'video': 'fas fa-video',
       'audio': 'fas fa-music',
       'document': 'fas fa-file-alt',
-      'archive': 'fas fa-file-archive',
+      'archive': 'fas fa-archive',
       'other': 'fas fa-file'
     };
     return iconMap[fileType] || 'fas fa-file';
@@ -267,197 +353,210 @@ export class HetznerManagementComponent implements OnInit {
   }
 
   getStorageStatus(file: HetznerFile): { text: string; class: string; tooltip: string } {
+    if (file.archived) {
+      return { text: 'Archived', class: 'storage-archived', tooltip: 'File is archived' };
+    }
+    
+    if (file.quarantined) {
+      return { text: 'Quarantined', class: 'storage-quarantined', tooltip: 'File is quarantined' };
+    }
+    
     if (file.backup_status === 'completed') {
-      return { text: 'Hetzner', class: 'status-completed', tooltip: 'File successfully backed up to Hetzner' };
+      return { text: 'Backed Up', class: 'storage-backed-up', tooltip: 'File backed up to Hetzner' };
     } else if (file.backup_status === 'in_progress') {
-      return { text: 'Pending', class: 'status-pending', tooltip: 'File is being backed up to Hetzner' };
-    } else if (file.backup_status === 'failed') {
-      return { text: 'Failed', class: 'status-failed', tooltip: 'Failed to backup to Hetzner' };
+      return { text: 'Backing Up', class: 'storage-backing-up', tooltip: 'File backup in progress' };
     } else {
-      return { text: 'Unknown', class: 'status-unknown', tooltip: 'Unknown backup status' };
+      return { text: 'Not Backed Up', class: 'storage-not-backed-up', tooltip: 'File not backed up to Hetzner' };
     }
   }
 
-  canDeleteFile(file: HetznerFile): boolean {
-    // Only allow deletion if file is backed up to Hetzner
-    return file.backup_status === 'completed' && file.backup_location === 'hetzner';
+  canArchiveFile(file: HetznerFile): boolean {
+    // Can archive if file is not already archived and has backup
+    return !file.archived && file.backup_status === 'completed';
   }
 
-
-
-  // === COMPREHENSIVE FILE OPERATIONS ===
-
-  checkFileIntegrity(file: HetznerFile): void {
-    const operationData = {
-      operation: 'integrity_check',
-      reason: 'Manual integrity check from Hetzner admin panel'
-    };
+  // NEW: Check if actions should be disabled for quarantined/archived files
+  canPerformAction(file: HetznerFile, actionType: string): boolean {
+    // If file is quarantined, only allow archive and view action history
+    if (file.quarantined) {
+      return actionType === 'archive' || actionType === 'view_history';
+    }
     
-    this.http.post(`${environment.apiUrl}/api/v1/admin/files/${file._id}/operation`, operationData, {
-      headers: this.getHeaders()
-    })
-      .subscribe({
-        next: (response: any) => {
-          const result = response.integrity_check;
-          const status = result.status;
-          
-          if (status === 'verified') {
-            alert(`File integrity check passed!\n\nStatus: ${status}\nChecksum match: ${result.checksum_match}\nLast check: ${new Date(result.last_check).toLocaleString()}`);
-          } else if (status === 'corrupted') {
-            alert(`WARNING: File integrity check failed!\n\nStatus: ${status}\nCorruption detected: ${result.corruption_detected}\nCorruption type: ${result.corruption_type || 'Unknown'}\n\nPlease consider recovering from backup.`);
-          } else if (status === 'inaccessible') {
-            alert(`ERROR: File is inaccessible!\n\nStatus: ${status}\nError: ${result.error}\n\nFile may need to be recovered from backup.`);
-          }
-        },
-        error: (error) => {
-          alert('Failed to check file integrity');
-          console.error('Error checking file integrity:', error);
-        }
-      });
-  }
-
-  moveFile(file: HetznerFile): void {
-    const targetLocation = prompt('Enter target Hetzner storage account ID:');
-    if (!targetLocation) {
-      alert('Target location is required');
-      return;
+    // If file is archived, only allow restore and view action history
+    if (file.archived) {
+      return actionType === 'restore' || actionType === 'view_history';
     }
-
-    const reason = prompt('Reason for moving file (optional):');
     
-    const operationData = {
-      operation: 'move',
-      target_location: targetLocation,
-      reason: reason || undefined
-    };
-    
-    this.http.post(`${environment.apiUrl}/api/v1/admin/files/${file._id}/operation`, operationData, {
-      headers: this.getHeaders()
-    })
-      .subscribe({
-        next: (response: any) => {
-          alert(`File moved successfully to ${response.target_location}`);
-          this.loadFiles(); // Refresh the file list
-        },
-        error: (error) => {
-          alert('Failed to move file');
-          console.error('Error moving file:', error);
-        }
-      });
-  }
-
-  forceBackup(file: HetznerFile): void {
-    if (confirm(`Force backup for "${file.filename}" to secondary storage?`)) {
-      const reason = prompt('Reason for force backup (optional):');
-      
-      const operationData = {
-        operation: 'force_backup',
-        reason: reason || undefined
-      };
-      
-      this.http.post(`${environment.apiUrl}/api/v1/admin/files/${file._id}/operation`, operationData, {
-        headers: this.getHeaders()
-      })
-        .subscribe({
-          next: (response: any) => {
-            alert(`File backup completed!\nBackup path: ${response.backup_path}`);
-            this.loadFiles(); // Refresh the file list
-          },
-          error: (error) => {
-            alert('Failed to backup file');
-            console.error('Error forcing backup:', error);
-          }
-        });
-    }
-  }
-
-  quarantineFile(file: HetznerFile): void {
-    if (confirm(`Quarantine "${file.filename}"? This will mark the file as suspicious and prevent access.`)) {
-      const reason = prompt('Reason for quarantine:');
-      if (!reason) {
-        alert('Reason is required for quarantine');
-        return;
-      }
-      
-      const actionData = {
-        file_ids: [file._id],
-        action: 'quarantine',
-        reason: reason
-      };
-      
-      this.http.post(`${environment.apiUrl}/api/v1/admin/files/bulk-action`, actionData, {
-        headers: this.getHeaders()
-      })
-        .subscribe({
-          next: (response: any) => {
-            alert(response.message);
-            this.loadFiles(); // Refresh the file list
-          },
-          error: (error) => {
-            alert('Failed to quarantine file');
-            console.error('Error quarantining file:', error);
-          }
-        });
-    }
-  }
-
-  recoverFile(file: HetznerFile): void {
-    if (confirm(`Recover "${file.filename}" from backup? This will restore the file if it's corrupted or missing.`)) {
-      const reason = prompt('Reason for file recovery (optional):');
-      
-      const operationData = {
-        operation: 'recover',
-        reason: reason || undefined
-      };
-      
-      this.http.post(`${environment.apiUrl}/api/v1/admin/files/${file._id}/operation`, operationData, {
-        headers: this.getHeaders()
-      })
-        .subscribe({
-          next: (response: any) => {
-            alert('File recovered successfully from backup!');
-            this.loadFiles(); // Refresh the file list
-          },
-          error: (error) => {
-            if (error.error?.detail?.includes('no completed backup')) {
-              alert('Cannot recover file: No completed backup available');
-            } else {
-              alert('Failed to recover file');
-            }
-            console.error('Error recovering file:', error);
-          }
-        });
-    }
-  }
-
-  // === CONDITIONAL ACTION METHODS ===
-
-  canPerformAction(file: HetznerFile): boolean {
-    // Check if file is successfully uploaded to Hetzner
-    return file.backup_status === 'completed' && file.backup_location === 'hetzner';
+    // For normal files, check if backup is completed
+    return file.backup_status === 'completed';
   }
 
   getActionTooltip(file: HetznerFile, actionType: string): string {
-    if (this.canPerformAction(file)) {
-      return this.getActionTitle(actionType);
-    } else {
-      return `Cannot ${actionType} - file not successfully uploaded to Hetzner`;
+    if (file.quarantined) {
+      if (actionType === 'archive' || actionType === 'view_history') {
+        return '';
+      }
+      return 'File is quarantined - only archive and view history actions available';
+    }
+    
+    if (file.archived) {
+      if (actionType === 'restore' || actionType === 'view_history') {
+        return '';
+      }
+      return 'File is archived - only restore and view history actions available';
+    }
+    
+    if (file.backup_status !== 'completed') {
+      return 'File not backed up to Hetzner yet';
+    }
+    
+    return '';
+  }
+
+  // IMPROVED: Real integrity checking
+  async checkFileIntegrity(file: HetznerFile): Promise<void> {
+    try {
+      const response: any = await this.http.post(
+        `${environment.apiUrl}/api/v1/admin/files/${file._id}/operation`,
+        { operation: 'integrity_check' },
+        { headers: this.getHeaders() }
+      ).toPromise();
+
+      const result = response.integrity_check;
+      let message = `Integrity Check Result for ${file.filename}:\n`;
+      message += `Status: ${result.status}\n`;
+      message += `File Accessible: ${result.file_accessible ? 'Yes' : 'No'}\n`;
+      message += `Checksum Match: ${result.checksum_match ? 'Yes' : 'No'}\n`;
+      message += `Corruption Detected: ${result.corruption_detected ? 'Yes' : 'No'}\n`;
+      
+      if (result.details) {
+        message += `Details: ${result.details}`;
+      }
+
+      alert(message);
+
+    } catch (error: any) {
+      console.error('Integrity check error:', error);
+      alert(`Integrity check failed: ${error.error?.detail || 'Unknown error'}`);
     }
   }
 
-  getActionTitle(actionType: string): string {
-    const titles: { [key: string]: string } = {
-      'integrity': 'Check Integrity',
-      'move': 'Move File',
-      'backup': 'Force Backup',
-      'quarantine': 'Quarantine',
-      'recover': 'Recover from Backup',
-      'delete': 'Delete from Hetzner'
-    };
-    return titles[actionType] || actionType;
+  moveFile(file: HetznerFile): void {
+    const targetLocation = prompt('Enter target Hetzner location:');
+    if (!targetLocation) return;
+
+    this.http.post(
+      `${environment.apiUrl}/api/v1/admin/files/${file._id}/operation`,
+      { 
+        operation: 'move',
+        target_location: targetLocation,
+        reason: 'Admin move request'
+      },
+      { headers: this.getHeaders() }
+    ).subscribe({
+      next: (response: any) => {
+        alert('File moved successfully');
+        this.loadFiles();
+      },
+      error: (error: any) => {
+        console.error('Move error:', error);
+        alert(`Move failed: ${error.error?.detail || 'Unknown error'}`);
+      }
+    });
   }
 
-  // === BULK ACTIONS ===
+  async forceBackup(file: HetznerFile): Promise<void> {
+    const confirmed = confirm(`Force backup for ${file.filename}?`);
+    if (!confirmed) return;
+
+    try {
+      const response: any = await this.http.post(
+        `${environment.apiUrl}/api/v1/admin/files/${file._id}/operation`,
+        { operation: 'force_backup', reason: 'Admin force backup request' },
+        { headers: this.getHeaders() }
+      ).toPromise();
+
+      alert(`Backup initiated: ${response.message}`);
+      this.loadFiles(); // Refresh to show updated status
+
+    } catch (error: any) {
+      console.error('Force backup error:', error);
+      alert(`Force backup failed: ${error.error?.detail || 'Unknown error'}`);
+    }
+  }
+
+  async quarantineFile(file: HetznerFile): Promise<void> {
+    const reason = prompt('Enter quarantine reason:');
+    if (!reason) return;
+
+    try {
+      const response: any = await this.http.post(
+        `${environment.apiUrl}/api/v1/admin/files/bulk-action`,
+        {
+          file_ids: [file._id],
+          action: 'quarantine',
+          reason: reason
+        },
+        { headers: this.getHeaders() }
+      ).toPromise();
+
+      alert('File quarantined successfully');
+      this.loadFiles(); // Refresh to show updated status
+
+    } catch (error: any) {
+      console.error('Quarantine error:', error);
+      alert(`Quarantine failed: ${error.error?.detail || 'Unknown error'}`);
+    }
+  }
+
+  async recoverFile(file: HetznerFile): Promise<void> {
+    const confirmed = confirm(`Recover ${file.filename} from backup?`);
+    if (!confirmed) return;
+
+    try {
+      const response: any = await this.http.post(
+        `${environment.apiUrl}/api/v1/admin/files/${file._id}/operation`,
+        { operation: 'recover', reason: 'Admin recovery request' },
+        { headers: this.getHeaders() }
+      ).toPromise();
+
+      alert(`Recovery completed: ${response.message}`);
+      this.loadFiles(); // Refresh to show updated status
+
+    } catch (error: any) {
+      console.error('Recovery error:', error);
+      alert(`Recovery failed: ${error.error?.detail || 'Unknown error'}`);
+    }
+  }
+
+  // NEW: Restore file from archive
+  async restoreFile(file: HetznerFile): Promise<void> {
+    const confirmed = confirm(`Restore ${file.filename} from archive?`);
+    if (!confirmed) return;
+
+    try {
+      const response = await this.http.post(
+        `${environment.apiUrl}/api/v1/admin/files/${file._id}/restore`,
+        { reason: 'Admin restore request' },
+        { headers: this.getHeaders() }
+      ).toPromise();
+
+      alert('File restored successfully');
+      this.loadFiles(); // Refresh to show updated status
+
+    } catch (error: any) {
+      console.error('Restore error:', error);
+      alert(`Restore failed: ${error.error?.detail || 'Unknown error'}`);
+    }
+  }
+
+  // NEW: View archived files
+  viewArchivedFiles(): void {
+    this.viewingArchived = !this.viewingArchived;
+    this.currentPage = 1;
+    this.selectedFiles = [];
+    this.loadFiles();
+  }
 
   executeBulkAction(): void {
     if (this.selectedFiles.length === 0) {
@@ -466,32 +565,28 @@ export class HetznerManagementComponent implements OnInit {
     }
 
     const action = prompt('Enter action (delete/quarantine/backup):');
-    if (!action || !['delete', 'quarantine', 'backup'].includes(action)) {
-      alert('Invalid action. Use delete, quarantine, or backup');
-      return;
-    }
+    if (!action) return;
 
-    const reason = prompt('Reason (optional):');
-    
-    const actionData = {
-      file_ids: this.selectedFiles,
-      action: action,
-      reason: reason || undefined
-    };
-    
-    this.http.post(`${environment.apiUrl}/api/v1/admin/files/bulk-action`, actionData, {
-      headers: this.getHeaders()
-    })
-      .subscribe({
-        next: (response: any) => {
-          alert(response.message);
-          this.selectedFiles = [];
-          this.loadFiles(); // Refresh the file list
-        },
-        error: (error) => {
-          alert('Failed to execute bulk action');
-          console.error('Error executing bulk action:', error);
-        }
-      });
+    const reason = prompt('Enter reason (optional):');
+
+    this.http.post(
+      `${environment.apiUrl}/api/v1/admin/files/bulk-action`,
+      {
+        file_ids: this.selectedFiles,
+        action: action,
+        reason: reason
+      },
+      { headers: this.getHeaders() }
+    ).subscribe({
+      next: (response: any) => {
+        alert(`Bulk action completed: ${response.message}`);
+        this.selectedFiles = [];
+        this.loadFiles();
+      },
+      error: (error: any) => {
+        console.error('Bulk action error:', error);
+        alert(`Bulk action failed: ${error.error?.detail || 'Unknown error'}`);
+      }
+    });
   }
 }

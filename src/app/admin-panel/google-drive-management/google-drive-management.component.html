@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="page-header">
     <div class="header-content">
-      <h1><i class="fas fa-cloud"></i> Google Drive File Management</h1>
+              <h1><i class="fas fa-cloud"></i> Google Drive File Management{{ viewingArchived ? ' - Archived Files' : '' }}</h1>
       <p>Manage files stored in Google Drive with backup status tracking</p>
     </div>
     
@@ -86,7 +86,7 @@
       <!-- Header Actions -->
       <div class="header-actions">
         <button class="btn btn-secondary" (click)="viewArchivedFiles()">
-          <i class="fas fa-archive"></i> View Archived Files
+          <i class="fas fa-archive"></i> {{ viewingArchived ? 'View Active Files' : 'View Archived Files' }}
         </button>
       </div>
     </div>
@@ -217,14 +217,16 @@
               <button 
                 class="btn btn-sm btn-primary" 
                 (click)="downloadFile(file)"
-                title="Download">
+                [disabled]="!canPerformAction(file, 'download')"
+                [title]="canPerformAction(file, 'download') ? 'Download' : getActionTooltip(file, 'download')">
                 <i class="fas fa-download"></i>
               </button>
               <button 
                 class="btn btn-sm btn-info" 
                 (click)="previewFile(file)"
                 *ngIf="file.preview_available"
-                title="Preview">
+                [disabled]="!canPerformAction(file, 'preview')"
+                [title]="canPerformAction(file, 'preview') ? 'Preview' : getActionTooltip(file, 'preview')">
                 <i class="fas fa-eye"></i>
               </button>
             </div>
@@ -233,19 +235,22 @@
               <button 
                 class="btn btn-sm btn-secondary" 
                 (click)="checkFileIntegrity(file)"
-                title="Check Integrity">
+                [disabled]="!canPerformAction(file, 'integrity')"
+                [title]="canPerformAction(file, 'integrity') ? 'Check Integrity' : getActionTooltip(file, 'integrity')">
                 <i class="fas fa-shield-alt"></i>
               </button>
               <button 
                 class="btn btn-sm btn-warning" 
                 (click)="moveFile(file)"
-                title="Move File">
+                [disabled]="!canPerformAction(file, 'move')"
+                [title]="canPerformAction(file, 'move') ? 'Move File' : getActionTooltip(file, 'move')">
                 <i class="fas fa-arrows-alt"></i>
               </button>
               <button 
                 class="btn btn-sm btn-success" 
                 (click)="forceBackup(file)"
-                title="Force Backup">
+                [disabled]="!canPerformAction(file, 'backup')"
+                [title]="canPerformAction(file, 'backup') ? 'Force Backup' : getActionTooltip(file, 'backup')">
                 <i class="fas fa-cloud-upload-alt"></i>
               </button>
             </div>
@@ -254,27 +259,37 @@
               <button 
                 class="btn btn-sm btn-warning" 
                 (click)="quarantineFile(file)"
-                title="Quarantine">
+                [disabled]="!canPerformAction(file, 'quarantine')"
+                [title]="canPerformAction(file, 'quarantine') ? 'Quarantine' : getActionTooltip(file, 'quarantine')">
                 <i class="fas fa-ban"></i>
               </button>
               <button 
                 class="btn btn-sm btn-info" 
                 (click)="recoverFile(file)"
-                title="Recover from Backup">
+                [disabled]="!canPerformAction(file, 'recover')"
+                [title]="canPerformAction(file, 'recover') ? 'Recover from Backup' : getActionTooltip(file, 'recover')">
                 <i class="fas fa-undo"></i>
               </button>
               <button 
                 class="btn btn-sm btn-danger" 
                 (click)="confirmArchiveFile(file)"
-                [disabled]="!canArchiveFile(file)"
-                [title]="canArchiveFile(file) ? 'Archive from Google Drive' : 'Cannot archive - not backed up to Hetzner'">
+                [disabled]="!canPerformAction(file, 'archive')"
+                [title]="canPerformAction(file, 'archive') ? 'Archive from Google Drive' : getActionTooltip(file, 'archive')">
                 <i class="fas fa-archive"></i>
               </button>
               <button 
                 class="btn btn-sm btn-secondary" 
                 (click)="viewActionHistory(file)"
-                title="View Action History">
+                [disabled]="!canPerformAction(file, 'view_history')"
+                [title]="canPerformAction(file, 'view_history') ? 'View Action History' : getActionTooltip(file, 'view_history')">
                 <i class="fas fa-history"></i>
+              </button>
+              <button 
+                class="btn btn-sm btn-success" 
+                (click)="restoreFile(file)"
+                [disabled]="!canPerformAction(file, 'restore')"
+                [title]="canPerformAction(file, 'restore') ? 'Restore from Archive' : getActionTooltip(file, 'restore')">
+                <i class="fas fa-undo-alt"></i>
               </button>
             </div>
           </td>
