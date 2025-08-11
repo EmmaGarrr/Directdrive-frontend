@@ -82,6 +82,13 @@
       <button (click)="clearFilters()" class="btn-clear">
         <i class="fas fa-times"></i> Clear
       </button>
+      
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <button class="btn btn-secondary" (click)="viewArchivedFiles()">
+          <i class="fas fa-archive"></i> View Archived Files
+        </button>
+      </div>
     </div>
     
     <!-- Advanced Filters -->
@@ -175,7 +182,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let file of files" [class.selected]="selectedFiles.includes(file._id)">
+        <tr *ngFor="let file of files" [class.selected]="selectedFiles.includes(file._id)" 
+            [class.quarantined]="file.quarantined" 
+            [class.archived]="file.archived">
           <td>
             <input type="checkbox" 
                    [checked]="selectedFiles.includes(file._id)"
@@ -192,6 +201,8 @@
           <td>
             <span class="status-badge" [class]="'status-' + file.status">
               {{ file.status }}
+              <i *ngIf="file.quarantined" class="fas fa-ban quarantine-icon" title="Quarantined"></i>
+              <i *ngIf="file.archived" class="fas fa-archive archive-icon" title="Archived"></i>
             </span>
           </td>
           <td>
@@ -254,10 +265,16 @@
               </button>
               <button 
                 class="btn btn-sm btn-danger" 
-                (click)="confirmDeleteFile(file)"
-                [disabled]="!canDeleteFile(file)"
-                [title]="canDeleteFile(file) ? 'Delete from Google Drive' : 'Cannot delete - not backed up to Hetzner'">
-                <i class="fas fa-trash"></i>
+                (click)="confirmArchiveFile(file)"
+                [disabled]="!canArchiveFile(file)"
+                [title]="canArchiveFile(file) ? 'Archive from Google Drive' : 'Cannot archive - not backed up to Hetzner'">
+                <i class="fas fa-archive"></i>
+              </button>
+              <button 
+                class="btn btn-sm btn-secondary" 
+                (click)="viewActionHistory(file)"
+                title="View Action History">
+                <i class="fas fa-history"></i>
               </button>
             </div>
           </td>
@@ -295,39 +312,69 @@
     </button>
   </div>
 
-  <!-- Delete Confirmation Modal -->
-  <div class="modal-overlay" *ngIf="showDeleteModal" (click)="cancelDelete()">
+
+
+  <!-- Archive Confirmation Modal -->
+  <div class="modal-overlay" *ngIf="showArchiveModal" (click)="cancelArchive()">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3>Delete File</h3>
-        <button (click)="cancelDelete()" class="btn-close">
-          <i class="fas fa-times"></i>
-        </button>
+        <h3>Archive File</h3>
+        <button class="close-btn" (click)="cancelArchive()">&times;</button>
       </div>
-      
       <div class="modal-body">
-        <p>Are you sure you want to delete <strong>{{ fileToDelete?.filename }}</strong> from Google Drive?</p>
-        <p class="warning">This action cannot be undone. The file will be permanently removed from Google Drive.</p>
+        <p>Are you sure you want to archive <strong>{{ fileToArchive?.filename }}</strong>?</p>
+        <p class="warning-text">This will move the file to the archive and it will no longer be accessible to users.</p>
         
         <div class="form-group">
-          <label>Reason (optional):</label>
-          <textarea [(ngModel)]="deleteReason" 
-                    placeholder="Enter reason for deletion..."
-                    rows="3"></textarea>
+          <label for="archiveReason">Reason for archiving:</label>
+          <textarea 
+            id="archiveReason"
+            [(ngModel)]="archiveReason" 
+            placeholder="Enter reason for archiving..."
+            rows="3"
+            required></textarea>
         </div>
       </div>
-      
       <div class="modal-footer">
-        <button (click)="cancelDelete()" class="btn-cancel">
-          Cancel
-        </button>
-        <button (click)="deleteFile()" 
-                [disabled]="deleting"
-                class="btn-delete-confirm">
-          <i class="fas fa-spinner fa-spin" *ngIf="deleting"></i>
-          {{ deleting ? 'Deleting...' : 'Delete File' }}
+        <button class="btn btn-secondary" (click)="cancelArchive()" [disabled]="archiving">Cancel</button>
+        <button class="btn btn-danger" (click)="archiveFile()" [disabled]="archiving || !archiveReason.trim()">
+          <span *ngIf="archiving">Archiving...</span>
+          <span *ngIf="!archiving">Archive File</span>
         </button>
       </div>
     </div>
   </div>
+
+  <!-- Action History Modal -->
+  <div class="modal-overlay" *ngIf="showActionHistoryModal" (click)="closeActionHistoryModal()">
+    <div class="modal-content large-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Action History - {{ selectedFileName }}</h3>
+        <button class="close-btn" (click)="closeActionHistoryModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="action-history-list" *ngIf="selectedFileActionHistory.length > 0">
+          <div class="action-item" *ngFor="let action of selectedFileActionHistory">
+            <div class="action-header">
+              <span class="action-type">{{ action.action | titlecase }}</span>
+              <span class="action-date">{{ action.performed_at | date:'medium' }}</span>
+            </div>
+            <div class="action-details">
+              <p><strong>Performed by:</strong> {{ action.performed_by }}</p>
+              <p *ngIf="action.reason"><strong>Reason:</strong> {{ action.reason }}</p>
+              <p *ngIf="action.details"><strong>Details:</strong> {{ action.details }}</p>
+              <p *ngIf="action.ip_address"><strong>IP Address:</strong> {{ action.ip_address }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="no-actions" *ngIf="selectedFileActionHistory.length === 0">
+          <p>No action history available for this file.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeActionHistoryModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
 </div>
